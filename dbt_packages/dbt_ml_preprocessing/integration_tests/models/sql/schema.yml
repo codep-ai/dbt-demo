@@ -1,0 +1,84 @@
+version: 2
+
+models:
+  - name: test_max_abs_scaler
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_max_abs_scaler_expected')
+
+  - name: test_max_abs_scaler_with_column_selection
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_max_abs_scaler_with_column_selection_expected')
+
+  - name: test_min_max_scaler
+    tests:
+      - equality_with_numeric_tolerance:
+          compare_model: ref('data_min_max_scaler_expected')
+          source_join_column: id_col
+          target_join_column: id_col
+          source_numeric_column_name: col_to_scale_scaled
+          target_numeric_column_name: col_to_scale_scaled
+          percentage_tolerance: 0.009
+
+  - name: test_min_max_scaler_with_column_selection
+    tests:
+      - equality_with_numeric_tolerance:
+          compare_model: ref('data_min_max_scaler_with_column_selection_expected')
+          source_join_column: id_col
+          target_join_column: id_col
+          source_numeric_column_name: col_to_scale_scaled
+          target_numeric_column_name: col_to_scale_scaled
+          percentage_tolerance: 0.009
+
+  - name: test_k_bins_discretizer_default_bins
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_k_bins_discretizer_default_bins_expected')
+
+  - name: test_k_bins_discretizer_50_bins
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_k_bins_discretizer_50_bins_expected')
+
+  - name: test_label_encoder
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_label_encoder_expected')
+
+  - name: test_normalizer
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_normalizer_expected')
+
+  - name: test_standard_scaler
+    tests:
+      - equality_with_numeric_tolerance:
+          compare_model: ref('data_standard_scaler_expected')
+          source_join_column: id_col
+          target_join_column: id_col
+          source_numeric_column_name: col_to_scale_1_scaled
+          target_numeric_column_name: col_to_scale_1_scaled
+          percentage_tolerance: 0.0000001
+      - equality_with_numeric_tolerance:
+          compare_model: ref('data_standard_scaler_expected')
+          source_join_column: id_col
+          target_join_column: id_col
+          source_numeric_column_name: col_to_scale_2_scaled
+          target_numeric_column_name: col_to_scale_2_scaled
+          percentage_tolerance: 0.0000001
+
+  - name: test_one_hot_encoder
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_one_hot_encoder_expected')
+
+  - name: test_one_hot_encoder_category_selected
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_one_hot_encoder_category_selected_expected')
+
+  - name: test_robust_scaler
+    tests:
+      - dbt_utils.equality:
+          compare_model: ref('data_robust_scaler_expected')
