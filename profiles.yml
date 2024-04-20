@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 config:
   send_anonymous_usage_stats: false
 
@@ -13,3 +14,54 @@ jaffle_shop:
       dbname: "{{ env_var('PGDATABASE') }}"
       sslmode: disable
       schema: "{{ env_var('SEED_SCHEMA', 'jaffle') }}"
+=======
+config:
+  send_anonymous_usage_stats: False
+datapai:
+  target: dev-local
+  outputs:
+
+    # CI/CD runs on schema dbt_ci
+    ci_fal:
+      type: redshift
+      method: database
+      cluster_id: redshift-cluster-1
+      host: redshift-cluster-1.cicnofov3pt2.ap-southeast-2.redshift.amazonaws.com
+      user: awsuser
+      password: 'Welcome1$'
+      region: ap-southeast-2
+      iam_duration_seconds: 3600
+      port: 5439
+      dbname: dev
+      schema: datapai
+      threads: 8
+      keepalives_idle: 240 # default 240 seconds
+      connect_timeout: 10 # default 10 seconds
+      retries: 1 # default 1 retry on error/timeout when opening connections
+      autocreate: true
+      ra3_node: false
+
+
+    dev-local:
+      type: redshift
+      method: database
+      cluster_id: redshift-cluster-1
+      host: redshift-cluster-1.cicnofov3pt2.ap-southeast-2.redshift.amazonaws.com
+      user: awsuser
+      password: "Welcome1$"
+      region: ap-southeast-2
+      iam_duration_seconds: 3600
+      port: 5439
+      dbname: dev
+      schema: datapai
+      threads: 4
+      keepalives_idle: 240 # default 240 seconds
+      connect_timeout: 10 # default 10 seconds
+      retries: 1 # default 1 retry on error/timeout when opening connections
+      autocreate: true
+      ra3_node: false
+    logs:
+    # Enable logging for dbt-rpc
+    dbt_rpc: debug  # Set the log level to debug for dbt-rpc.
+        
+>>>>>>> 8129e665a04998495ae37f452e353f27f0c32415
