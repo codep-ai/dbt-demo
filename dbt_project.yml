@@ -1,0 +1,76 @@
+name: cmc
+profile: cmc
+config-version: 2
+version: "1.0"
+
+require-dbt-version: ">=1.0.7"
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+asset-paths: ["assets"]
+snapshot-paths: ["snapshots"]
+packages-install-path: dbt_packages
+target-path: "target" # directory which will store compiled SQL files
+clean-targets: # directories to be removed by `dbt clean`
+  - "target"
+  #- "dbt_packages"
+on-run-end: "{{ grant_select_schema(schemas, \"cmc_ad:apac-redshift-\" ~ env_var('ENV_NAME') ~ \"-read\") }}"
+seeds:
+  +quote_columns: true
+  +schema: staging
+# Configuring models: https://docs.getdbt.com/docs/configuring-models
+snapshots:
+  +target_schema: "{% if target.name == 'dev-local' %}dbt_dev_mart{% elif env_var('ENV_NAME') == 'dev' %}dbt_ci_{{ env_var('GITHUB_PR_NUMBER') }}_mart{% else %}dbt_cmc_mart{% endif %}"
+models:
+  +grants: # In this case the + is not optional, you must include it for your project to parse.
+    select: ["role \"cmc_ad:apac-redshift-{{ env_var('ENV_NAME') }}-read\""]
+  elementary:
+    +schema: audit
+    +tags:
+      - "dbt execution audit tables"
+  cmc:
+    staging:
+      +schema: staging
+      +materialized: view
+      +bind: false
+      +tags:
+        - "staging"
+    intermediate:
+      +schema: intermediate
+      +materialized: table
+      +tags:
+        - "intermediate"
+    mart:
+      +schema: mart
+      +materialized: table
+    report:
+      product:
+        onboarding:
+          +schema: report
+          +materialized: view
+          +tags:
+            - "onboarding"
+            - "report"
+#  Error handling :  switch on flag store_failures, to store the failure results into the audit table
+#  this flag can be set up at different levels, please refer to https://docs.getdbt.com/reference/resource-configs/store_failures
+tests:
+  +store_failures: true
+  +schema: test_audit
+  +limit: 1000 # apply for all tests
+vars:
+  fal-models-paths: ["fal_models"]
+  "dbt_date:time_zone": "Australia/Sydney"
+# # sample only: The `env_dev` variable will be accessible in all resources
+#   env_dev: 'dev'
+#env_variable: {{ env_var('env') }}
+
+#   # sample only: The `platforms` variable is only accessible to resources in the my_dbt_project project
+#   my_dbt_project:
+#     platforms: ['web', 'mobile']
+
+#   # sample only: The `app_ids` variable is only accessible to resources in the snowplow package
+#   snowplow:
+#     app_ids: ['marketing', 'app', 'landing-page']
