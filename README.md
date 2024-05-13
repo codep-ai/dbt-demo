@@ -22,3 +22,6 @@ docker exec -it airbyte-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 
 
 
 docker exec -it airbyte-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Welcome1$ -i /mssql/enable_cdc_2.sql
+
+input in UI:
+![ use mssql as a source ](./ms_src.jpg)
