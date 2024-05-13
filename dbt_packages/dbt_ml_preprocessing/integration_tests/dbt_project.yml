@@ -1,0 +1,90 @@
+
+name: 'dbt_ml_preprocessing_integration_tests'
+version: '1.0'
+
+profile: 'integration_tests'
+
+# require-dbt-version: inherit this from dbt-utils
+
+config-version: 2
+
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+seed-paths: ["data"]
+macro-paths: ["macros"]
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:         # directories to be removed by `dbt clean`
+    - "target"
+    - "dbt_modules"
+
+seeds:
+
+  +quote_columns: false
+
+  dbt_ml_preprocessing_integration_tests:
+
+    sql:
+      data_max_abs_scaler:
+        +column_types:
+          col_to_scale: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
+
+      data_max_abs_scaler_expected:
+        +column_types:
+          col_to_scale_scaled: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}" # This is a bit of a hack to ensure the decimals load correctly into Bigquery
+
+      data_max_abs_scaler_with_column_selection_expected:
+        +column_types:
+          col_to_scale_scaled: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
+
+      data_min_max_scaler:
+        +column_types:
+          col_to_scale: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
+
+      data_min_max_scaler_expected:
+        +column_types:
+          col_to_scale_scaled: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
+
+      data_standard_scaler:
+        +column_types:
+          col_to_scale_1: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,10)' }}"
+          col_to_scale_2: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,10)' }}"
+
+      data_standard_scaler_expected:
+        +column_types:
+          col_to_scale_1_scaled: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,10)' }}"
+          col_to_scale_2_scaled: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,10)' }}"
+
+      data_min_max_scaler_with_column_selection_expected:
+        +column_types:
+          col_to_scale_scaled: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
+
+      data_k_bins_discretizer_default_bins_expected:
+        +column_types:
+          col_to_bin_1_binned: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
+          col_to_bin_2_binned: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
+
+      data_k_bins_discretizer_50_bins_expected:
+        +column_types:
+          col_to_bin_1_binned: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
+
+      data_one_hot_encoder_expected:
+        +column_types:
+          is_column_to_encode_A: "{{ 'int' if target['type']=='sqlserver' else 'boolean' }}"
+          is_column_to_encode_B: "{{ 'int' if target['type']=='sqlserver' else 'boolean' }}"
+          is_column_to_encode_C: "{{ 'int' if target['type']=='sqlserver' else 'boolean' }}"
+          is_column_to_encode_D: "{{ 'int' if target['type']=='sqlserver' else 'boolean' }}"
+
+      data_one_hot_encoder_category_selected_expected:
+        +column_types:
+          is_column_to_encode_A: "{{ 'int' if target['type']=='sqlserver' else 'boolean' }}"
+          is_column_to_encode_B: "{{ 'int' if target['type']=='sqlserver' else 'boolean' }}"
+
+      data_quantile_transformer_expected:
+        +column_types:
+          col_to_transform_transformed: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
+
+      data_quantile_transformer:
+        +column_types:
+          col_to_transform: "{{ 'BIGNUMERIC' if 'project' in target else 'DECIMAL(38,6)' }}"
