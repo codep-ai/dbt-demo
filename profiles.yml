@@ -13,6 +13,31 @@ jaffle_shop:
       dbname: "{{ env_var('PGDATABASE') }}"
       sslmode: disable
       schema: "{{ env_var('SEED_SCHEMA', 'jaffle') }}"
+datapai_snowflake:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account:  "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+
+      # User/password auth
+      user:  "{{ env_var('SNOWFLAKE_USER') }}"
+      password:  "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+
+      role: "{{ env_var('SNOWFLAKE_ROLE') }}"
+      database:  "{{ env_var('SNOWFLAKE_DATABASE') }}"
+      warehouse:  "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
+      schema:  "{{ env_var('SNOWFLAKE_SCHEMA') }}"
+      threads: 3
+      client_session_keep_alive: False
+      query_tag: "datapai snowflake dev"
+
+      # optional
+      connect_retries: 0 # default 0
+      connect_timeout: 10 # default: 10
+      retry_on_database_errors: False # default: false
+      retry_all: False  # default: false
+      reuse_connections: False # default: false
 datapai:
   target: dev-local
   outputs:

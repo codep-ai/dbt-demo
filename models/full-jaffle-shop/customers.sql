@@ -66,7 +66,8 @@ final as (
         customer_orders.number_of_orders,
         customer_payments.total_amount as customer_lifetime_value,
         customer_orders.first_order::date - customers.created::date AS days_between_created_and_first_order,
-        EXTRACT(day FROM customer_orders.most_recent_order::timestamp - customer_orders_latest.latest_order::timestamp) AS days_since_last_order
+        --EXTRACT(day FROM customer_orders.most_recent_order::timestamp - customer_orders_latest.latest_order::timestamp) AS days_since_last_order
+        customer_orders.most_recent_order::date - customer_orders_latest.latest_order::date AS days_since_last_order
 
     from customers
 

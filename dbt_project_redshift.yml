@@ -1,0 +1,74 @@
+name: datapai
+profile: datapai
+config-version: 2
+version: "1.0"
+
+require-dbt-version: ">=1.0.7"
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+asset-paths: ["assets"]
+snapshot-paths: ["snapshots"]
+packages-install-path: dbt_packages
+target-path: "target" # directory which will store compiled SQL files
+clean-targets: # directories to be removed by `dbt clean`
+  - "target"
+  #- "dbt_packages"
+seeds:
+  +quote_columns: true
+    #  +schema: seed
+  marketing:
+    schema: mk_seed
+  finance:
+    schema: fn_seed
+
+# Configuring models: https://docs.getdbt.com/docs/configuring-models
+models:
+  elementary:
+    +schema: audit
+  datapai:
+    staging:
+      +schema: staging
+      +materialized: table
+      +tags:
+        - "contains_pii"
+        - "hourly"
+        - "published"
+    intermediate:
+      +schema: intermediate
+      +materialized: table
+    marts:
+      +schema: marts
+      +materialized: table
+    reporting:
+      +schema: reporting
+      +materialized: table
+      +tags:
+        - "hourly"
+        - "published"
+#  Error handling :  switch on flag store_failures, to store the failure results into the audit table
+#  this flag can be set up at different levels, please refer to https://docs.getdbt.com/reference/resource-configs/store_failures
+tests:
+  +store_failures: true
+  +schema: test_audit
+  +limit: 1000 # apply for all tests
+vars:
+# # sample only: The `env_dev` variable will be accessible in all resources
+#   env_dev: 'dev'
+#env_variable: {{ env_var('env') }}
+
+#   # sample only: The `platforms` variable is only accessible to resources in the my_dbt_project project
+#   my_dbt_project:
+#     platforms: ['web', 'mobile']
+
+#   # sample only: The `app_ids` variable is only accessible to resources in the snowplow package
+#   snowplow:
+#     app_ids: ['marketing', 'app', 'landing-page']
+#     # dbt_project.yml
+
+# Other configurations...
+
+# Add or modify the following lines to set the logging level
