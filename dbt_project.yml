@@ -1,5 +1,6 @@
 name: datapai
-profile: datapai
+  #profile: datapai
+profile: datapai_snowflake
 config-version: 2
 version: "1.0"
 
@@ -18,8 +19,8 @@ clean-targets: # directories to be removed by `dbt clean`
   - "target"
   #- "dbt_packages"
 seeds:
-  +quote_columns: true
-  +schema: seed
+  +quote_columns: false
+    #  +schema: seed
   marketing:
     schema: mk_seed
   finance:
@@ -29,26 +30,25 @@ seeds:
 models:
   elementary:
     +schema: audit
-  datapai:
-    staging:
-      +schema: staging
-      +materialized: view
-      +tags:
-        - "contains_pii"
-        - "hourly"
-        - "published"
-    intermediate:
-      +schema: intermediate
-      +materialized: table
-    marts:
-      +schema: marts
-      +materialized: table
-    reporting:
-      +schema: reporting
-      +materialized: table
-      +tags:
-        - "hourly"
-        - "published"
+  staging:
+    +schema: staging
+    +materialized: table
+    +tags:
+      - "contains_pii"
+      - "hourly"
+      - "published"
+  intermediate:
+    +schema: intermediate
+    +materialized: table
+  obt:
+    +schema: marts
+    +materialized: table
+  reporting:
+    +schema: reporting
+    +materialized: table
+    +tags:
+      - "hourly"
+      - "published"
 #  Error handling :  switch on flag store_failures, to store the failure results into the audit table
 #  this flag can be set up at different levels, please refer to https://docs.getdbt.com/reference/resource-configs/store_failures
 tests:
