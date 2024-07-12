@@ -1,0 +1,1 @@
+SELECT * FROM DATAPAI.DATAPAI.raw_events

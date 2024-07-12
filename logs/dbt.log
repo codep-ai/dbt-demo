@@ -1,0 +1,1438 @@
+
+
+============================== 09:21:20.230010 | e1d6f6ac-9a70-4244-9f16-730ba11a6bf6 ==============================
+[0m09:21:20.230010 [info ] [MainThread]: Running with dbt=1.5.8
+[0m09:21:20.232690 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'debug': 'False', 'profiles_dir': '/home/ec2-user/git/dbt-demo', 'log_path': '/home/ec2-user/git/dbt-demo/logs', 'fail_fast': 'False', 'version_check': 'True', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'static_parser': 'True', 'introspect': 'True', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'target_path': 'None', 'send_anonymous_usage_stats': 'False'}
+[0m09:21:20.997219 [info ] [MainThread]: Registered adapter: snowflake=1.5.7
+[0m09:21:21.072796 [debug] [MainThread]: checksum: f22b25d321625030cbca434ca369e699a43738c2c186b4fda4ba40889f18edcf, vars: {}, profile: , target: , version: 1.5.8
+[0m09:21:21.284334 [debug] [MainThread]: Partial parsing enabled: 0 files deleted, 0 files added, 0 files changed.
+[0m09:21:21.284801 [debug] [MainThread]: Partial parsing enabled, no changes found, skipping parsing
+[0m09:21:21.291388 [warn ] [MainThread]: [[33mWARNING[0m]: Configuration paths exist in your dbt_project.yml file which do not apply to any resources.
+There are 6 unused configuration paths:
+- models.staging
+- models.intermediate
+- models.reporting
+- models.obt
+- seeds.finance
+- seeds.marketing
+[0m09:21:21.387770 [info ] [MainThread]: Found 61 models, 83 tests, 0 snapshots, 0 analyses, 1271 macros, 2 operations, 19 seed files, 11 sources, 11 exposures, 4 metrics, 0 groups
+[0m09:21:21.395566 [info ] [MainThread]: 
+[0m09:21:21.398330 [debug] [MainThread]: Acquiring new snowflake connection 'master'
+[0m09:21:21.405689 [debug] [ThreadPool]: Acquiring new snowflake connection 'list_DATAPAI_DATAPAI_audit'
+[0m09:21:21.412544 [debug] [ThreadPool]: Acquiring new snowflake connection 'list_DATAPAI_DATAPAI'
+[0m09:21:21.430391 [debug] [ThreadPool]: Acquiring new snowflake connection 'list_DATAPAI_DATAPAI_test_audit'
+[0m09:21:21.440162 [debug] [ThreadPool]: Using snowflake connection "list_DATAPAI_DATAPAI_audit"
+[0m09:21:21.442167 [debug] [ThreadPool]: Using snowflake connection "list_DATAPAI_DATAPAI"
+[0m09:21:21.442561 [debug] [ThreadPool]: On list_DATAPAI_DATAPAI_audit: /* {"app": "dbt", "dbt_version": "1.5.8", "profile_name": "datapai_snowflake", "target_name": "dev", "connection_name": "list_DATAPAI_DATAPAI_audit"} */
+show terse objects in DATAPAI.DATAPAI_audit
+[0m09:21:21.447439 [debug] [ThreadPool]: Using snowflake connection "list_DATAPAI_DATAPAI_test_audit"
+[0m09:21:21.447815 [debug] [ThreadPool]: On list_DATAPAI_DATAPAI: /* {"app": "dbt", "dbt_version": "1.5.8", "profile_name": "datapai_snowflake", "target_name": "dev", "connection_name": "list_DATAPAI_DATAPAI"} */
+show terse objects in DATAPAI.DATAPAI
+[0m09:21:21.448463 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m09:21:21.448878 [debug] [ThreadPool]: On list_DATAPAI_DATAPAI_test_audit: /* {"app": "dbt", "dbt_version": "1.5.8", "profile_name": "datapai_snowflake", "target_name": "dev", "connection_name": "list_DATAPAI_DATAPAI_test_audit"} */
+show terse objects in DATAPAI.DATAPAI_test_audit
+[0m09:21:21.453494 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m09:21:21.449490 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m09:21:22.728356 [debug] [ThreadPool]: SQL status: SUCCESS 53 in 1.0 seconds
+[0m09:21:22.731422 [debug] [ThreadPool]: On list_DATAPAI_DATAPAI: Close
+[0m09:21:22.994359 [debug] [ThreadPool]: SQL status: SUCCESS 29 in 2.0 seconds
+[0m09:21:22.996642 [debug] [ThreadPool]: On list_DATAPAI_DATAPAI_audit: Close
+[0m09:21:23.108832 [debug] [ThreadPool]: SQL status: SUCCESS 83 in 2.0 seconds
+[0m09:21:23.114611 [debug] [ThreadPool]: On list_DATAPAI_DATAPAI_test_audit: Close
+[0m09:21:23.170541 [info ] [MainThread]: Concurrency: 3 threads (target='dev')
+[0m09:21:23.172382 [info ] [MainThread]: 
+[0m09:21:23.185775 [debug] [Thread-1  ]: Began running node model.datapai.dim_date
+[0m09:21:23.186310 [debug] [Thread-2  ]: Began running node model.elementary.data_monitoring_metrics
+[0m09:21:23.188493 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly list_DATAPAI_DATAPAI_audit, now model.elementary.data_monitoring_metrics)
+[0m09:21:23.187761 [debug] [Thread-3  ]: Began running node model.elementary.dbt_exposures
+[0m09:21:23.188867 [debug] [Thread-2  ]: Began compiling node model.elementary.data_monitoring_metrics
+[0m09:21:23.187314 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly list_DATAPAI_DATAPAI_test_audit, now model.datapai.dim_date)
+[0m09:21:23.190638 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly list_DATAPAI_DATAPAI, now model.elementary.dbt_exposures)
+[0m09:21:23.201852 [debug] [Thread-1  ]: Began compiling node model.datapai.dim_date
+[0m09:21:23.224195 [debug] [Thread-3  ]: Began compiling node model.elementary.dbt_exposures
+[0m09:21:23.253061 [debug] [Thread-1  ]: Writing injected SQL for node "model.datapai.dim_date"
+[0m09:21:23.275226 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.data_monitoring_metrics"
+[0m09:21:23.281283 [debug] [Thread-1  ]: Timing info for model.datapai.dim_date (compile): 09:21:23.240836 => 09:21:23.280982
+[0m09:21:23.285683 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.dbt_exposures"
+[0m09:21:23.286646 [debug] [Thread-2  ]: Timing info for model.elementary.data_monitoring_metrics (compile): 09:21:23.190948 => 09:21:23.286395
+[0m09:21:23.287148 [debug] [Thread-1  ]: Began executing node model.datapai.dim_date
+[0m09:21:23.289492 [debug] [Thread-2  ]: Began executing node model.elementary.data_monitoring_metrics
+[0m09:21:23.290076 [debug] [Thread-1  ]: Timing info for model.datapai.dim_date (execute): 09:21:23.289822 => 09:21:23.289843
+[0m09:21:23.290926 [debug] [Thread-2  ]: Timing info for model.elementary.data_monitoring_metrics (execute): 09:21:23.290680 => 09:21:23.290692
+[0m09:21:23.292127 [debug] [Thread-1  ]: Finished running node model.datapai.dim_date
+[0m09:21:23.293038 [debug] [Thread-2  ]: Finished running node model.elementary.data_monitoring_metrics
+[0m09:21:23.293564 [debug] [Thread-3  ]: Timing info for model.elementary.dbt_exposures (compile): 09:21:23.253426 => 09:21:23.293322
+[0m09:21:23.294333 [debug] [Thread-1  ]: Began running node model.elementary.dbt_invocations
+[0m09:21:23.295204 [debug] [Thread-2  ]: Began running node model.elementary.dbt_metrics
+[0m09:21:23.295636 [debug] [Thread-3  ]: Began executing node model.elementary.dbt_exposures
+[0m09:21:23.296333 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly model.datapai.dim_date, now model.elementary.dbt_invocations)
+[0m09:21:23.297209 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.data_monitoring_metrics, now model.elementary.dbt_metrics)
+[0m09:21:23.299393 [debug] [Thread-3  ]: Timing info for model.elementary.dbt_exposures (execute): 09:21:23.299162 => 09:21:23.299173
+[0m09:21:23.300350 [debug] [Thread-1  ]: Began compiling node model.elementary.dbt_invocations
+[0m09:21:23.301133 [debug] [Thread-2  ]: Began compiling node model.elementary.dbt_metrics
+[0m09:21:23.301955 [debug] [Thread-3  ]: Finished running node model.elementary.dbt_exposures
+[0m09:21:23.324433 [debug] [Thread-3  ]: Began running node model.elementary.dbt_models
+[0m09:21:23.337953 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_exposures, now model.elementary.dbt_models)
+[0m09:21:23.344928 [debug] [Thread-3  ]: Began compiling node model.elementary.dbt_models
+[0m09:21:23.341935 [debug] [Thread-1  ]: Writing injected SQL for node "model.elementary.dbt_invocations"
+[0m09:21:23.374284 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.dbt_metrics"
+[0m09:21:23.376636 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.dbt_models"
+[0m09:21:23.377264 [debug] [Thread-1  ]: Timing info for model.elementary.dbt_invocations (compile): 09:21:23.302215 => 09:21:23.376994
+[0m09:21:23.378209 [debug] [Thread-1  ]: Began executing node model.elementary.dbt_invocations
+[0m09:21:23.379850 [debug] [Thread-1  ]: Timing info for model.elementary.dbt_invocations (execute): 09:21:23.379601 => 09:21:23.379616
+[0m09:21:23.380694 [debug] [Thread-1  ]: Finished running node model.elementary.dbt_invocations
+[0m09:21:23.381165 [debug] [Thread-2  ]: Timing info for model.elementary.dbt_metrics (compile): 09:21:23.312525 => 09:21:23.380923
+[0m09:21:23.381574 [debug] [Thread-1  ]: Began running node model.elementary.dbt_run_results
+[0m09:21:23.382396 [debug] [Thread-2  ]: Began executing node model.elementary.dbt_metrics
+[0m09:21:23.383114 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_invocations, now model.elementary.dbt_run_results)
+[0m09:21:23.383734 [debug] [Thread-2  ]: Timing info for model.elementary.dbt_metrics (execute): 09:21:23.383519 => 09:21:23.383527
+[0m09:21:23.384281 [debug] [Thread-1  ]: Began compiling node model.elementary.dbt_run_results
+[0m09:21:23.384777 [debug] [Thread-3  ]: Timing info for model.elementary.dbt_models (compile): 09:21:23.346274 => 09:21:23.384544
+[0m09:21:23.385962 [debug] [Thread-2  ]: Finished running node model.elementary.dbt_metrics
+[0m09:21:23.392639 [debug] [Thread-3  ]: Began executing node model.elementary.dbt_models
+[0m09:21:23.403228 [debug] [Thread-2  ]: Began running node model.elementary.dbt_seeds
+[0m09:21:23.415173 [debug] [Thread-3  ]: Timing info for model.elementary.dbt_models (execute): 09:21:23.414886 => 09:21:23.414902
+[0m09:21:23.413070 [debug] [Thread-1  ]: Writing injected SQL for node "model.elementary.dbt_run_results"
+[0m09:21:23.417878 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_metrics, now model.elementary.dbt_seeds)
+[0m09:21:23.420328 [debug] [Thread-2  ]: Began compiling node model.elementary.dbt_seeds
+[0m09:21:23.419056 [debug] [Thread-3  ]: Finished running node model.elementary.dbt_models
+[0m09:21:23.419670 [debug] [Thread-1  ]: Timing info for model.elementary.dbt_run_results (compile): 09:21:23.386501 => 09:21:23.419447
+[0m09:21:23.426067 [debug] [Thread-3  ]: Began running node model.elementary.dbt_snapshots
+[0m09:21:23.438862 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.dbt_seeds"
+[0m09:21:23.439357 [debug] [Thread-1  ]: Began executing node model.elementary.dbt_run_results
+[0m09:21:23.440038 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_models, now model.elementary.dbt_snapshots)
+[0m09:21:23.440692 [debug] [Thread-1  ]: Timing info for model.elementary.dbt_run_results (execute): 09:21:23.440449 => 09:21:23.440475
+[0m09:21:23.441069 [debug] [Thread-3  ]: Began compiling node model.elementary.dbt_snapshots
+[0m09:21:23.443941 [debug] [Thread-1  ]: Finished running node model.elementary.dbt_run_results
+[0m09:21:23.444398 [debug] [Thread-2  ]: Timing info for model.elementary.dbt_seeds (compile): 09:21:23.420614 => 09:21:23.444173
+[0m09:21:23.460769 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.dbt_snapshots"
+[0m09:21:23.461332 [debug] [Thread-1  ]: Began running node model.elementary.dbt_source_freshness_results
+[0m09:21:23.461806 [debug] [Thread-2  ]: Began executing node model.elementary.dbt_seeds
+[0m09:21:23.465423 [debug] [Thread-2  ]: Timing info for model.elementary.dbt_seeds (execute): 09:21:23.465188 => 09:21:23.465202
+[0m09:21:23.463439 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_run_results, now model.elementary.dbt_source_freshness_results)
+[0m09:21:23.466683 [debug] [Thread-1  ]: Began compiling node model.elementary.dbt_source_freshness_results
+[0m09:21:23.466184 [debug] [Thread-2  ]: Finished running node model.elementary.dbt_seeds
+[0m09:21:23.464428 [debug] [Thread-3  ]: Timing info for model.elementary.dbt_snapshots (compile): 09:21:23.444981 => 09:21:23.464177
+[0m09:21:23.478627 [debug] [Thread-2  ]: Began running node model.elementary.dbt_sources
+[0m09:21:23.482919 [debug] [Thread-1  ]: Writing injected SQL for node "model.elementary.dbt_source_freshness_results"
+[0m09:21:23.483520 [debug] [Thread-3  ]: Began executing node model.elementary.dbt_snapshots
+[0m09:21:23.484176 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_seeds, now model.elementary.dbt_sources)
+[0m09:21:23.484882 [debug] [Thread-1  ]: Timing info for model.elementary.dbt_source_freshness_results (compile): 09:21:23.466942 => 09:21:23.484661
+[0m09:21:23.485770 [debug] [Thread-3  ]: Timing info for model.elementary.dbt_snapshots (execute): 09:21:23.485540 => 09:21:23.485553
+[0m09:21:23.486155 [debug] [Thread-2  ]: Began compiling node model.elementary.dbt_sources
+[0m09:21:23.488671 [debug] [Thread-1  ]: Began executing node model.elementary.dbt_source_freshness_results
+[0m09:21:23.489876 [debug] [Thread-3  ]: Finished running node model.elementary.dbt_snapshots
+[0m09:21:23.501670 [debug] [Thread-1  ]: Timing info for model.elementary.dbt_source_freshness_results (execute): 09:21:23.501408 => 09:21:23.501422
+[0m09:21:23.512093 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.dbt_sources"
+[0m09:21:23.513515 [debug] [Thread-3  ]: Began running node model.elementary.dbt_tests
+[0m09:21:23.514610 [debug] [Thread-1  ]: Finished running node model.elementary.dbt_source_freshness_results
+[0m09:21:23.515302 [debug] [Thread-2  ]: Timing info for model.elementary.dbt_sources (compile): 09:21:23.490350 => 09:21:23.515110
+[0m09:21:23.516357 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_snapshots, now model.elementary.dbt_tests)
+[0m09:21:23.516860 [debug] [Thread-1  ]: Began running node model.elementary.elementary_test_results
+[0m09:21:23.517286 [debug] [Thread-2  ]: Began executing node model.elementary.dbt_sources
+[0m09:21:23.517704 [debug] [Thread-3  ]: Began compiling node model.elementary.dbt_tests
+[0m09:21:23.518373 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_source_freshness_results, now model.elementary.elementary_test_results)
+[0m09:21:23.519148 [debug] [Thread-2  ]: Timing info for model.elementary.dbt_sources (execute): 09:21:23.518895 => 09:21:23.518906
+[0m09:21:23.529838 [debug] [Thread-1  ]: Began compiling node model.elementary.elementary_test_results
+[0m09:21:23.544357 [debug] [Thread-2  ]: Finished running node model.elementary.dbt_sources
+[0m09:21:23.557936 [debug] [Thread-2  ]: Began running node model.elementary.filtered_information_schema_columns
+[0m09:21:23.557063 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.dbt_tests"
+[0m09:21:23.564774 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_sources, now model.elementary.filtered_information_schema_columns)
+[0m09:21:23.570149 [debug] [Thread-1  ]: Writing injected SQL for node "model.elementary.elementary_test_results"
+[0m09:21:23.571122 [debug] [Thread-3  ]: Timing info for model.elementary.dbt_tests (compile): 09:21:23.519391 => 09:21:23.570887
+[0m09:21:23.571514 [debug] [Thread-2  ]: Began compiling node model.elementary.filtered_information_schema_columns
+[0m09:21:23.572992 [debug] [Thread-1  ]: Timing info for model.elementary.elementary_test_results (compile): 09:21:23.544964 => 09:21:23.572769
+[0m09:21:23.573389 [debug] [Thread-3  ]: Began executing node model.elementary.dbt_tests
+[0m09:21:23.653116 [debug] [Thread-1  ]: Began executing node model.elementary.elementary_test_results
+[0m09:21:23.654123 [debug] [Thread-3  ]: Timing info for model.elementary.dbt_tests (execute): 09:21:23.653831 => 09:21:23.653849
+[0m09:21:23.654599 [debug] [Thread-1  ]: Timing info for model.elementary.elementary_test_results (execute): 09:21:23.654389 => 09:21:23.654398
+[0m09:21:23.670630 [debug] [Thread-3  ]: Finished running node model.elementary.dbt_tests
+[0m09:21:23.682245 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.filtered_information_schema_columns"
+[0m09:21:23.683499 [debug] [Thread-1  ]: Finished running node model.elementary.elementary_test_results
+[0m09:21:23.684320 [debug] [Thread-3  ]: Began running node model.elementary.filtered_information_schema_tables
+[0m09:21:23.686158 [debug] [Thread-1  ]: Began running node model.elementary.metadata
+[0m09:21:23.686888 [debug] [Thread-2  ]: Timing info for model.elementary.filtered_information_schema_columns (compile): 09:21:23.573920 => 09:21:23.686695
+[0m09:21:23.688381 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_tests, now model.elementary.filtered_information_schema_tables)
+[0m09:21:23.689501 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly model.elementary.elementary_test_results, now model.elementary.metadata)
+[0m09:21:23.689944 [debug] [Thread-2  ]: Began executing node model.elementary.filtered_information_schema_columns
+[0m09:21:23.690852 [debug] [Thread-3  ]: Began compiling node model.elementary.filtered_information_schema_tables
+[0m09:21:23.691612 [debug] [Thread-1  ]: Began compiling node model.elementary.metadata
+[0m09:21:23.692468 [debug] [Thread-2  ]: Timing info for model.elementary.filtered_information_schema_columns (execute): 09:21:23.692217 => 09:21:23.692229
+[0m09:21:23.712074 [debug] [Thread-1  ]: Writing injected SQL for node "model.elementary.metadata"
+[0m09:21:23.712998 [debug] [Thread-2  ]: Finished running node model.elementary.filtered_information_schema_columns
+[0m09:21:23.713960 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.filtered_information_schema_tables"
+[0m09:21:23.714884 [debug] [Thread-1  ]: Timing info for model.elementary.metadata (compile): 09:21:23.698054 => 09:21:23.714665
+[0m09:21:23.715687 [debug] [Thread-2  ]: Began running node model.elementary.schema_columns_snapshot
+[0m09:21:23.716790 [debug] [Thread-3  ]: Timing info for model.elementary.filtered_information_schema_tables (compile): 09:21:23.692710 => 09:21:23.716546
+[0m09:21:23.717432 [debug] [Thread-1  ]: Began executing node model.elementary.metadata
+[0m09:21:23.718041 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.filtered_information_schema_columns, now model.elementary.schema_columns_snapshot)
+[0m09:21:23.719423 [debug] [Thread-2  ]: Began compiling node model.elementary.schema_columns_snapshot
+[0m09:21:23.719004 [debug] [Thread-1  ]: Timing info for model.elementary.metadata (execute): 09:21:23.718759 => 09:21:23.718770
+[0m09:21:23.718476 [debug] [Thread-3  ]: Began executing node model.elementary.filtered_information_schema_tables
+[0m09:21:23.725450 [debug] [Thread-1  ]: Finished running node model.elementary.metadata
+[0m09:21:23.733090 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.schema_columns_snapshot"
+[0m09:21:23.733889 [debug] [Thread-3  ]: Timing info for model.elementary.filtered_information_schema_tables (execute): 09:21:23.733660 => 09:21:23.733671
+[0m09:21:23.734384 [debug] [Thread-1  ]: Began running node operation.elementary.elementary-on-run-end-0
+[0m09:21:23.735581 [debug] [Thread-3  ]: Finished running node model.elementary.filtered_information_schema_tables
+[0m09:21:23.738847 [debug] [Thread-3  ]: Began running node operation.elementary.elementary-on-run-start-0
+[0m09:21:23.739957 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.filtered_information_schema_tables, now operation.elementary.elementary-on-run-start-0)
+[0m09:21:23.740300 [debug] [Thread-3  ]: Began compiling node operation.elementary.elementary-on-run-start-0
+[0m09:21:23.736568 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly model.elementary.metadata, now operation.elementary.elementary-on-run-end-0)
+[0m09:21:23.737181 [debug] [Thread-2  ]: Timing info for model.elementary.schema_columns_snapshot (compile): 09:21:23.719678 => 09:21:23.736949
+[0m09:21:23.750136 [debug] [Thread-3  ]: Writing injected SQL for node "operation.elementary.elementary-on-run-start-0"
+[0m09:21:23.750544 [debug] [Thread-1  ]: Began compiling node operation.elementary.elementary-on-run-end-0
+[0m09:21:23.751016 [debug] [Thread-2  ]: Began executing node model.elementary.schema_columns_snapshot
+[0m09:21:23.757940 [debug] [Thread-3  ]: Timing info for operation.elementary.elementary-on-run-start-0 (compile): 09:21:23.740527 => 09:21:23.757717
+[0m09:21:23.758439 [debug] [Thread-2  ]: Timing info for model.elementary.schema_columns_snapshot (execute): 09:21:23.758208 => 09:21:23.758220
+[0m09:21:23.768999 [debug] [Thread-3  ]: Began executing node operation.elementary.elementary-on-run-start-0
+[0m09:21:23.779718 [debug] [Thread-2  ]: Finished running node model.elementary.schema_columns_snapshot
+[0m09:21:23.789928 [debug] [Thread-1  ]: Elementary: Uploading run results.
+[0m09:21:23.790425 [debug] [Thread-3  ]: Timing info for operation.elementary.elementary-on-run-start-0 (execute): 09:21:23.790193 => 09:21:23.790207
+[0m09:21:23.791260 [debug] [Thread-2  ]: Began running node seed.datapai.album
+[0m09:21:23.797548 [debug] [Thread-3  ]: Finished running node operation.elementary.elementary-on-run-start-0
+[0m09:21:23.807515 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.schema_columns_snapshot, now seed.datapai.album)
+[0m09:21:23.812313 [debug] [Thread-2  ]: Began compiling node seed.datapai.album
+[0m09:21:23.811156 [debug] [Thread-1  ]: Elementary: [DBT_RUN_RESULTS] Flattening the artifacts.
+[0m09:21:23.811891 [debug] [Thread-3  ]: Began running node seed.datapai.artist
+[0m09:21:23.815653 [debug] [Thread-2  ]: Timing info for seed.datapai.album (compile): 09:21:23.812588 => 09:21:23.815444
+[0m09:21:23.816983 [debug] [Thread-1  ]: Elementary: [DBT_RUN_RESULTS] Flattened 0 artifacts.
+[0m09:21:23.817614 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly operation.elementary.elementary-on-run-start-0, now seed.datapai.artist)
+[0m09:21:23.826467 [debug] [Thread-3  ]: Began compiling node seed.datapai.artist
+[0m09:21:23.818806 [debug] [Thread-2  ]: Began executing node seed.datapai.album
+[0m09:21:23.830546 [debug] [Thread-3  ]: Timing info for seed.datapai.artist (compile): 09:21:23.826716 => 09:21:23.830321
+[0m09:21:23.838716 [debug] [Thread-3  ]: Began executing node seed.datapai.artist
+[0m09:21:23.837192 [debug] [Thread-2  ]: Timing info for seed.datapai.album (execute): 09:21:23.836932 => 09:21:23.836945
+[0m09:21:23.835939 [debug] [Thread-1  ]: Elementary: Uploaded run results successfully.
+[0m09:21:23.839158 [debug] [Thread-3  ]: Timing info for seed.datapai.artist (execute): 09:21:23.838951 => 09:21:23.838957
+[0m09:21:23.840354 [debug] [Thread-2  ]: Finished running node seed.datapai.album
+[0m09:21:23.854691 [debug] [Thread-3  ]: Finished running node seed.datapai.artist
+[0m09:21:23.857099 [debug] [Thread-1  ]: Elementary: Uploading dbt invocation.
+[0m09:21:23.857647 [debug] [Thread-2  ]: Began running node seed.datapai.customer
+[0m09:21:23.858402 [debug] [Thread-3  ]: Began running node seed.datapai.employee
+[0m09:21:23.867594 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.album, now seed.datapai.customer)
+[0m09:21:23.878059 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly seed.datapai.artist, now seed.datapai.employee)
+[0m09:21:23.878540 [debug] [Thread-2  ]: Began compiling node seed.datapai.customer
+[0m09:21:23.878937 [debug] [Thread-3  ]: Began compiling node seed.datapai.employee
+[0m09:21:23.897406 [debug] [Thread-2  ]: Timing info for seed.datapai.customer (compile): 09:21:23.894221 => 09:21:23.897137
+[0m09:21:23.919866 [debug] [Thread-2  ]: Began executing node seed.datapai.customer
+[0m09:21:23.914226 [debug] [Thread-3  ]: Timing info for seed.datapai.employee (compile): 09:21:23.910926 => 09:21:23.913938
+[0m09:21:23.920412 [debug] [Thread-2  ]: Timing info for seed.datapai.customer (execute): 09:21:23.920169 => 09:21:23.920180
+[0m09:21:23.931267 [debug] [Thread-3  ]: Began executing node seed.datapai.employee
+[0m09:21:23.930929 [debug] [Thread-1  ]: Using snowflake connection "operation.elementary.elementary-on-run-end-0"
+[0m09:21:23.933691 [debug] [Thread-1  ]: On operation.elementary.elementary-on-run-end-0: /* {"app": "dbt", "dbt_version": "1.5.8", "profile_name": "datapai_snowflake", "target_name": "dev", "node_id": "operation.elementary.elementary-on-run-end-0"} */
+describe table "DATAPAI"."DATAPAI_AUDIT"."DBT_INVOCATIONS"
+[0m09:21:23.933305 [debug] [Thread-3  ]: Timing info for seed.datapai.employee (execute): 09:21:23.933066 => 09:21:23.933078
+[0m09:21:23.932793 [debug] [Thread-2  ]: Finished running node seed.datapai.customer
+[0m09:21:23.934019 [debug] [Thread-1  ]: Opening a new connection, currently in state closed
+[0m09:21:23.934876 [debug] [Thread-3  ]: Finished running node seed.datapai.employee
+[0m09:21:23.935373 [debug] [Thread-2  ]: Began running node seed.datapai.genre
+[0m09:21:23.938065 [debug] [Thread-3  ]: Began running node seed.datapai.invoice
+[0m09:21:23.939590 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.customer, now seed.datapai.genre)
+[0m09:21:23.942540 [debug] [Thread-2  ]: Began compiling node seed.datapai.genre
+[0m09:21:23.941859 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly seed.datapai.employee, now seed.datapai.invoice)
+[0m09:21:23.947328 [debug] [Thread-3  ]: Began compiling node seed.datapai.invoice
+[0m09:21:23.946915 [debug] [Thread-2  ]: Timing info for seed.datapai.genre (compile): 09:21:23.942771 => 09:21:23.946700
+[0m09:21:23.950293 [debug] [Thread-3  ]: Timing info for seed.datapai.invoice (compile): 09:21:23.947572 => 09:21:23.950094
+[0m09:21:23.953148 [debug] [Thread-3  ]: Began executing node seed.datapai.invoice
+[0m09:21:23.953561 [debug] [Thread-3  ]: Timing info for seed.datapai.invoice (execute): 09:21:23.953388 => 09:21:23.953397
+[0m09:21:23.951138 [debug] [Thread-2  ]: Began executing node seed.datapai.genre
+[0m09:21:23.954266 [debug] [Thread-3  ]: Finished running node seed.datapai.invoice
+[0m09:21:23.955999 [debug] [Thread-2  ]: Timing info for seed.datapai.genre (execute): 09:21:23.955770 => 09:21:23.955781
+[0m09:21:23.956461 [debug] [Thread-3  ]: Began running node seed.datapai.invoiceline
+[0m09:21:23.957480 [debug] [Thread-2  ]: Finished running node seed.datapai.genre
+[0m09:21:23.958621 [debug] [Thread-2  ]: Began running node seed.datapai.mediatype
+[0m09:21:23.958160 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly seed.datapai.invoice, now seed.datapai.invoiceline)
+[0m09:21:23.959198 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.genre, now seed.datapai.mediatype)
+[0m09:21:23.962624 [debug] [Thread-2  ]: Began compiling node seed.datapai.mediatype
+[0m09:21:23.962116 [debug] [Thread-3  ]: Began compiling node seed.datapai.invoiceline
+[0m09:21:23.967096 [debug] [Thread-2  ]: Timing info for seed.datapai.mediatype (compile): 09:21:23.963204 => 09:21:23.966878
+[0m09:21:23.971159 [debug] [Thread-3  ]: Timing info for seed.datapai.invoiceline (compile): 09:21:23.968463 => 09:21:23.970918
+[0m09:21:23.972024 [debug] [Thread-3  ]: Began executing node seed.datapai.invoiceline
+[0m09:21:23.973563 [debug] [Thread-3  ]: Timing info for seed.datapai.invoiceline (execute): 09:21:23.973352 => 09:21:23.973360
+[0m09:21:23.971604 [debug] [Thread-2  ]: Began executing node seed.datapai.mediatype
+[0m09:21:23.974293 [debug] [Thread-3  ]: Finished running node seed.datapai.invoiceline
+[0m09:21:23.975489 [debug] [Thread-3  ]: Began running node seed.datapai.playlist
+[0m09:21:23.975063 [debug] [Thread-2  ]: Timing info for seed.datapai.mediatype (execute): 09:21:23.974806 => 09:21:23.974818
+[0m09:21:23.976012 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly seed.datapai.invoiceline, now seed.datapai.playlist)
+[0m09:21:23.976914 [debug] [Thread-2  ]: Finished running node seed.datapai.mediatype
+[0m09:21:23.978184 [debug] [Thread-2  ]: Began running node seed.datapai.playlisttrack
+[0m09:21:23.977714 [debug] [Thread-3  ]: Began compiling node seed.datapai.playlist
+[0m09:21:23.979076 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.mediatype, now seed.datapai.playlisttrack)
+[0m09:21:24.000603 [debug] [Thread-2  ]: Began compiling node seed.datapai.playlisttrack
+[0m09:21:23.998226 [debug] [Thread-3  ]: Timing info for seed.datapai.playlist (compile): 09:21:23.994441 => 09:21:23.997977
+[0m09:21:24.003752 [debug] [Thread-2  ]: Timing info for seed.datapai.playlisttrack (compile): 09:21:24.000930 => 09:21:24.003549
+[0m09:21:24.006350 [debug] [Thread-3  ]: Began executing node seed.datapai.playlist
+[0m09:21:24.006769 [debug] [Thread-2  ]: Began executing node seed.datapai.playlisttrack
+[0m09:21:24.007331 [debug] [Thread-3  ]: Timing info for seed.datapai.playlist (execute): 09:21:24.007095 => 09:21:24.007110
+[0m09:21:24.008538 [debug] [Thread-2  ]: Timing info for seed.datapai.playlisttrack (execute): 09:21:24.008317 => 09:21:24.008325
+[0m09:21:24.009462 [debug] [Thread-3  ]: Finished running node seed.datapai.playlist
+[0m09:21:24.010454 [debug] [Thread-2  ]: Finished running node seed.datapai.playlisttrack
+[0m09:21:24.011602 [debug] [Thread-2  ]: Began running node seed.datapai.raw_events
+[0m09:21:24.011172 [debug] [Thread-3  ]: Began running node seed.datapai.raw_customers
+[0m09:21:24.012127 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.playlisttrack, now seed.datapai.raw_events)
+[0m09:21:24.012724 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly seed.datapai.playlist, now seed.datapai.raw_customers)
+[0m09:21:24.014530 [debug] [Thread-3  ]: Began compiling node seed.datapai.raw_customers
+[0m09:21:24.014041 [debug] [Thread-2  ]: Began compiling node seed.datapai.raw_events
+[0m09:21:24.017555 [debug] [Thread-3  ]: Timing info for seed.datapai.raw_customers (compile): 09:21:24.014764 => 09:21:24.017352
+[0m09:21:24.021902 [debug] [Thread-2  ]: Timing info for seed.datapai.raw_events (compile): 09:21:24.019161 => 09:21:24.021688
+[0m09:21:24.022504 [debug] [Thread-3  ]: Began executing node seed.datapai.raw_customers
+[0m09:21:24.023695 [debug] [Thread-3  ]: Timing info for seed.datapai.raw_customers (execute): 09:21:24.023464 => 09:21:24.023476
+[0m09:21:24.023170 [debug] [Thread-2  ]: Began executing node seed.datapai.raw_events
+[0m09:21:24.024459 [debug] [Thread-3  ]: Finished running node seed.datapai.raw_customers
+[0m09:21:24.025663 [debug] [Thread-3  ]: Began running node seed.datapai.raw_generated
+[0m09:21:24.025261 [debug] [Thread-2  ]: Timing info for seed.datapai.raw_events (execute): 09:21:24.025026 => 09:21:24.025037
+[0m09:21:24.026154 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly seed.datapai.raw_customers, now seed.datapai.raw_generated)
+[0m09:21:24.028119 [debug] [Thread-2  ]: Finished running node seed.datapai.raw_events
+[0m09:21:24.028632 [debug] [Thread-3  ]: Began compiling node seed.datapai.raw_generated
+[0m09:21:24.029165 [debug] [Thread-2  ]: Began running node seed.datapai.raw_membership
+[0m09:21:24.035501 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.raw_events, now seed.datapai.raw_membership)
+[0m09:21:24.035850 [debug] [Thread-2  ]: Began compiling node seed.datapai.raw_membership
+[0m09:21:24.034879 [debug] [Thread-3  ]: Timing info for seed.datapai.raw_generated (compile): 09:21:24.031140 => 09:21:24.034670
+[0m09:21:24.038738 [debug] [Thread-2  ]: Timing info for seed.datapai.raw_membership (compile): 09:21:24.036040 => 09:21:24.038539
+[0m09:21:24.039175 [debug] [Thread-3  ]: Began executing node seed.datapai.raw_generated
+[0m09:21:24.039559 [debug] [Thread-2  ]: Began executing node seed.datapai.raw_membership
+[0m09:21:24.040074 [debug] [Thread-3  ]: Timing info for seed.datapai.raw_generated (execute): 09:21:24.039842 => 09:21:24.039854
+[0m09:21:24.040618 [debug] [Thread-2  ]: Timing info for seed.datapai.raw_membership (execute): 09:21:24.040334 => 09:21:24.040346
+[0m09:21:24.041429 [debug] [Thread-3  ]: Finished running node seed.datapai.raw_generated
+[0m09:21:24.042461 [debug] [Thread-2  ]: Finished running node seed.datapai.raw_membership
+[0m09:21:24.043007 [debug] [Thread-3  ]: Began running node seed.datapai.raw_orders
+[0m09:21:24.043951 [debug] [Thread-2  ]: Began running node seed.datapai.raw_payments
+[0m09:21:24.046829 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly seed.datapai.raw_generated, now seed.datapai.raw_orders)
+[0m09:21:24.047561 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.raw_membership, now seed.datapai.raw_payments)
+[0m09:21:24.048340 [debug] [Thread-3  ]: Began compiling node seed.datapai.raw_orders
+[0m09:21:24.048894 [debug] [Thread-2  ]: Began compiling node seed.datapai.raw_payments
+[0m09:21:24.052152 [debug] [Thread-3  ]: Timing info for seed.datapai.raw_orders (compile): 09:21:24.049179 => 09:21:24.051937
+[0m09:21:24.056033 [debug] [Thread-2  ]: Timing info for seed.datapai.raw_payments (compile): 09:21:24.052427 => 09:21:24.055811
+[0m09:21:24.057337 [debug] [Thread-2  ]: Began executing node seed.datapai.raw_payments
+[0m09:21:24.056647 [debug] [Thread-3  ]: Began executing node seed.datapai.raw_orders
+[0m09:21:24.057735 [debug] [Thread-2  ]: Timing info for seed.datapai.raw_payments (execute): 09:21:24.057563 => 09:21:24.057571
+[0m09:21:24.058474 [debug] [Thread-3  ]: Timing info for seed.datapai.raw_orders (execute): 09:21:24.058249 => 09:21:24.058260
+[0m09:21:24.059381 [debug] [Thread-2  ]: Finished running node seed.datapai.raw_payments
+[0m09:21:24.060245 [debug] [Thread-3  ]: Finished running node seed.datapai.raw_orders
+[0m09:21:24.063000 [debug] [Thread-3  ]: Began running node seed.datapai.raw_tracks
+[0m09:21:24.060733 [debug] [Thread-2  ]: Began running node seed.datapai.raw_plan
+[0m09:21:24.064463 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly seed.datapai.raw_orders, now seed.datapai.raw_tracks)
+[0m09:21:24.066084 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.raw_payments, now seed.datapai.raw_plan)
+[0m09:21:24.067813 [debug] [Thread-2  ]: Began compiling node seed.datapai.raw_plan
+[0m09:21:24.066698 [debug] [Thread-3  ]: Began compiling node seed.datapai.raw_tracks
+[0m09:21:24.070868 [debug] [Thread-2  ]: Timing info for seed.datapai.raw_plan (compile): 09:21:24.068049 => 09:21:24.070668
+[0m09:21:24.073970 [debug] [Thread-3  ]: Timing info for seed.datapai.raw_tracks (compile): 09:21:24.071165 => 09:21:24.073759
+[0m09:21:24.074652 [debug] [Thread-2  ]: Began executing node seed.datapai.raw_plan
+[0m09:21:24.075093 [debug] [Thread-3  ]: Began executing node seed.datapai.raw_tracks
+[0m09:21:24.075572 [debug] [Thread-2  ]: Timing info for seed.datapai.raw_plan (execute): 09:21:24.075373 => 09:21:24.075384
+[0m09:21:24.076006 [debug] [Thread-3  ]: Timing info for seed.datapai.raw_tracks (execute): 09:21:24.075803 => 09:21:24.075812
+[0m09:21:24.076830 [debug] [Thread-2  ]: Finished running node seed.datapai.raw_plan
+[0m09:21:24.077667 [debug] [Thread-3  ]: Finished running node seed.datapai.raw_tracks
+[0m09:21:24.078100 [debug] [Thread-2  ]: Began running node seed.datapai.track
+[0m09:21:24.078535 [debug] [Thread-3  ]: Began running node model.elementary.metrics_anomaly_score
+[0m09:21:24.079254 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.raw_plan, now seed.datapai.track)
+[0m09:21:24.082370 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly seed.datapai.raw_tracks, now model.elementary.metrics_anomaly_score)
+[0m09:21:24.082802 [debug] [Thread-2  ]: Began compiling node seed.datapai.track
+[0m09:21:24.083205 [debug] [Thread-3  ]: Began compiling node model.elementary.metrics_anomaly_score
+[0m09:21:24.087795 [debug] [Thread-2  ]: Timing info for seed.datapai.track (compile): 09:21:24.083491 => 09:21:24.087558
+[0m09:21:24.100309 [debug] [Thread-2  ]: Began executing node seed.datapai.track
+[0m09:21:24.100911 [debug] [Thread-2  ]: Timing info for seed.datapai.track (execute): 09:21:24.100695 => 09:21:24.100708
+[0m09:21:24.108736 [debug] [Thread-2  ]: Finished running node seed.datapai.track
+[0m09:21:24.109228 [debug] [Thread-2  ]: Began running node model.elementary.monitors_runs
+[0m09:21:24.119273 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly seed.datapai.track, now model.elementary.monitors_runs)
+[0m09:21:24.127390 [debug] [Thread-2  ]: Began compiling node model.elementary.monitors_runs
+[0m09:21:24.131821 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.metrics_anomaly_score"
+[0m09:21:24.139735 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.monitors_runs"
+[0m09:21:24.140947 [debug] [Thread-2  ]: Timing info for model.elementary.monitors_runs (compile): 09:21:24.132798 => 09:21:24.140697
+[0m09:21:24.141304 [debug] [Thread-2  ]: Began executing node model.elementary.monitors_runs
+[0m09:21:24.141690 [debug] [Thread-2  ]: Timing info for model.elementary.monitors_runs (execute): 09:21:24.141511 => 09:21:24.141524
+[0m09:21:24.142469 [debug] [Thread-2  ]: Finished running node model.elementary.monitors_runs
+[0m09:21:24.142909 [debug] [Thread-2  ]: Began running node model.elementary.job_run_results
+[0m09:21:24.144667 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.monitors_runs, now model.elementary.job_run_results)
+[0m09:21:24.145197 [debug] [Thread-2  ]: Began compiling node model.elementary.job_run_results
+[0m09:21:24.151276 [debug] [Thread-3  ]: Timing info for model.elementary.metrics_anomaly_score (compile): 09:21:24.088463 => 09:21:24.150997
+[0m09:21:24.157418 [debug] [Thread-3  ]: Began executing node model.elementary.metrics_anomaly_score
+[0m09:21:24.157886 [debug] [Thread-3  ]: Timing info for model.elementary.metrics_anomaly_score (execute): 09:21:24.157695 => 09:21:24.157705
+[0m09:21:24.158645 [debug] [Thread-3  ]: Finished running node model.elementary.metrics_anomaly_score
+[0m09:21:24.159046 [debug] [Thread-3  ]: Began running node model.elementary.model_run_results
+[0m09:21:24.159809 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.metrics_anomaly_score, now model.elementary.model_run_results)
+[0m09:21:24.162010 [debug] [Thread-3  ]: Began compiling node model.elementary.model_run_results
+[0m09:21:24.170089 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.job_run_results"
+[0m09:21:24.182275 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.model_run_results"
+[0m09:21:24.183203 [debug] [Thread-2  ]: Timing info for model.elementary.job_run_results (compile): 09:21:24.145414 => 09:21:24.182923
+[0m09:21:24.183580 [debug] [Thread-2  ]: Began executing node model.elementary.job_run_results
+[0m09:21:24.183961 [debug] [Thread-2  ]: Timing info for model.elementary.job_run_results (execute): 09:21:24.183785 => 09:21:24.183795
+[0m09:21:24.184762 [debug] [Thread-2  ]: Finished running node model.elementary.job_run_results
+[0m09:21:24.185180 [debug] [Thread-2  ]: Began running node model.elementary.snapshot_run_results
+[0m09:21:24.185695 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.job_run_results, now model.elementary.snapshot_run_results)
+[0m09:21:24.186525 [debug] [Thread-2  ]: Began compiling node model.elementary.snapshot_run_results
+[0m09:21:24.194116 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.snapshot_run_results"
+[0m09:21:24.194800 [debug] [Thread-3  ]: Timing info for model.elementary.model_run_results (compile): 09:21:24.171493 => 09:21:24.194554
+[0m09:21:24.195190 [debug] [Thread-3  ]: Began executing node model.elementary.model_run_results
+[0m09:21:24.195573 [debug] [Thread-3  ]: Timing info for model.elementary.model_run_results (execute): 09:21:24.195403 => 09:21:24.195413
+[0m09:21:24.196325 [debug] [Thread-3  ]: Finished running node model.elementary.model_run_results
+[0m09:21:24.196740 [debug] [Thread-3  ]: Began running node model.elementary.alerts_dbt_source_freshness
+[0m09:21:24.198934 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.model_run_results, now model.elementary.alerts_dbt_source_freshness)
+[0m09:21:24.199368 [debug] [Thread-3  ]: Began compiling node model.elementary.alerts_dbt_source_freshness
+[0m09:21:24.205120 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.alerts_dbt_source_freshness"
+[0m09:21:24.205839 [debug] [Thread-2  ]: Timing info for model.elementary.snapshot_run_results (compile): 09:21:24.186854 => 09:21:24.205585
+[0m09:21:24.207333 [debug] [Thread-2  ]: Began executing node model.elementary.snapshot_run_results
+[0m09:21:24.207790 [debug] [Thread-2  ]: Timing info for model.elementary.snapshot_run_results (execute): 09:21:24.207599 => 09:21:24.207609
+[0m09:21:24.208572 [debug] [Thread-2  ]: Finished running node model.elementary.snapshot_run_results
+[0m09:21:24.209074 [debug] [Thread-3  ]: Timing info for model.elementary.alerts_dbt_source_freshness (compile): 09:21:24.199595 => 09:21:24.208818
+[0m09:21:24.209482 [debug] [Thread-2  ]: Began running node model.elementary.dbt_artifacts_hashes
+[0m09:21:24.209862 [debug] [Thread-3  ]: Began executing node model.elementary.alerts_dbt_source_freshness
+[0m09:21:24.210485 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.snapshot_run_results, now model.elementary.dbt_artifacts_hashes)
+[0m09:21:24.211010 [debug] [Thread-3  ]: Timing info for model.elementary.alerts_dbt_source_freshness (execute): 09:21:24.210791 => 09:21:24.210801
+[0m09:21:24.211517 [debug] [Thread-2  ]: Began compiling node model.elementary.dbt_artifacts_hashes
+[0m09:21:24.212549 [debug] [Thread-3  ]: Finished running node model.elementary.alerts_dbt_source_freshness
+[0m09:21:24.218573 [debug] [Thread-3  ]: Began running node model.elementary.alerts_anomaly_detection
+[0m09:21:24.219300 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.alerts_dbt_source_freshness, now model.elementary.alerts_anomaly_detection)
+[0m09:21:24.219642 [debug] [Thread-3  ]: Began compiling node model.elementary.alerts_anomaly_detection
+[0m09:21:24.227841 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.dbt_artifacts_hashes"
+[0m09:21:24.231124 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.alerts_anomaly_detection"
+[0m09:21:24.231812 [debug] [Thread-2  ]: Timing info for model.elementary.dbt_artifacts_hashes (compile): 09:21:24.213117 => 09:21:24.231579
+[0m09:21:24.232298 [debug] [Thread-2  ]: Began executing node model.elementary.dbt_artifacts_hashes
+[0m09:21:24.232710 [debug] [Thread-2  ]: Timing info for model.elementary.dbt_artifacts_hashes (execute): 09:21:24.232532 => 09:21:24.232542
+[0m09:21:24.235056 [debug] [Thread-2  ]: Finished running node model.elementary.dbt_artifacts_hashes
+[0m09:21:24.235434 [debug] [Thread-2  ]: Began running node model.elementary.alerts_dbt_tests
+[0m09:21:24.236490 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.dbt_artifacts_hashes, now model.elementary.alerts_dbt_tests)
+[0m09:21:24.236836 [debug] [Thread-2  ]: Began compiling node model.elementary.alerts_dbt_tests
+[0m09:21:24.245406 [debug] [Thread-3  ]: Timing info for model.elementary.alerts_anomaly_detection (compile): 09:21:24.219844 => 09:21:24.245151
+[0m09:21:24.245756 [debug] [Thread-3  ]: Began executing node model.elementary.alerts_anomaly_detection
+[0m09:21:24.246128 [debug] [Thread-3  ]: Timing info for model.elementary.alerts_anomaly_detection (execute): 09:21:24.245959 => 09:21:24.245968
+[0m09:21:24.248546 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.alerts_dbt_tests"
+[0m09:21:24.249457 [debug] [Thread-3  ]: Finished running node model.elementary.alerts_anomaly_detection
+[0m09:21:24.250182 [debug] [Thread-3  ]: Began running node model.elementary.alerts_schema_changes
+[0m09:21:24.251284 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.alerts_anomaly_detection, now model.elementary.alerts_schema_changes)
+[0m09:21:24.251635 [debug] [Thread-3  ]: Began compiling node model.elementary.alerts_schema_changes
+[0m09:21:24.259416 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.alerts_schema_changes"
+[0m09:21:24.259962 [debug] [Thread-3  ]: Timing info for model.elementary.alerts_schema_changes (compile): 09:21:24.251877 => 09:21:24.259769
+[0m09:21:24.262755 [debug] [Thread-3  ]: Began executing node model.elementary.alerts_schema_changes
+[0m09:21:24.263185 [debug] [Thread-3  ]: Timing info for model.elementary.alerts_schema_changes (execute): 09:21:24.263001 => 09:21:24.263010
+[0m09:21:24.263930 [debug] [Thread-3  ]: Finished running node model.elementary.alerts_schema_changes
+[0m09:21:24.264405 [debug] [Thread-2  ]: Timing info for model.elementary.alerts_dbt_tests (compile): 09:21:24.237038 => 09:21:24.264164
+[0m09:21:24.264845 [debug] [Thread-3  ]: Began running node model.elementary.test_result_rows
+[0m09:21:24.265643 [debug] [Thread-2  ]: Began executing node model.elementary.alerts_dbt_tests
+[0m09:21:24.266781 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.alerts_schema_changes, now model.elementary.test_result_rows)
+[0m09:21:24.267317 [debug] [Thread-2  ]: Timing info for model.elementary.alerts_dbt_tests (execute): 09:21:24.267098 => 09:21:24.267108
+[0m09:21:24.267672 [debug] [Thread-3  ]: Began compiling node model.elementary.test_result_rows
+[0m09:21:24.268492 [debug] [Thread-2  ]: Finished running node model.elementary.alerts_dbt_tests
+[0m09:21:24.274127 [debug] [Thread-2  ]: Began running node model.datapai.stg_album
+[0m09:21:24.274758 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.alerts_dbt_tests, now model.datapai.stg_album)
+[0m09:21:24.275110 [debug] [Thread-2  ]: Began compiling node model.datapai.stg_album
+[0m09:21:24.286795 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.stg_album"
+[0m09:21:24.289611 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.test_result_rows"
+[0m09:21:24.290207 [debug] [Thread-3  ]: Timing info for model.elementary.test_result_rows (compile): 09:21:24.268775 => 09:21:24.289982
+[0m09:21:24.290538 [debug] [Thread-3  ]: Began executing node model.elementary.test_result_rows
+[0m09:21:24.290910 [debug] [Thread-3  ]: Timing info for model.elementary.test_result_rows (execute): 09:21:24.290736 => 09:21:24.290745
+[0m09:21:24.291709 [debug] [Thread-3  ]: Finished running node model.elementary.test_result_rows
+[0m09:21:24.292075 [debug] [Thread-3  ]: Began running node model.datapai.stg_artist
+[0m09:21:24.292708 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.test_result_rows, now model.datapai.stg_artist)
+[0m09:21:24.293528 [debug] [Thread-3  ]: Began compiling node model.datapai.stg_artist
+[0m09:21:24.302145 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.stg_artist"
+[0m09:21:24.303737 [debug] [Thread-2  ]: Timing info for model.datapai.stg_album (compile): 09:21:24.275317 => 09:21:24.303489
+[0m09:21:24.306574 [debug] [Thread-2  ]: Began executing node model.datapai.stg_album
+[0m09:21:24.307350 [debug] [Thread-2  ]: Timing info for model.datapai.stg_album (execute): 09:21:24.307144 => 09:21:24.307157
+[0m09:21:24.308783 [debug] [Thread-2  ]: Finished running node model.datapai.stg_album
+[0m09:21:24.310389 [debug] [Thread-2  ]: Began running node model.datapai.stg_customer
+[0m09:21:24.311277 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.stg_album, now model.datapai.stg_customer)
+[0m09:21:24.311905 [debug] [Thread-2  ]: Began compiling node model.datapai.stg_customer
+[0m09:21:24.317573 [debug] [Thread-3  ]: Timing info for model.datapai.stg_artist (compile): 09:21:24.295335 => 09:21:24.317329
+[0m09:21:24.317955 [debug] [Thread-3  ]: Began executing node model.datapai.stg_artist
+[0m09:21:24.318943 [debug] [Thread-3  ]: Timing info for model.datapai.stg_artist (execute): 09:21:24.318717 => 09:21:24.318729
+[0m09:21:24.319303 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.stg_customer"
+[0m09:21:24.320251 [debug] [Thread-3  ]: Finished running node model.datapai.stg_artist
+[0m09:21:24.321100 [debug] [Thread-3  ]: Began running node model.datapai.stg_employee
+[0m09:21:24.321835 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.stg_artist, now model.datapai.stg_employee)
+[0m09:21:24.322146 [debug] [Thread-3  ]: Began compiling node model.datapai.stg_employee
+[0m09:21:24.326378 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.stg_employee"
+[0m09:21:24.328040 [debug] [Thread-2  ]: Timing info for model.datapai.stg_customer (compile): 09:21:24.312179 => 09:21:24.327806
+[0m09:21:24.328409 [debug] [Thread-2  ]: Began executing node model.datapai.stg_customer
+[0m09:21:24.329001 [debug] [Thread-2  ]: Timing info for model.datapai.stg_customer (execute): 09:21:24.328806 => 09:21:24.328816
+[0m09:21:24.329746 [debug] [Thread-2  ]: Finished running node model.datapai.stg_customer
+[0m09:21:24.330343 [debug] [Thread-2  ]: Began running node model.datapai.stg_invoice
+[0m09:21:24.331333 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.stg_customer, now model.datapai.stg_invoice)
+[0m09:21:24.331691 [debug] [Thread-2  ]: Began compiling node model.datapai.stg_invoice
+[0m09:21:24.333838 [debug] [Thread-3  ]: Timing info for model.datapai.stg_employee (compile): 09:21:24.322336 => 09:21:24.331892
+[0m09:21:24.338434 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.stg_invoice"
+[0m09:21:24.339173 [debug] [Thread-3  ]: Began executing node model.datapai.stg_employee
+[0m09:21:24.339763 [debug] [Thread-2  ]: Timing info for model.datapai.stg_invoice (compile): 09:21:24.334343 => 09:21:24.339561
+[0m09:21:24.340261 [debug] [Thread-3  ]: Timing info for model.datapai.stg_employee (execute): 09:21:24.340021 => 09:21:24.340033
+[0m09:21:24.340627 [debug] [Thread-2  ]: Began executing node model.datapai.stg_invoice
+[0m09:21:24.342504 [debug] [Thread-3  ]: Finished running node model.datapai.stg_employee
+[0m09:21:24.342949 [debug] [Thread-2  ]: Timing info for model.datapai.stg_invoice (execute): 09:21:24.342753 => 09:21:24.342761
+[0m09:21:24.343643 [debug] [Thread-3  ]: Began running node model.datapai.stg_genre
+[0m09:21:24.344667 [debug] [Thread-2  ]: Finished running node model.datapai.stg_invoice
+[0m09:21:24.345242 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.stg_employee, now model.datapai.stg_genre)
+[0m09:21:24.351476 [debug] [Thread-2  ]: Began running node model.datapai.stg_invoice_line
+[0m09:21:24.352105 [debug] [Thread-3  ]: Began compiling node model.datapai.stg_genre
+[0m09:21:24.352829 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.stg_invoice, now model.datapai.stg_invoice_line)
+[0m09:21:24.445116 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.stg_genre"
+[0m09:21:24.446639 [debug] [Thread-1  ]: SQL status: SUCCESS 30 in 1.0 seconds
+[0m09:21:24.447084 [debug] [Thread-2  ]: Began compiling node model.datapai.stg_invoice_line
+[0m09:21:24.448071 [debug] [Thread-3  ]: Timing info for model.datapai.stg_genre (compile): 09:21:24.353311 => 09:21:24.447847
+[0m09:21:24.452555 [debug] [Thread-1  ]: Elementary: Inserting 1 rows to table "DATAPAI"."DATAPAI_AUDIT"."DBT_INVOCATIONS"
+[0m09:21:24.456996 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.stg_invoice_line"
+[0m09:21:24.458523 [debug] [Thread-3  ]: Began executing node model.datapai.stg_genre
+[0m09:21:24.470790 [debug] [Thread-3  ]: Timing info for model.datapai.stg_genre (execute): 09:21:24.470530 => 09:21:24.470546
+[0m09:21:24.471638 [debug] [Thread-3  ]: Finished running node model.datapai.stg_genre
+[0m09:21:24.472029 [debug] [Thread-3  ]: Began running node model.datapai.stg_media_type
+[0m09:21:24.472584 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.stg_genre, now model.datapai.stg_media_type)
+[0m09:21:24.472924 [debug] [Thread-3  ]: Began compiling node model.datapai.stg_media_type
+[0m09:21:24.488758 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.stg_media_type"
+[0m09:21:24.489391 [debug] [Thread-3  ]: Timing info for model.datapai.stg_media_type (compile): 09:21:24.473148 => 09:21:24.489186
+[0m09:21:24.490582 [debug] [Thread-2  ]: Timing info for model.datapai.stg_invoice_line (compile): 09:21:24.452864 => 09:21:24.490333
+[0m09:21:24.496380 [debug] [Thread-3  ]: Began executing node model.datapai.stg_media_type
+[0m09:21:24.508750 [debug] [Thread-3  ]: Timing info for model.datapai.stg_media_type (execute): 09:21:24.508503 => 09:21:24.508518
+[0m09:21:24.508130 [debug] [Thread-2  ]: Began executing node model.datapai.stg_invoice_line
+[0m09:21:24.509536 [debug] [Thread-3  ]: Finished running node model.datapai.stg_media_type
+[0m09:21:24.521115 [debug] [Thread-1  ]: Elementary: [1/1] Running insert query.
+[0m09:21:24.524752 [debug] [Thread-2  ]: Timing info for model.datapai.stg_invoice_line (execute): 09:21:24.524489 => 09:21:24.524503
+[0m09:21:24.525519 [debug] [Thread-3  ]: Began running node model.datapai.stg_playlist
+[0m09:21:24.532652 [debug] [Thread-1  ]: Using snowflake connection "operation.elementary.elementary-on-run-end-0"
+[0m09:21:24.533621 [debug] [Thread-2  ]: Finished running node model.datapai.stg_invoice_line
+[0m09:21:24.534250 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.stg_media_type, now model.datapai.stg_playlist)
+[0m09:21:24.535108 [debug] [Thread-1  ]: On operation.elementary.elementary-on-run-end-0: /* {"app": "dbt", "dbt_version": "1.5.8", "profile_name": "datapai_snowflake", "target_name": "dev", "node_id": "operation.elementary.elementary-on-run-end-0"} */
+insert into "DATAPAI"."DATAPAI_AUDIT"."DBT_INVOCATIONS"
+         (INVOCATION_ID,JOB_ID,JOB_NAME,JOB_RUN_ID,RUN_STARTED_AT,RUN_COMPLETED_AT,GENERATED_AT,COMMAND,DBT_VERSION,ELEMENTARY_VERSION,FULL_REFRESH,INVOCATION_VARS,VARS,TARGET_NAME,TARGET_DATABASE,TARGET_SCHEMA,TARGET_PROFILE_NAME,THREADS,SELECTED,YAML_SELECTOR,PROJECT_ID,PROJECT_NAME,ENV,ENV_ID,CAUSE_CATEGORY,CAUSE,PULL_REQUEST_ID,GIT_SHA,ORCHESTRATOR,DBT_USER) values
+    ('e1d6f6ac-9a70-4244-9f16-730ba11a6bf6',NULL,NULL,NULL,'2024-07-12 09:21:20','2024-07-12 09:21:23','2024-07-12 09:21:23','generate','1.5.8','0.7.5',False,'{}','{}','dev','DATAPAI','DATAPAI','datapai_snowflake',3,'[]','[]',NULL,'datapai',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)
+[0m09:21:24.535614 [debug] [Thread-2  ]: Began running node model.datapai.stg_playlist_track
+[0m09:21:24.536025 [debug] [Thread-3  ]: Began compiling node model.datapai.stg_playlist
+[0m09:21:24.538044 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.stg_invoice_line, now model.datapai.stg_playlist_track)
+[0m09:21:24.543617 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.stg_playlist"
+[0m09:21:24.544579 [debug] [Thread-2  ]: Began compiling node model.datapai.stg_playlist_track
+[0m09:21:24.549648 [debug] [Thread-3  ]: Timing info for model.datapai.stg_playlist (compile): 09:21:24.539178 => 09:21:24.549397
+[0m09:21:24.555808 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.stg_playlist_track"
+[0m09:21:24.556310 [debug] [Thread-3  ]: Began executing node model.datapai.stg_playlist
+[0m09:21:24.557982 [debug] [Thread-3  ]: Timing info for model.datapai.stg_playlist (execute): 09:21:24.557739 => 09:21:24.557754
+[0m09:21:24.558786 [debug] [Thread-3  ]: Finished running node model.datapai.stg_playlist
+[0m09:21:24.559197 [debug] [Thread-3  ]: Began running node model.datapai.stg_customers
+[0m09:21:24.559712 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.stg_playlist, now model.datapai.stg_customers)
+[0m09:21:24.560033 [debug] [Thread-3  ]: Began compiling node model.datapai.stg_customers
+[0m09:21:24.564234 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.stg_customers"
+[0m09:21:24.565626 [debug] [Thread-2  ]: Timing info for model.datapai.stg_playlist_track (compile): 09:21:24.550862 => 09:21:24.565385
+[0m09:21:24.566022 [debug] [Thread-2  ]: Began executing node model.datapai.stg_playlist_track
+[0m09:21:24.568759 [debug] [Thread-2  ]: Timing info for model.datapai.stg_playlist_track (execute): 09:21:24.568515 => 09:21:24.568534
+[0m09:21:24.569575 [debug] [Thread-2  ]: Finished running node model.datapai.stg_playlist_track
+[0m09:21:24.569961 [debug] [Thread-2  ]: Began running node model.datapai.events
+[0m09:21:24.570460 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.stg_playlist_track, now model.datapai.events)
+[0m09:21:24.570919 [debug] [Thread-2  ]: Began compiling node model.datapai.events
+[0m09:21:24.577288 [debug] [Thread-3  ]: Timing info for model.datapai.stg_customers (compile): 09:21:24.560260 => 09:21:24.577035
+[0m09:21:24.577664 [debug] [Thread-3  ]: Began executing node model.datapai.stg_customers
+[0m09:21:24.578035 [debug] [Thread-3  ]: Timing info for model.datapai.stg_customers (execute): 09:21:24.577871 => 09:21:24.577881
+[0m09:21:24.578871 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.events"
+[0m09:21:24.579800 [debug] [Thread-3  ]: Finished running node model.datapai.stg_customers
+[0m09:21:24.580410 [debug] [Thread-3  ]: Began running node model.datapai.generated_a
+[0m09:21:24.581010 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.stg_customers, now model.datapai.generated_a)
+[0m09:21:24.581913 [debug] [Thread-3  ]: Began compiling node model.datapai.generated_a
+[0m09:21:24.589638 [debug] [Thread-2  ]: Timing info for model.datapai.events (compile): 09:21:24.571189 => 09:21:24.589395
+[0m09:21:24.589975 [debug] [Thread-2  ]: Began executing node model.datapai.events
+[0m09:21:24.592121 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.generated_a"
+[0m09:21:24.594566 [debug] [Thread-2  ]: Timing info for model.datapai.events (execute): 09:21:24.594322 => 09:21:24.594336
+[0m09:21:24.596011 [debug] [Thread-2  ]: Finished running node model.datapai.events
+[0m09:21:24.596932 [debug] [Thread-3  ]: Timing info for model.datapai.generated_a (compile): 09:21:24.582870 => 09:21:24.596573
+[0m09:21:24.597646 [debug] [Thread-2  ]: Began running node model.datapai.generated_b
+[0m09:21:24.598489 [debug] [Thread-3  ]: Began executing node model.datapai.generated_a
+[0m09:21:24.599192 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.events, now model.datapai.generated_b)
+[0m09:21:24.599846 [debug] [Thread-3  ]: Timing info for model.datapai.generated_a (execute): 09:21:24.599511 => 09:21:24.599523
+[0m09:21:24.600195 [debug] [Thread-2  ]: Began compiling node model.datapai.generated_b
+[0m09:21:24.601099 [debug] [Thread-3  ]: Finished running node model.datapai.generated_a
+[0m09:21:24.607552 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.generated_b"
+[0m09:21:24.608082 [debug] [Thread-3  ]: Began running node model.datapai.membership
+[0m09:21:24.609291 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.generated_a, now model.datapai.membership)
+[0m09:21:24.609681 [debug] [Thread-3  ]: Began compiling node model.datapai.membership
+[0m09:21:24.615323 [debug] [Thread-2  ]: Timing info for model.datapai.generated_b (compile): 09:21:24.603452 => 09:21:24.615088
+[0m09:21:24.614848 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.membership"
+[0m09:21:24.616829 [debug] [Thread-3  ]: Timing info for model.datapai.membership (compile): 09:21:24.609943 => 09:21:24.616601
+[0m09:21:24.616203 [debug] [Thread-2  ]: Began executing node model.datapai.generated_b
+[0m09:21:24.617141 [debug] [Thread-3  ]: Began executing node model.datapai.membership
+[0m09:21:24.617913 [debug] [Thread-2  ]: Timing info for model.datapai.generated_b (execute): 09:21:24.617680 => 09:21:24.617692
+[0m09:21:24.618640 [debug] [Thread-3  ]: Timing info for model.datapai.membership (execute): 09:21:24.618399 => 09:21:24.618409
+[0m09:21:24.619495 [debug] [Thread-2  ]: Finished running node model.datapai.generated_b
+[0m09:21:24.620894 [debug] [Thread-3  ]: Finished running node model.datapai.membership
+[0m09:21:24.621734 [debug] [Thread-2  ]: Began running node model.datapai.stg_orders
+[0m09:21:24.622446 [debug] [Thread-3  ]: Began running node model.datapai.stg_payments
+[0m09:21:24.623443 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.generated_b, now model.datapai.stg_orders)
+[0m09:21:24.624287 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.membership, now model.datapai.stg_payments)
+[0m09:21:24.625783 [debug] [Thread-3  ]: Began compiling node model.datapai.stg_payments
+[0m09:21:24.625077 [debug] [Thread-2  ]: Began compiling node model.datapai.stg_orders
+[0m09:21:24.635047 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.stg_orders"
+[0m09:21:24.636816 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.stg_payments"
+[0m09:21:24.637737 [debug] [Thread-3  ]: Timing info for model.datapai.stg_payments (compile): 09:21:24.626012 => 09:21:24.637536
+[0m09:21:24.638034 [debug] [Thread-3  ]: Began executing node model.datapai.stg_payments
+[0m09:21:24.638381 [debug] [Thread-3  ]: Timing info for model.datapai.stg_payments (execute): 09:21:24.638220 => 09:21:24.638228
+[0m09:21:24.639093 [debug] [Thread-3  ]: Finished running node model.datapai.stg_payments
+[0m09:21:24.639453 [debug] [Thread-3  ]: Began running node model.datapai.plan
+[0m09:21:24.639904 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.stg_payments, now model.datapai.plan)
+[0m09:21:24.640210 [debug] [Thread-3  ]: Began compiling node model.datapai.plan
+[0m09:21:24.644067 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.plan"
+[0m09:21:24.645507 [debug] [Thread-2  ]: Timing info for model.datapai.stg_orders (compile): 09:21:24.631444 => 09:21:24.645280
+[0m09:21:24.646232 [debug] [Thread-2  ]: Began executing node model.datapai.stg_orders
+[0m09:21:24.646595 [debug] [Thread-2  ]: Timing info for model.datapai.stg_orders (execute): 09:21:24.646432 => 09:21:24.646440
+[0m09:21:24.649508 [debug] [Thread-2  ]: Finished running node model.datapai.stg_orders
+[0m09:21:24.650334 [debug] [Thread-2  ]: Began running node model.datapai.tracks
+[0m09:21:24.650899 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.stg_orders, now model.datapai.tracks)
+[0m09:21:24.651302 [debug] [Thread-2  ]: Began compiling node model.datapai.tracks
+[0m09:21:24.658072 [debug] [Thread-3  ]: Timing info for model.datapai.plan (compile): 09:21:24.640550 => 09:21:24.657820
+[0m09:21:24.658996 [debug] [Thread-3  ]: Began executing node model.datapai.plan
+[0m09:21:24.659783 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.tracks"
+[0m09:21:24.660738 [debug] [Thread-3  ]: Timing info for model.datapai.plan (execute): 09:21:24.660486 => 09:21:24.660500
+[0m09:21:24.661820 [debug] [Thread-2  ]: Timing info for model.datapai.tracks (compile): 09:21:24.651545 => 09:21:24.661606
+[0m09:21:24.663519 [debug] [Thread-2  ]: Began executing node model.datapai.tracks
+[0m09:21:24.663117 [debug] [Thread-3  ]: Finished running node model.datapai.plan
+[0m09:21:24.663915 [debug] [Thread-2  ]: Timing info for model.datapai.tracks (execute): 09:21:24.663749 => 09:21:24.663756
+[0m09:21:24.665432 [debug] [Thread-3  ]: Began running node model.datapai.stg_track
+[0m09:21:24.667297 [debug] [Thread-2  ]: Finished running node model.datapai.tracks
+[0m09:21:24.667876 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.plan, now model.datapai.stg_track)
+[0m09:21:24.669103 [debug] [Thread-3  ]: Began compiling node model.datapai.stg_track
+[0m09:21:24.668725 [debug] [Thread-2  ]: Began running node model.elementary.anomaly_threshold_sensitivity
+[0m09:21:24.673448 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.stg_track"
+[0m09:21:24.674364 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.tracks, now model.elementary.anomaly_threshold_sensitivity)
+[0m09:21:24.676089 [debug] [Thread-2  ]: Began compiling node model.elementary.anomaly_threshold_sensitivity
+[0m09:21:24.687379 [debug] [Thread-3  ]: Timing info for model.datapai.stg_track (compile): 09:21:24.669331 => 09:21:24.687132
+[0m09:21:24.687718 [debug] [Thread-3  ]: Began executing node model.datapai.stg_track
+[0m09:21:24.688087 [debug] [Thread-3  ]: Timing info for model.datapai.stg_track (execute): 09:21:24.687923 => 09:21:24.687932
+[0m09:21:24.688866 [debug] [Thread-3  ]: Finished running node model.datapai.stg_track
+[0m09:21:24.689251 [debug] [Thread-3  ]: Began running node model.elementary.alerts_dbt_models
+[0m09:21:24.690094 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.stg_track, now model.elementary.alerts_dbt_models)
+[0m09:21:24.690958 [debug] [Thread-2  ]: Writing injected SQL for node "model.elementary.anomaly_threshold_sensitivity"
+[0m09:21:24.691406 [debug] [Thread-3  ]: Began compiling node model.elementary.alerts_dbt_models
+[0m09:21:24.694948 [debug] [Thread-2  ]: Timing info for model.elementary.anomaly_threshold_sensitivity (compile): 09:21:24.676318 => 09:21:24.694724
+[0m09:21:24.702656 [debug] [Thread-2  ]: Began executing node model.elementary.anomaly_threshold_sensitivity
+[0m09:21:24.703114 [debug] [Thread-2  ]: Timing info for model.elementary.anomaly_threshold_sensitivity (execute): 09:21:24.702906 => 09:21:24.702915
+[0m09:21:24.703865 [debug] [Thread-2  ]: Finished running node model.elementary.anomaly_threshold_sensitivity
+[0m09:21:24.704242 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_album_album_id.5b25d99261
+[0m09:21:24.704779 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.elementary.anomaly_threshold_sensitivity, now test.datapai.not_null_stg_album_album_id.5b25d99261)
+[0m09:21:24.707346 [debug] [Thread-3  ]: Writing injected SQL for node "model.elementary.alerts_dbt_models"
+[0m09:21:24.707753 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_album_album_id.5b25d99261
+[0m09:21:24.714192 [debug] [Thread-3  ]: Timing info for model.elementary.alerts_dbt_models (compile): 09:21:24.695714 => 09:21:24.713956
+[0m09:21:24.714514 [debug] [Thread-3  ]: Began executing node model.elementary.alerts_dbt_models
+[0m09:21:24.714900 [debug] [Thread-3  ]: Timing info for model.elementary.alerts_dbt_models (execute): 09:21:24.714732 => 09:21:24.714741
+[0m09:21:24.715640 [debug] [Thread-3  ]: Finished running node model.elementary.alerts_dbt_models
+[0m09:21:24.716001 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_album_album_title.1ecdc1080a
+[0m09:21:24.726373 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_album_album_id.5b25d99261"
+[0m09:21:24.727053 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.elementary.alerts_dbt_models, now test.datapai.not_null_stg_album_album_title.1ecdc1080a)
+[0m09:21:24.728257 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_album_album_title.1ecdc1080a
+[0m09:21:24.727821 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_album_album_id.5b25d99261 (compile): 09:21:24.708202 => 09:21:24.727599
+[0m09:21:24.733796 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_album_album_id.5b25d99261
+[0m09:21:24.733340 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_album_album_title.1ecdc1080a"
+[0m09:21:24.734210 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_album_album_id.5b25d99261 (execute): 09:21:24.734030 => 09:21:24.734040
+[0m09:21:24.735091 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_album_album_title.1ecdc1080a (compile): 09:21:24.728515 => 09:21:24.734859
+[0m09:21:24.735927 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_album_album_id.5b25d99261
+[0m09:21:24.736324 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_album_album_title.1ecdc1080a
+[0m09:21:24.737134 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_album_artist_id.4a798deacb
+[0m09:21:24.740490 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_album_album_title.1ecdc1080a (execute): 09:21:24.740238 => 09:21:24.740249
+[0m09:21:24.741076 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_album_album_id.5b25d99261, now test.datapai.not_null_stg_album_artist_id.4a798deacb)
+[0m09:21:24.741933 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_album_album_title.1ecdc1080a
+[0m09:21:24.742938 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_album_artist_id.4a798deacb
+[0m09:21:24.743454 [debug] [Thread-3  ]: Began running node test.datapai.unique_stg_album_album_id.d12f7c9e1f
+[0m09:21:24.750923 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_album_album_title.1ecdc1080a, now test.datapai.unique_stg_album_album_id.d12f7c9e1f)
+[0m09:21:24.751991 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_album_artist_id.4a798deacb"
+[0m09:21:24.752646 [debug] [Thread-3  ]: Began compiling node test.datapai.unique_stg_album_album_id.d12f7c9e1f
+[0m09:21:24.753243 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_album_artist_id.4a798deacb (compile): 09:21:24.744156 => 09:21:24.753032
+[0m09:21:24.759168 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_album_artist_id.4a798deacb
+[0m09:21:24.759608 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_album_artist_id.4a798deacb (execute): 09:21:24.759423 => 09:21:24.759433
+[0m09:21:24.760331 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_album_artist_id.4a798deacb
+[0m09:21:24.760725 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_artist_artist_id.a7b197e381
+[0m09:21:24.761205 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_album_artist_id.4a798deacb, now test.datapai.not_null_stg_artist_artist_id.a7b197e381)
+[0m09:21:24.761533 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_artist_artist_id.a7b197e381
+[0m09:21:24.769547 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.unique_stg_album_album_id.d12f7c9e1f"
+[0m09:21:24.771776 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_artist_artist_id.a7b197e381"
+[0m09:21:24.772649 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_artist_artist_id.a7b197e381 (compile): 09:21:24.761823 => 09:21:24.772430
+[0m09:21:24.772963 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_artist_artist_id.a7b197e381
+[0m09:21:24.774503 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_artist_artist_id.a7b197e381 (execute): 09:21:24.774282 => 09:21:24.774293
+[0m09:21:24.775278 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_artist_artist_id.a7b197e381
+[0m09:21:24.775645 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_artist_artist_name.96f41e5e0a
+[0m09:21:24.776117 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_artist_artist_id.a7b197e381, now test.datapai.not_null_stg_artist_artist_name.96f41e5e0a)
+[0m09:21:24.776439 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_artist_artist_name.96f41e5e0a
+[0m09:21:24.784295 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_artist_artist_name.96f41e5e0a"
+[0m09:21:24.784865 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_artist_artist_name.96f41e5e0a (compile): 09:21:24.776663 => 09:21:24.784671
+[0m09:21:24.785565 [debug] [Thread-3  ]: Timing info for test.datapai.unique_stg_album_album_id.d12f7c9e1f (compile): 09:21:24.753831 => 09:21:24.785341
+[0m09:21:24.786186 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_artist_artist_name.96f41e5e0a
+[0m09:21:24.787385 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_artist_artist_name.96f41e5e0a (execute): 09:21:24.787190 => 09:21:24.787198
+[0m09:21:24.786888 [debug] [Thread-3  ]: Began executing node test.datapai.unique_stg_album_album_id.d12f7c9e1f
+[0m09:21:24.788123 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_artist_artist_name.96f41e5e0a
+[0m09:21:24.788638 [debug] [Thread-3  ]: Timing info for test.datapai.unique_stg_album_album_id.d12f7c9e1f (execute): 09:21:24.788385 => 09:21:24.788396
+[0m09:21:24.789498 [debug] [Thread-2  ]: Began running node test.datapai.unique_stg_artist_artist_id.be6d44e19a
+[0m09:21:24.790387 [debug] [Thread-3  ]: Finished running node test.datapai.unique_stg_album_album_id.d12f7c9e1f
+[0m09:21:24.793432 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_artist_artist_name.96f41e5e0a, now test.datapai.unique_stg_artist_artist_id.be6d44e19a)
+[0m09:21:24.794398 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_customer_customer_address.852191b5ef
+[0m09:21:24.795338 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_stg_artist_artist_id.be6d44e19a
+[0m09:21:24.796338 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_album_album_id.d12f7c9e1f, now test.datapai.not_null_stg_customer_customer_address.852191b5ef)
+[0m09:21:24.802182 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_customer_customer_address.852191b5ef
+[0m09:21:24.807262 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_customer_customer_address.852191b5ef"
+[0m09:21:24.808350 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_stg_artist_artist_id.be6d44e19a"
+[0m09:21:24.808906 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_artist_artist_id.be6d44e19a (compile): 09:21:24.796652 => 09:21:24.808713
+[0m09:21:24.809225 [debug] [Thread-2  ]: Began executing node test.datapai.unique_stg_artist_artist_id.be6d44e19a
+[0m09:21:24.809584 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_artist_artist_id.be6d44e19a (execute): 09:21:24.809415 => 09:21:24.809424
+[0m09:21:24.810289 [debug] [Thread-2  ]: Finished running node test.datapai.unique_stg_artist_artist_id.be6d44e19a
+[0m09:21:24.810673 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_customer_customer_city.07d3671de3
+[0m09:21:24.811192 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_artist_artist_id.be6d44e19a, now test.datapai.not_null_stg_customer_customer_city.07d3671de3)
+[0m09:21:24.811815 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_customer_customer_city.07d3671de3
+[0m09:21:24.821220 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_customer_customer_city.07d3671de3"
+[0m09:21:24.821758 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_customer_customer_city.07d3671de3 (compile): 09:21:24.812383 => 09:21:24.821568
+[0m09:21:24.822062 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_customer_customer_city.07d3671de3
+[0m09:21:24.822417 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_customer_customer_city.07d3671de3 (execute): 09:21:24.822252 => 09:21:24.822259
+[0m09:21:24.823117 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_customer_customer_city.07d3671de3
+[0m09:21:24.823494 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_customer_customer_country.3917a1df1f
+[0m09:21:24.824808 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_customer_customer_city.07d3671de3, now test.datapai.not_null_stg_customer_customer_country.3917a1df1f)
+[0m09:21:24.825156 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_customer_customer_country.3917a1df1f
+[0m09:21:24.831064 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_customer_customer_country.3917a1df1f"
+[0m09:21:24.831704 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customer_customer_address.852191b5ef (compile): 09:21:24.802431 => 09:21:24.831481
+[0m09:21:24.832036 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_customer_customer_address.852191b5ef
+[0m09:21:24.832403 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customer_customer_address.852191b5ef (execute): 09:21:24.832236 => 09:21:24.832244
+[0m09:21:24.833145 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_customer_customer_address.852191b5ef
+[0m09:21:24.833551 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_customer_customer_email.2a1ad070ed
+[0m09:21:24.834908 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_customer_customer_address.852191b5ef, now test.datapai.not_null_stg_customer_customer_email.2a1ad070ed)
+[0m09:21:24.835282 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_customer_customer_email.2a1ad070ed
+[0m09:21:24.841872 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_customer_customer_email.2a1ad070ed"
+[0m09:21:24.842375 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_customer_customer_country.3917a1df1f (compile): 09:21:24.825355 => 09:21:24.842134
+[0m09:21:24.842973 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_customer_customer_country.3917a1df1f
+[0m09:21:24.843379 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_customer_customer_country.3917a1df1f (execute): 09:21:24.843207 => 09:21:24.843215
+[0m09:21:24.844081 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_customer_customer_country.3917a1df1f
+[0m09:21:24.844459 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_customer_customer_first_name.0f590c04e3
+[0m09:21:24.845015 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customer_customer_email.2a1ad070ed (compile): 09:21:24.837237 => 09:21:24.844787
+[0m09:21:24.846857 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_customer_customer_country.3917a1df1f, now test.datapai.not_null_stg_customer_customer_first_name.0f590c04e3)
+[0m09:21:24.848035 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_customer_customer_first_name.0f590c04e3
+[0m09:21:24.847634 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_customer_customer_email.2a1ad070ed
+[0m09:21:24.853742 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customer_customer_email.2a1ad070ed (execute): 09:21:24.853509 => 09:21:24.853520
+[0m09:21:24.856663 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_customer_customer_email.2a1ad070ed
+[0m09:21:24.857253 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_customer_customer_first_name.0f590c04e3"
+[0m09:21:24.857843 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_customer_customer_id.4721d3b88d
+[0m09:21:24.858614 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_customer_customer_first_name.0f590c04e3 (compile): 09:21:24.848260 => 09:21:24.858402
+[0m09:21:24.859211 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_customer_customer_email.2a1ad070ed, now test.datapai.not_null_stg_customer_customer_id.4721d3b88d)
+[0m09:21:24.859650 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_customer_customer_first_name.0f590c04e3
+[0m09:21:24.860192 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_customer_customer_id.4721d3b88d
+[0m09:21:24.860743 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_customer_customer_first_name.0f590c04e3 (execute): 09:21:24.860508 => 09:21:24.860518
+[0m09:21:24.867188 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_customer_customer_first_name.0f590c04e3
+[0m09:21:24.867591 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_customer_customer_last_name.15080c06e8
+[0m09:21:24.868172 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_customer_customer_first_name.0f590c04e3, now test.datapai.not_null_stg_customer_customer_last_name.15080c06e8)
+[0m09:21:24.868519 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_customer_customer_last_name.15080c06e8
+[0m09:21:24.874084 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_customer_customer_id.4721d3b88d"
+[0m09:21:24.874624 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customer_customer_id.4721d3b88d (compile): 09:21:24.860988 => 09:21:24.874430
+[0m09:21:24.874946 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_customer_customer_id.4721d3b88d
+[0m09:21:24.875363 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customer_customer_id.4721d3b88d (execute): 09:21:24.875189 => 09:21:24.875196
+[0m09:21:24.876062 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_customer_customer_id.4721d3b88d
+[0m09:21:24.876412 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_customer_employee_id.01436fa1bd
+[0m09:21:24.877651 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_customer_customer_id.4721d3b88d, now test.datapai.not_null_stg_customer_employee_id.01436fa1bd)
+[0m09:21:24.877995 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_customer_employee_id.01436fa1bd
+[0m09:21:24.884350 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_customer_customer_last_name.15080c06e8"
+[0m09:21:24.884925 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_customer_customer_last_name.15080c06e8 (compile): 09:21:24.868722 => 09:21:24.884732
+[0m09:21:24.885237 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_customer_customer_last_name.15080c06e8
+[0m09:21:24.885600 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_customer_customer_last_name.15080c06e8 (execute): 09:21:24.885433 => 09:21:24.885441
+[0m09:21:24.886290 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_customer_customer_last_name.15080c06e8
+[0m09:21:24.886653 [debug] [Thread-2  ]: Began running node test.datapai.unique_stg_customer_customer_id.310773d0ea
+[0m09:21:24.887666 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_customer_customer_last_name.15080c06e8, now test.datapai.unique_stg_customer_customer_id.310773d0ea)
+[0m09:21:24.888717 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_stg_customer_customer_id.310773d0ea
+[0m09:21:24.896572 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_customer_employee_id.01436fa1bd"
+[0m09:21:24.897123 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customer_employee_id.01436fa1bd (compile): 09:21:24.878196 => 09:21:24.896927
+[0m09:21:24.897437 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_customer_employee_id.01436fa1bd
+[0m09:21:24.897792 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customer_employee_id.01436fa1bd (execute): 09:21:24.897627 => 09:21:24.897635
+[0m09:21:24.898502 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_customer_employee_id.01436fa1bd
+[0m09:21:24.895246 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_stg_customer_customer_id.310773d0ea"
+[0m09:21:24.899037 [debug] [Thread-3  ]: Began running node model.datapai.dim_customer
+[0m09:21:24.901892 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_customer_customer_id.310773d0ea (compile): 09:21:24.889555 => 09:21:24.901666
+[0m09:21:24.903213 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_customer_employee_id.01436fa1bd, now model.datapai.dim_customer)
+[0m09:21:24.903858 [debug] [Thread-2  ]: Began executing node test.datapai.unique_stg_customer_customer_id.310773d0ea
+[0m09:21:24.904267 [debug] [Thread-3  ]: Began compiling node model.datapai.dim_customer
+[0m09:21:24.905172 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_customer_customer_id.310773d0ea (execute): 09:21:24.904942 => 09:21:24.904953
+[0m09:21:24.912249 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.dim_customer"
+[0m09:21:24.913116 [debug] [Thread-2  ]: Finished running node test.datapai.unique_stg_customer_customer_id.310773d0ea
+[0m09:21:24.913965 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_employee_employee_address.9b407327ef
+[0m09:21:24.914556 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_customer_customer_id.310773d0ea, now test.datapai.not_null_stg_employee_employee_address.9b407327ef)
+[0m09:21:24.914881 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_employee_employee_address.9b407327ef
+[0m09:21:24.921803 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_address.9b407327ef"
+[0m09:21:24.922409 [debug] [Thread-3  ]: Timing info for model.datapai.dim_customer (compile): 09:21:24.905656 => 09:21:24.922172
+[0m09:21:24.922741 [debug] [Thread-3  ]: Began executing node model.datapai.dim_customer
+[0m09:21:24.923119 [debug] [Thread-3  ]: Timing info for model.datapai.dim_customer (execute): 09:21:24.922927 => 09:21:24.922936
+[0m09:21:24.923881 [debug] [Thread-3  ]: Finished running node model.datapai.dim_customer
+[0m09:21:24.924248 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_employee_employee_birth_date.0ad7e2d6b1
+[0m09:21:24.924929 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.dim_customer, now test.datapai.not_null_stg_employee_employee_birth_date.0ad7e2d6b1)
+[0m09:21:24.925293 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_employee_employee_birth_date.0ad7e2d6b1
+[0m09:21:24.931346 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_address.9b407327ef (compile): 09:21:24.915114 => 09:21:24.931109
+[0m09:21:24.931707 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_employee_employee_address.9b407327ef
+[0m09:21:24.933825 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_birth_date.0ad7e2d6b1"
+[0m09:21:24.934618 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_address.9b407327ef (execute): 09:21:24.934366 => 09:21:24.934381
+[0m09:21:24.936672 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_employee_employee_address.9b407327ef
+[0m09:21:24.937060 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_employee_employee_country.56ae97c8ed
+[0m09:21:24.937553 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_address.9b407327ef, now test.datapai.not_null_stg_employee_employee_country.56ae97c8ed)
+[0m09:21:24.938358 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_employee_employee_country.56ae97c8ed
+[0m09:21:24.943598 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_country.56ae97c8ed"
+[0m09:21:24.944160 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_country.56ae97c8ed (compile): 09:21:24.938709 => 09:21:24.943961
+[0m09:21:24.945941 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_employee_employee_country.56ae97c8ed
+[0m09:21:24.946299 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_country.56ae97c8ed (execute): 09:21:24.946132 => 09:21:24.946140
+[0m09:21:24.947049 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_employee_employee_country.56ae97c8ed
+[0m09:21:24.947420 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_employee_employee_email.31c182658d
+[0m09:21:24.947902 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_country.56ae97c8ed, now test.datapai.not_null_stg_employee_employee_email.31c182658d)
+[0m09:21:24.948922 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_employee_employee_email.31c182658d
+[0m09:21:24.958094 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_email.31c182658d"
+[0m09:21:24.958645 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_email.31c182658d (compile): 09:21:24.949421 => 09:21:24.958453
+[0m09:21:24.959131 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_birth_date.0ad7e2d6b1 (compile): 09:21:24.925496 => 09:21:24.958859
+[0m09:21:24.959477 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_employee_employee_email.31c182658d
+[0m09:21:24.959832 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_employee_employee_birth_date.0ad7e2d6b1
+[0m09:21:24.960333 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_email.31c182658d (execute): 09:21:24.960087 => 09:21:24.960100
+[0m09:21:24.961165 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_birth_date.0ad7e2d6b1 (execute): 09:21:24.960933 => 09:21:24.960944
+[0m09:21:24.961962 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_employee_employee_email.31c182658d
+[0m09:21:24.963840 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_employee_employee_birth_date.0ad7e2d6b1
+[0m09:21:24.964306 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_employee_employee_fax.5e0929e06a
+[0m09:21:24.964781 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_employee_employee_first_name.321f1468a0
+[0m09:21:24.965333 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_email.31c182658d, now test.datapai.not_null_stg_employee_employee_fax.5e0929e06a)
+[0m09:21:24.967237 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_employee_employee_fax.5e0929e06a
+[0m09:21:24.966593 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_birth_date.0ad7e2d6b1, now test.datapai.not_null_stg_employee_employee_first_name.321f1468a0)
+[0m09:21:24.972753 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_employee_employee_first_name.321f1468a0
+[0m09:21:24.972305 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_fax.5e0929e06a"
+[0m09:21:24.977640 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_first_name.321f1468a0"
+[0m09:21:24.978290 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_fax.5e0929e06a (compile): 09:21:24.967462 => 09:21:24.978065
+[0m09:21:24.979225 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_first_name.321f1468a0 (compile): 09:21:24.972993 => 09:21:24.979002
+[0m09:21:24.979603 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_employee_employee_fax.5e0929e06a
+[0m09:21:24.980000 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_employee_employee_first_name.321f1468a0
+[0m09:21:24.982678 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_fax.5e0929e06a (execute): 09:21:24.982454 => 09:21:24.982466
+[0m09:21:24.983213 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_first_name.321f1468a0 (execute): 09:21:24.982960 => 09:21:24.982971
+[0m09:21:24.983987 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_employee_employee_fax.5e0929e06a
+[0m09:21:24.984884 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_employee_employee_first_name.321f1468a0
+[0m09:21:24.985813 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_employee_employee_hire_date.3dc5845e12
+[0m09:21:24.986847 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_employee_employee_id.102880b2ef
+[0m09:21:24.988164 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_fax.5e0929e06a, now test.datapai.not_null_stg_employee_employee_hire_date.3dc5845e12)
+[0m09:21:24.988830 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_first_name.321f1468a0, now test.datapai.not_null_stg_employee_employee_id.102880b2ef)
+[0m09:21:24.990291 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_employee_employee_hire_date.3dc5845e12
+[0m09:21:24.990706 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_employee_employee_id.102880b2ef
+[0m09:21:24.996387 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_hire_date.3dc5845e12"
+[0m09:21:25.001436 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_id.102880b2ef"
+[0m09:21:25.002220 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_hire_date.3dc5845e12 (compile): 09:21:24.990973 => 09:21:25.001986
+[0m09:21:25.002550 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_employee_employee_hire_date.3dc5845e12
+[0m09:21:25.002923 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_hire_date.3dc5845e12 (execute): 09:21:25.002749 => 09:21:25.002761
+[0m09:21:25.003665 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_employee_employee_hire_date.3dc5845e12
+[0m09:21:25.004011 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_employee_employee_last_name.4f5cf3091b
+[0m09:21:25.004501 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_hire_date.3dc5845e12, now test.datapai.not_null_stg_employee_employee_last_name.4f5cf3091b)
+[0m09:21:25.005514 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_employee_employee_last_name.4f5cf3091b
+[0m09:21:25.006012 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_id.102880b2ef (compile): 09:21:24.996822 => 09:21:25.005781
+[0m09:21:25.012932 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_employee_employee_id.102880b2ef
+[0m09:21:25.012399 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_last_name.4f5cf3091b"
+[0m09:21:25.013345 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_id.102880b2ef (execute): 09:21:25.013167 => 09:21:25.013176
+[0m09:21:25.014217 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_employee_employee_id.102880b2ef
+[0m09:21:25.014568 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_employee_employee_phone.b595dd7454
+[0m09:21:25.015151 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_id.102880b2ef, now test.datapai.not_null_stg_employee_employee_phone.b595dd7454)
+[0m09:21:25.016068 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_last_name.4f5cf3091b (compile): 09:21:25.006468 => 09:21:25.015831
+[0m09:21:25.017905 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_employee_employee_phone.b595dd7454
+[0m09:21:25.018540 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_employee_employee_last_name.4f5cf3091b
+[0m09:21:25.024230 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_last_name.4f5cf3091b (execute): 09:21:25.024001 => 09:21:25.024012
+[0m09:21:25.026883 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_employee_employee_last_name.4f5cf3091b
+[0m09:21:25.027290 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_employee_employee_postal_code.5963c5a4fa
+[0m09:21:25.024869 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_phone.b595dd7454"
+[0m09:21:25.027774 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_last_name.4f5cf3091b, now test.datapai.not_null_stg_employee_employee_postal_code.5963c5a4fa)
+[0m09:21:25.028761 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_phone.b595dd7454 (compile): 09:21:25.018838 => 09:21:25.028537
+[0m09:21:25.029344 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_employee_employee_postal_code.5963c5a4fa
+[0m09:21:25.029744 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_employee_employee_phone.b595dd7454
+[0m09:21:25.036244 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_phone.b595dd7454 (execute): 09:21:25.036009 => 09:21:25.036021
+[0m09:21:25.036998 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_employee_employee_phone.b595dd7454
+[0m09:21:25.037353 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_employee_employee_title.0728ddb0bb
+[0m09:21:25.038009 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_phone.b595dd7454, now test.datapai.not_null_stg_employee_employee_title.0728ddb0bb)
+[0m09:21:25.039110 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_employee_employee_title.0728ddb0bb
+[0m09:21:25.039830 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_postal_code.5963c5a4fa"
+[0m09:21:25.046655 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_employee_employee_title.0728ddb0bb"
+[0m09:21:25.048215 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_postal_code.5963c5a4fa (compile): 09:21:25.030004 => 09:21:25.047975
+[0m09:21:25.048577 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_employee_employee_postal_code.5963c5a4fa
+[0m09:21:25.048960 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_employee_employee_postal_code.5963c5a4fa (execute): 09:21:25.048790 => 09:21:25.048798
+[0m09:21:25.049402 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_title.0728ddb0bb (compile): 09:21:25.040660 => 09:21:25.049153
+[0m09:21:25.050177 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_employee_employee_postal_code.5963c5a4fa
+[0m09:21:25.050526 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_employee_employee_title.0728ddb0bb
+[0m09:21:25.050940 [debug] [Thread-2  ]: Began running node test.datapai.unique_stg_employee_employee_id.756815244f
+[0m09:21:25.051422 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_employee_employee_title.0728ddb0bb (execute): 09:21:25.051224 => 09:21:25.051233
+[0m09:21:25.052089 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_postal_code.5963c5a4fa, now test.datapai.unique_stg_employee_employee_id.756815244f)
+[0m09:21:25.053818 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_employee_employee_title.0728ddb0bb
+[0m09:21:25.054241 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_stg_employee_employee_id.756815244f
+[0m09:21:25.055132 [debug] [Thread-3  ]: Began running node model.datapai.fct_invoice
+[0m09:21:25.062561 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_stg_employee_employee_id.756815244f"
+[0m09:21:25.064184 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_employee_employee_title.0728ddb0bb, now model.datapai.fct_invoice)
+[0m09:21:25.064689 [debug] [Thread-3  ]: Began compiling node model.datapai.fct_invoice
+[0m09:21:25.068610 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.fct_invoice"
+[0m09:21:25.069257 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_employee_employee_id.756815244f (compile): 09:21:25.055425 => 09:21:25.069010
+[0m09:21:25.069593 [debug] [Thread-2  ]: Began executing node test.datapai.unique_stg_employee_employee_id.756815244f
+[0m09:21:25.069961 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_employee_employee_id.756815244f (execute): 09:21:25.069794 => 09:21:25.069802
+[0m09:21:25.070665 [debug] [Thread-2  ]: Finished running node test.datapai.unique_stg_employee_employee_id.756815244f
+[0m09:21:25.071038 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_invoice_customer_id.ad43fc527b
+[0m09:21:25.071652 [debug] [Thread-3  ]: Timing info for model.datapai.fct_invoice (compile): 09:21:25.064906 => 09:21:25.071434
+[0m09:21:25.072616 [debug] [Thread-3  ]: Began executing node model.datapai.fct_invoice
+[0m09:21:25.072158 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_employee_employee_id.756815244f, now test.datapai.not_null_stg_invoice_customer_id.ad43fc527b)
+[0m09:21:25.072974 [debug] [Thread-3  ]: Timing info for model.datapai.fct_invoice (execute): 09:21:25.072814 => 09:21:25.072820
+[0m09:21:25.073607 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_invoice_customer_id.ad43fc527b
+[0m09:21:25.074382 [debug] [Thread-3  ]: Finished running node model.datapai.fct_invoice
+[0m09:21:25.080790 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_invoice_invoice_billing_address.9f742a461f
+[0m09:21:25.081316 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.fct_invoice, now test.datapai.not_null_stg_invoice_invoice_billing_address.9f742a461f)
+[0m09:21:25.081644 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_invoice_invoice_billing_address.9f742a461f
+[0m09:21:25.169438 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_customer_id.ad43fc527b"
+[0m09:21:25.178930 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_customer_id.ad43fc527b (compile): 09:21:25.074631 => 09:21:25.178632
+[0m09:21:25.179353 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_invoice_customer_id.ad43fc527b
+[0m09:21:25.179743 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_customer_id.ad43fc527b (execute): 09:21:25.179566 => 09:21:25.179577
+[0m09:21:25.180564 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_invoice_customer_id.ad43fc527b
+[0m09:21:25.182933 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_invoice_billing_address.9f742a461f"
+[0m09:21:25.183785 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_invoice_invoice_billing_city.8a10b5ac4d
+[0m09:21:25.185412 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_customer_id.ad43fc527b, now test.datapai.not_null_stg_invoice_invoice_billing_city.8a10b5ac4d)
+[0m09:21:25.185768 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_invoice_invoice_billing_city.8a10b5ac4d
+[0m09:21:25.192117 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_invoice_billing_city.8a10b5ac4d"
+[0m09:21:25.192717 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_billing_address.9f742a461f (compile): 09:21:25.082350 => 09:21:25.192463
+[0m09:21:25.193082 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_invoice_invoice_billing_address.9f742a461f
+[0m09:21:25.193479 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_billing_address.9f742a461f (execute): 09:21:25.193298 => 09:21:25.193307
+[0m09:21:25.194210 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_invoice_invoice_billing_address.9f742a461f
+[0m09:21:25.194586 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_invoice_invoice_billing_country.f58eed528f
+[0m09:21:25.195554 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_invoice_billing_address.9f742a461f, now test.datapai.not_null_stg_invoice_invoice_billing_country.f58eed528f)
+[0m09:21:25.195880 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_invoice_invoice_billing_country.f58eed528f
+[0m09:21:25.202090 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_invoice_billing_country.f58eed528f"
+[0m09:21:25.202764 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_billing_city.8a10b5ac4d (compile): 09:21:25.186029 => 09:21:25.202515
+[0m09:21:25.203476 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_invoice_invoice_billing_city.8a10b5ac4d
+[0m09:21:25.203975 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_billing_city.8a10b5ac4d (execute): 09:21:25.203774 => 09:21:25.203786
+[0m09:21:25.204715 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_invoice_invoice_billing_city.8a10b5ac4d
+[0m09:21:25.205081 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_invoice_invoice_date.b071eb8986
+[0m09:21:25.206615 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_billing_country.f58eed528f (compile): 09:21:25.196072 => 09:21:25.205308
+[0m09:21:25.208332 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_invoice_invoice_billing_country.f58eed528f
+[0m09:21:25.207491 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_invoice_billing_city.8a10b5ac4d, now test.datapai.not_null_stg_invoice_invoice_date.b071eb8986)
+[0m09:21:25.208740 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_billing_country.f58eed528f (execute): 09:21:25.208565 => 09:21:25.208572
+[0m09:21:25.209302 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_invoice_invoice_date.b071eb8986
+[0m09:21:25.210143 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_invoice_invoice_billing_country.f58eed528f
+[0m09:21:25.218392 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_invoice_date.b071eb8986"
+[0m09:21:25.218903 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_invoice_invoice_id.01df371aae
+[0m09:21:25.219699 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_invoice_billing_country.f58eed528f, now test.datapai.not_null_stg_invoice_invoice_id.01df371aae)
+[0m09:21:25.220042 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_invoice_invoice_id.01df371aae
+[0m09:21:25.226198 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_invoice_id.01df371aae"
+[0m09:21:25.226750 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_id.01df371aae (compile): 09:21:25.220255 => 09:21:25.226551
+[0m09:21:25.227150 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_invoice_invoice_id.01df371aae
+[0m09:21:25.227640 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_date.b071eb8986 (compile): 09:21:25.210408 => 09:21:25.227407
+[0m09:21:25.228084 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_id.01df371aae (execute): 09:21:25.227866 => 09:21:25.227877
+[0m09:21:25.228429 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_invoice_invoice_date.b071eb8986
+[0m09:21:25.229565 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_invoice_invoice_id.01df371aae
+[0m09:21:25.230036 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_date.b071eb8986 (execute): 09:21:25.229821 => 09:21:25.229830
+[0m09:21:25.230433 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_invoice_invoice_total.9f7574ef23
+[0m09:21:25.231230 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_invoice_invoice_date.b071eb8986
+[0m09:21:25.232961 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_invoice_id.01df371aae, now test.datapai.not_null_stg_invoice_invoice_total.9f7574ef23)
+[0m09:21:25.233986 [debug] [Thread-2  ]: Began running node test.datapai.unique_stg_invoice_invoice_id.ff62a93d3b
+[0m09:21:25.234404 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_invoice_invoice_total.9f7574ef23
+[0m09:21:25.234964 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_invoice_date.b071eb8986, now test.datapai.unique_stg_invoice_invoice_id.ff62a93d3b)
+[0m09:21:25.242974 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_stg_invoice_invoice_id.ff62a93d3b
+[0m09:21:25.248675 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_stg_invoice_invoice_id.ff62a93d3b"
+[0m09:21:25.249282 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_invoice_invoice_id.ff62a93d3b (compile): 09:21:25.243255 => 09:21:25.249060
+[0m09:21:25.249596 [debug] [Thread-2  ]: Began executing node test.datapai.unique_stg_invoice_invoice_id.ff62a93d3b
+[0m09:21:25.249957 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_invoice_invoice_id.ff62a93d3b (execute): 09:21:25.249787 => 09:21:25.249797
+[0m09:21:25.253115 [debug] [Thread-2  ]: Finished running node test.datapai.unique_stg_invoice_invoice_id.ff62a93d3b
+[0m09:21:25.253497 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_genre_genre_id.5f523677de
+[0m09:21:25.254211 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_invoice_total.9f7574ef23"
+[0m09:21:25.255252 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_invoice_invoice_id.ff62a93d3b, now test.datapai.not_null_stg_genre_genre_id.5f523677de)
+[0m09:21:25.256055 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_total.9f7574ef23 (compile): 09:21:25.235772 => 09:21:25.255843
+[0m09:21:25.256462 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_genre_genre_id.5f523677de
+[0m09:21:25.257247 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_invoice_invoice_total.9f7574ef23
+[0m09:21:25.263525 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_genre_genre_id.5f523677de"
+[0m09:21:25.264858 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_genre_genre_id.5f523677de (compile): 09:21:25.257521 => 09:21:25.264657
+[0m09:21:25.264268 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_invoice_total.9f7574ef23 (execute): 09:21:25.264025 => 09:21:25.264039
+[0m09:21:25.265162 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_genre_genre_id.5f523677de
+[0m09:21:25.265981 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_invoice_invoice_total.9f7574ef23
+[0m09:21:25.266432 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_genre_genre_id.5f523677de (execute): 09:21:25.266221 => 09:21:25.266230
+[0m09:21:25.269513 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_genre_genre_id.5f523677de
+[0m09:21:25.266873 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_genre_genre_name.fd5fe8d5db
+[0m09:21:25.269902 [debug] [Thread-2  ]: Began running node test.datapai.unique_stg_genre_genre_id.afd28bdf4f
+[0m09:21:25.270467 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_invoice_total.9f7574ef23, now test.datapai.not_null_stg_genre_genre_name.fd5fe8d5db)
+[0m09:21:25.271060 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_genre_genre_id.5f523677de, now test.datapai.unique_stg_genre_genre_id.afd28bdf4f)
+[0m09:21:25.271490 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_genre_genre_name.fd5fe8d5db
+[0m09:21:25.271841 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_stg_genre_genre_id.afd28bdf4f
+[0m09:21:25.276864 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_genre_genre_name.fd5fe8d5db"
+[0m09:21:25.283841 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_genre_genre_name.fd5fe8d5db (compile): 09:21:25.272072 => 09:21:25.283609
+[0m09:21:25.284183 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_genre_genre_name.fd5fe8d5db
+[0m09:21:25.284586 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_genre_genre_name.fd5fe8d5db (execute): 09:21:25.284386 => 09:21:25.284395
+[0m09:21:25.285148 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_stg_genre_genre_id.afd28bdf4f"
+[0m09:21:25.287779 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_genre_genre_name.fd5fe8d5db
+[0m09:21:25.288652 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_media_type_media_type_id.7826e42fc1
+[0m09:21:25.289270 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_genre_genre_name.fd5fe8d5db, now test.datapai.not_null_stg_media_type_media_type_id.7826e42fc1)
+[0m09:21:25.290142 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_media_type_media_type_id.7826e42fc1
+[0m09:21:25.298768 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_media_type_media_type_id.7826e42fc1"
+[0m09:21:25.299325 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_genre_genre_id.afd28bdf4f (compile): 09:21:25.278255 => 09:21:25.299066
+[0m09:21:25.300105 [debug] [Thread-2  ]: Began executing node test.datapai.unique_stg_genre_genre_id.afd28bdf4f
+[0m09:21:25.300527 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_genre_genre_id.afd28bdf4f (execute): 09:21:25.300329 => 09:21:25.300339
+[0m09:21:25.301281 [debug] [Thread-2  ]: Finished running node test.datapai.unique_stg_genre_genre_id.afd28bdf4f
+[0m09:21:25.301655 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_media_type_media_type_name.13041c7733
+[0m09:21:25.302156 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_genre_genre_id.afd28bdf4f, now test.datapai.not_null_stg_media_type_media_type_name.13041c7733)
+[0m09:21:25.302689 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_media_type_media_type_name.13041c7733
+[0m09:21:25.310234 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_media_type_media_type_name.13041c7733"
+[0m09:21:25.310900 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_media_type_media_type_name.13041c7733 (compile): 09:21:25.302888 => 09:21:25.310689
+[0m09:21:25.311379 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_media_type_media_type_id.7826e42fc1 (compile): 09:21:25.290405 => 09:21:25.311145
+[0m09:21:25.311736 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_media_type_media_type_name.13041c7733
+[0m09:21:25.312114 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_media_type_media_type_id.7826e42fc1
+[0m09:21:25.312614 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_media_type_media_type_name.13041c7733 (execute): 09:21:25.312384 => 09:21:25.312395
+[0m09:21:25.313034 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_media_type_media_type_id.7826e42fc1 (execute): 09:21:25.312841 => 09:21:25.312849
+[0m09:21:25.314825 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_media_type_media_type_name.13041c7733
+[0m09:21:25.316457 [debug] [Thread-2  ]: Began running node test.datapai.unique_stg_media_type_media_type_id.6cc267ef44
+[0m09:21:25.316022 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_media_type_media_type_id.7826e42fc1
+[0m09:21:25.316960 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_media_type_media_type_name.13041c7733, now test.datapai.unique_stg_media_type_media_type_id.6cc267ef44)
+[0m09:21:25.317652 [debug] [Thread-3  ]: Began running node model.datapai.fct_invoice_line
+[0m09:21:25.318441 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_stg_media_type_media_type_id.6cc267ef44
+[0m09:21:25.319075 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_media_type_media_type_id.7826e42fc1, now model.datapai.fct_invoice_line)
+[0m09:21:25.327044 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_stg_media_type_media_type_id.6cc267ef44"
+[0m09:21:25.327676 [debug] [Thread-3  ]: Began compiling node model.datapai.fct_invoice_line
+[0m09:21:25.331971 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.fct_invoice_line"
+[0m09:21:25.332595 [debug] [Thread-3  ]: Timing info for model.datapai.fct_invoice_line (compile): 09:21:25.328084 => 09:21:25.332375
+[0m09:21:25.332911 [debug] [Thread-3  ]: Began executing node model.datapai.fct_invoice_line
+[0m09:21:25.333279 [debug] [Thread-3  ]: Timing info for model.datapai.fct_invoice_line (execute): 09:21:25.333109 => 09:21:25.333118
+[0m09:21:25.334016 [debug] [Thread-3  ]: Finished running node model.datapai.fct_invoice_line
+[0m09:21:25.334386 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_invoice_line_invoice_id.50f6562bf0
+[0m09:21:25.335954 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.fct_invoice_line, now test.datapai.not_null_stg_invoice_line_invoice_id.50f6562bf0)
+[0m09:21:25.335410 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_media_type_media_type_id.6cc267ef44 (compile): 09:21:25.319889 => 09:21:25.335182
+[0m09:21:25.336670 [debug] [Thread-2  ]: Began executing node test.datapai.unique_stg_media_type_media_type_id.6cc267ef44
+[0m09:21:25.336284 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_invoice_line_invoice_id.50f6562bf0
+[0m09:21:25.337079 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_media_type_media_type_id.6cc267ef44 (execute): 09:21:25.336895 => 09:21:25.336902
+[0m09:21:25.343906 [debug] [Thread-2  ]: Finished running node test.datapai.unique_stg_media_type_media_type_id.6cc267ef44
+[0m09:21:25.344315 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_invoice_line_invoice_line_id.c9cc6cb0b8
+[0m09:21:25.344915 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_media_type_media_type_id.6cc267ef44, now test.datapai.not_null_stg_invoice_line_invoice_line_id.c9cc6cb0b8)
+[0m09:21:25.345236 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_invoice_line_invoice_line_id.c9cc6cb0b8
+[0m09:21:25.353641 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_line_invoice_id.50f6562bf0"
+[0m09:21:25.356526 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_line_invoice_line_id.c9cc6cb0b8"
+[0m09:21:25.357298 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_line_invoice_line_id.c9cc6cb0b8 (compile): 09:21:25.345436 => 09:21:25.357090
+[0m09:21:25.358236 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_invoice_line_invoice_line_id.c9cc6cb0b8
+[0m09:21:25.358666 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_line_invoice_line_id.c9cc6cb0b8 (execute): 09:21:25.358485 => 09:21:25.358495
+[0m09:21:25.359395 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_invoice_line_invoice_line_id.c9cc6cb0b8
+[0m09:21:25.359765 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_invoice_line_track_id.5d35924e21
+[0m09:21:25.360267 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_line_invoice_line_id.c9cc6cb0b8, now test.datapai.not_null_stg_invoice_line_track_id.5d35924e21)
+[0m09:21:25.360615 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_invoice_line_track_id.5d35924e21
+[0m09:21:25.367631 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_line_invoice_id.50f6562bf0 (compile): 09:21:25.337707 => 09:21:25.367395
+[0m09:21:25.366355 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_line_track_id.5d35924e21"
+[0m09:21:25.371851 [debug] [Thread-1  ]: SQL status: SUCCESS 1 in 1.0 seconds
+[0m09:21:25.372310 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_invoice_line_invoice_id.50f6562bf0
+[0m09:21:25.374083 [debug] [Thread-1  ]: Elementary: Uploaded dbt invocation successfully.
+[0m09:21:25.376463 [debug] [Thread-1  ]: Writing injected SQL for node "operation.elementary.elementary-on-run-end-0"
+[0m09:21:25.374650 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_line_track_id.5d35924e21 (compile): 09:21:25.361434 => 09:21:25.374420
+[0m09:21:25.375540 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_line_invoice_id.50f6562bf0 (execute): 09:21:25.375306 => 09:21:25.375322
+[0m09:21:25.377010 [debug] [Thread-1  ]: Timing info for operation.elementary.elementary-on-run-end-0 (compile): 09:21:23.751472 => 09:21:25.376815
+[0m09:21:25.377487 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_invoice_line_track_id.5d35924e21
+[0m09:21:25.378719 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_invoice_line_invoice_id.50f6562bf0
+[0m09:21:25.379130 [debug] [Thread-1  ]: Began executing node operation.elementary.elementary-on-run-end-0
+[0m09:21:25.379928 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_line_track_id.5d35924e21 (execute): 09:21:25.379695 => 09:21:25.379706
+[0m09:21:25.380419 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_invoice_line_track_quantity.ae23361304
+[0m09:21:25.381023 [debug] [Thread-1  ]: Timing info for operation.elementary.elementary-on-run-end-0 (execute): 09:21:25.380808 => 09:21:25.380818
+[0m09:21:25.382086 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_invoice_line_track_id.5d35924e21
+[0m09:21:25.383160 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_line_invoice_id.50f6562bf0, now test.datapai.not_null_stg_invoice_line_track_quantity.ae23361304)
+[0m09:21:25.383582 [debug] [Thread-1  ]: On operation.elementary.elementary-on-run-end-0: Close
+[0m09:21:25.384026 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_invoice_line_track_unit_price.12de227af6
+[0m09:21:25.384476 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_invoice_line_track_quantity.ae23361304
+[0m09:21:25.387268 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_line_track_id.5d35924e21, now test.datapai.not_null_stg_invoice_line_track_unit_price.12de227af6)
+[0m09:21:25.395232 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_invoice_line_track_unit_price.12de227af6
+[0m09:21:25.401205 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_line_track_unit_price.12de227af6"
+[0m09:21:25.401847 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_invoice_line_track_quantity.ae23361304"
+[0m09:21:25.402451 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_line_track_quantity.ae23361304 (compile): 09:21:25.387895 => 09:21:25.402249
+[0m09:21:25.402819 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_invoice_line_track_quantity.ae23361304
+[0m09:21:25.403254 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_invoice_line_track_quantity.ae23361304 (execute): 09:21:25.403061 => 09:21:25.403072
+[0m09:21:25.403981 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_invoice_line_track_quantity.ae23361304
+[0m09:21:25.404346 [debug] [Thread-3  ]: Began running node test.datapai.unique_stg_invoice_line_invoice_line_id.77928a3e6b
+[0m09:21:25.404842 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_line_track_quantity.ae23361304, now test.datapai.unique_stg_invoice_line_invoice_line_id.77928a3e6b)
+[0m09:21:25.405145 [debug] [Thread-3  ]: Began compiling node test.datapai.unique_stg_invoice_line_invoice_line_id.77928a3e6b
+[0m09:21:25.410121 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.unique_stg_invoice_line_invoice_line_id.77928a3e6b"
+[0m09:21:25.412430 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_line_track_unit_price.12de227af6 (compile): 09:21:25.395490 => 09:21:25.412169
+[0m09:21:25.412821 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_invoice_line_track_unit_price.12de227af6
+[0m09:21:25.416491 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_invoice_line_track_unit_price.12de227af6 (execute): 09:21:25.416230 => 09:21:25.416245
+[0m09:21:25.418473 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_invoice_line_track_unit_price.12de227af6
+[0m09:21:25.418872 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_playlist_playlist_id.ce164d9d24
+[0m09:21:25.419410 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_invoice_line_track_unit_price.12de227af6, now test.datapai.not_null_stg_playlist_playlist_id.ce164d9d24)
+[0m09:21:25.420139 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_playlist_playlist_id.ce164d9d24
+[0m09:21:25.427584 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_playlist_playlist_id.ce164d9d24"
+[0m09:21:25.428398 [debug] [Thread-3  ]: Timing info for test.datapai.unique_stg_invoice_line_invoice_line_id.77928a3e6b (compile): 09:21:25.405354 => 09:21:25.428154
+[0m09:21:25.429069 [debug] [Thread-3  ]: Began executing node test.datapai.unique_stg_invoice_line_invoice_line_id.77928a3e6b
+[0m09:21:25.429471 [debug] [Thread-3  ]: Timing info for test.datapai.unique_stg_invoice_line_invoice_line_id.77928a3e6b (execute): 09:21:25.429295 => 09:21:25.429304
+[0m09:21:25.430351 [debug] [Thread-3  ]: Finished running node test.datapai.unique_stg_invoice_line_invoice_line_id.77928a3e6b
+[0m09:21:25.430946 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_playlist_playlist_name.ee2cc91336
+[0m09:21:25.433934 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_invoice_line_invoice_line_id.77928a3e6b, now test.datapai.not_null_stg_playlist_playlist_name.ee2cc91336)
+[0m09:21:25.434293 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_playlist_playlist_name.ee2cc91336
+[0m09:21:25.435781 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_playlist_playlist_id.ce164d9d24 (compile): 09:21:25.420358 => 09:21:25.435548
+[0m09:21:25.442342 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_playlist_playlist_id.ce164d9d24
+[0m09:21:25.442779 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_playlist_playlist_id.ce164d9d24 (execute): 09:21:25.442594 => 09:21:25.442603
+[0m09:21:25.444418 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_playlist_playlist_name.ee2cc91336"
+[0m09:21:25.445738 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_playlist_playlist_id.ce164d9d24
+[0m09:21:25.446532 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_playlist_playlist_name.ee2cc91336 (compile): 09:21:25.436587 => 09:21:25.446321
+[0m09:21:25.447334 [debug] [Thread-2  ]: Began running node test.datapai.unique_stg_playlist_playlist_id.6f899c44f6
+[0m09:21:25.448884 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_playlist_playlist_id.ce164d9d24, now test.datapai.unique_stg_playlist_playlist_id.6f899c44f6)
+[0m09:21:25.447785 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_playlist_playlist_name.ee2cc91336
+[0m09:21:25.449217 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_stg_playlist_playlist_id.6f899c44f6
+[0m09:21:25.449691 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_playlist_playlist_name.ee2cc91336 (execute): 09:21:25.449468 => 09:21:25.449479
+[0m09:21:25.456640 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_playlist_playlist_name.ee2cc91336
+[0m09:21:25.458725 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_playlist_track_playlist_id.a509a68ada
+[0m09:21:25.459394 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_playlist_playlist_name.ee2cc91336, now test.datapai.not_null_stg_playlist_track_playlist_id.a509a68ada)
+[0m09:21:25.459746 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_playlist_track_playlist_id.a509a68ada
+[0m09:21:25.455768 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_stg_playlist_playlist_id.6f899c44f6"
+[0m09:21:25.468812 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_playlist_playlist_id.6f899c44f6 (compile): 09:21:25.450823 => 09:21:25.468612
+[0m09:21:25.468184 [debug] [Thread-1  ]: Finished running node operation.elementary.elementary-on-run-end-0
+[0m09:21:25.469119 [debug] [Thread-2  ]: Began executing node test.datapai.unique_stg_playlist_playlist_id.6f899c44f6
+[0m09:21:25.469911 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_playlist_track_playlist_id.a509a68ada"
+[0m09:21:25.470758 [debug] [Thread-1  ]: Began running node test.datapai.not_null_stg_playlist_track_track_id.971e5c3ed1
+[0m09:21:25.471369 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_playlist_playlist_id.6f899c44f6 (execute): 09:21:25.471140 => 09:21:25.471152
+[0m09:21:25.471962 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_playlist_track_playlist_id.a509a68ada (compile): 09:21:25.460676 => 09:21:25.471743
+[0m09:21:25.472781 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly operation.elementary.elementary-on-run-end-0, now test.datapai.not_null_stg_playlist_track_track_id.971e5c3ed1)
+[0m09:21:25.473657 [debug] [Thread-2  ]: Finished running node test.datapai.unique_stg_playlist_playlist_id.6f899c44f6
+[0m09:21:25.478803 [debug] [Thread-2  ]: Began running node model.datapai.users
+[0m09:21:25.475103 [debug] [Thread-1  ]: Began compiling node test.datapai.not_null_stg_playlist_track_track_id.971e5c3ed1
+[0m09:21:25.474034 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_playlist_track_playlist_id.a509a68ada
+[0m09:21:25.480029 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_playlist_playlist_id.6f899c44f6, now model.datapai.users)
+[0m09:21:25.486587 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.not_null_stg_playlist_track_track_id.971e5c3ed1"
+[0m09:21:25.487555 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_playlist_track_playlist_id.a509a68ada (execute): 09:21:25.487306 => 09:21:25.487319
+[0m09:21:25.487947 [debug] [Thread-2  ]: Began compiling node model.datapai.users
+[0m09:21:25.488951 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_playlist_track_playlist_id.a509a68ada
+[0m09:21:25.495374 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_playlist_track_track_id.971e5c3ed1 (compile): 09:21:25.480622 => 09:21:25.495123
+[0m09:21:25.497369 [debug] [Thread-1  ]: Began executing node test.datapai.not_null_stg_playlist_track_track_id.971e5c3ed1
+[0m09:21:25.496092 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_customers_customer_id.e2cfb1f9aa
+[0m09:21:25.494312 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.users"
+[0m09:21:25.497906 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_playlist_track_track_id.971e5c3ed1 (execute): 09:21:25.497630 => 09:21:25.497639
+[0m09:21:25.498900 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_playlist_track_playlist_id.a509a68ada, now test.datapai.not_null_stg_customers_customer_id.e2cfb1f9aa)
+[0m09:21:25.503737 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_customers_customer_id.e2cfb1f9aa
+[0m09:21:25.501303 [debug] [Thread-2  ]: Timing info for model.datapai.users (compile): 09:21:25.489277 => 09:21:25.501060
+[0m09:21:25.500536 [debug] [Thread-1  ]: Finished running node test.datapai.not_null_stg_playlist_track_track_id.971e5c3ed1
+[0m09:21:25.509310 [debug] [Thread-2  ]: Began executing node model.datapai.users
+[0m09:21:25.508860 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_customers_customer_id.e2cfb1f9aa"
+[0m09:21:25.509899 [debug] [Thread-1  ]: Began running node test.datapai.unique_stg_customers_customer_id.c7614daada
+[0m09:21:25.510393 [debug] [Thread-2  ]: Timing info for model.datapai.users (execute): 09:21:25.510180 => 09:21:25.510191
+[0m09:21:25.511178 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_playlist_track_track_id.971e5c3ed1, now test.datapai.unique_stg_customers_customer_id.c7614daada)
+[0m09:21:25.511781 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customers_customer_id.e2cfb1f9aa (compile): 09:21:25.503986 => 09:21:25.511550
+[0m09:21:25.512639 [debug] [Thread-2  ]: Finished running node model.datapai.users
+[0m09:21:25.513194 [debug] [Thread-1  ]: Began compiling node test.datapai.unique_stg_customers_customer_id.c7614daada
+[0m09:21:25.513628 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_customers_customer_id.e2cfb1f9aa
+[0m09:21:25.514394 [debug] [Thread-2  ]: Began running node model.datapai.payments
+[0m09:21:25.522862 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.unique_stg_customers_customer_id.c7614daada"
+[0m09:21:25.523454 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_customers_customer_id.e2cfb1f9aa (execute): 09:21:25.523199 => 09:21:25.523214
+[0m09:21:25.524499 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.users, now model.datapai.payments)
+[0m09:21:25.526549 [debug] [Thread-2  ]: Began compiling node model.datapai.payments
+[0m09:21:25.525952 [debug] [Thread-1  ]: Timing info for test.datapai.unique_stg_customers_customer_id.c7614daada (compile): 09:21:25.514708 => 09:21:25.525740
+[0m09:21:25.525440 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_customers_customer_id.e2cfb1f9aa
+[0m09:21:25.533386 [debug] [Thread-3  ]: Began running node test.datapai.accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card.3c3820f278
+[0m09:21:25.532292 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.payments"
+[0m09:21:25.532694 [debug] [Thread-1  ]: Began executing node test.datapai.unique_stg_customers_customer_id.c7614daada
+[0m09:21:25.533908 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_customers_customer_id.e2cfb1f9aa, now test.datapai.accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card.3c3820f278)
+[0m09:21:25.534834 [debug] [Thread-2  ]: Timing info for model.datapai.payments (compile): 09:21:25.526785 => 09:21:25.534482
+[0m09:21:25.536594 [debug] [Thread-2  ]: Began executing node model.datapai.payments
+[0m09:21:25.536144 [debug] [Thread-3  ]: Began compiling node test.datapai.accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card.3c3820f278
+[0m09:21:25.535370 [debug] [Thread-1  ]: Timing info for test.datapai.unique_stg_customers_customer_id.c7614daada (execute): 09:21:25.535129 => 09:21:25.535140
+[0m09:21:25.537019 [debug] [Thread-2  ]: Timing info for model.datapai.payments (execute): 09:21:25.536831 => 09:21:25.536838
+[0m09:21:25.549394 [debug] [Thread-1  ]: Finished running node test.datapai.unique_stg_customers_customer_id.c7614daada
+[0m09:21:25.552023 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card.3c3820f278"
+[0m09:21:25.554602 [debug] [Thread-3  ]: Timing info for test.datapai.accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card.3c3820f278 (compile): 09:21:25.537254 => 09:21:25.554379
+[0m09:21:25.553910 [debug] [Thread-1  ]: Began running node test.datapai.not_null_stg_payments_payment_id.c19cc50075
+[0m09:21:25.552936 [debug] [Thread-2  ]: Finished running node model.datapai.payments
+[0m09:21:25.554934 [debug] [Thread-3  ]: Began executing node test.datapai.accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card.3c3820f278
+[0m09:21:25.557284 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_customers_customer_id.c7614daada, now test.datapai.not_null_stg_payments_payment_id.c19cc50075)
+[0m09:21:25.558655 [debug] [Thread-1  ]: Began compiling node test.datapai.not_null_stg_payments_payment_id.c19cc50075
+[0m09:21:25.558297 [debug] [Thread-3  ]: Timing info for test.datapai.accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card.3c3820f278 (execute): 09:21:25.558053 => 09:21:25.558065
+[0m09:21:25.557770 [debug] [Thread-2  ]: Began running node test.datapai.unique_stg_payments_payment_id.3744510712
+[0m09:21:25.564672 [debug] [Thread-3  ]: Finished running node test.datapai.accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card.3c3820f278
+[0m09:21:25.566663 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.not_null_stg_payments_payment_id.c19cc50075"
+[0m09:21:25.567388 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.payments, now test.datapai.unique_stg_payments_payment_id.3744510712)
+[0m09:21:25.568442 [debug] [Thread-3  ]: Began running node model.datapai.customers
+[0m09:21:25.569873 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_stg_payments_payment_id.3744510712
+[0m09:21:25.571330 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card.3c3820f278, now model.datapai.customers)
+[0m09:21:25.578139 [debug] [Thread-3  ]: Began compiling node model.datapai.customers
+[0m09:21:25.582494 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.customers"
+[0m09:21:25.585158 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_stg_payments_payment_id.3744510712"
+[0m09:21:25.585847 [debug] [Thread-3  ]: Timing info for model.datapai.customers (compile): 09:21:25.578402 => 09:21:25.585604
+[0m09:21:25.586182 [debug] [Thread-3  ]: Began executing node model.datapai.customers
+[0m09:21:25.586557 [debug] [Thread-3  ]: Timing info for model.datapai.customers (execute): 09:21:25.586378 => 09:21:25.586386
+[0m09:21:25.587322 [debug] [Thread-3  ]: Finished running node model.datapai.customers
+[0m09:21:25.587690 [debug] [Thread-3  ]: Began running node model.datapai.orders
+[0m09:21:25.588351 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.customers, now model.datapai.orders)
+[0m09:21:25.588723 [debug] [Thread-3  ]: Began compiling node model.datapai.orders
+[0m09:21:25.599145 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.orders"
+[0m09:21:25.599733 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_payments_payment_id.c19cc50075 (compile): 09:21:25.558880 => 09:21:25.599505
+[0m09:21:25.601737 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_payments_payment_id.3744510712 (compile): 09:21:25.571993 => 09:21:25.601507
+[0m09:21:25.603048 [debug] [Thread-1  ]: Began executing node test.datapai.not_null_stg_payments_payment_id.c19cc50075
+[0m09:21:25.603754 [debug] [Thread-3  ]: Timing info for model.datapai.orders (compile): 09:21:25.591084 => 09:21:25.603511
+[0m09:21:25.604340 [debug] [Thread-2  ]: Began executing node test.datapai.unique_stg_payments_payment_id.3744510712
+[0m09:21:25.605316 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_payments_payment_id.c19cc50075 (execute): 09:21:25.605087 => 09:21:25.605100
+[0m09:21:25.605707 [debug] [Thread-3  ]: Began executing node model.datapai.orders
+[0m09:21:25.606249 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_payments_payment_id.3744510712 (execute): 09:21:25.605990 => 09:21:25.606001
+[0m09:21:25.607109 [debug] [Thread-1  ]: Finished running node test.datapai.not_null_stg_payments_payment_id.c19cc50075
+[0m09:21:25.607729 [debug] [Thread-3  ]: Timing info for model.datapai.orders (execute): 09:21:25.607485 => 09:21:25.607496
+[0m09:21:25.608590 [debug] [Thread-2  ]: Finished running node test.datapai.unique_stg_payments_payment_id.3744510712
+[0m09:21:25.611895 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_orders_order_id.81cfe2fe64
+[0m09:21:25.609044 [debug] [Thread-1  ]: Began running node test.datapai.accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned.080fb20aad
+[0m09:21:25.610250 [debug] [Thread-3  ]: Finished running node model.datapai.orders
+[0m09:21:25.612401 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_payments_payment_id.3744510712, now test.datapai.not_null_stg_orders_order_id.81cfe2fe64)
+[0m09:21:25.613443 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_payments_payment_id.c19cc50075, now test.datapai.accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned.080fb20aad)
+[0m09:21:25.613936 [debug] [Thread-3  ]: Began running node test.datapai.unique_stg_orders_order_id.e3b841c71a
+[0m09:21:25.614301 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_orders_order_id.81cfe2fe64
+[0m09:21:25.615151 [debug] [Thread-1  ]: Began compiling node test.datapai.accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned.080fb20aad
+[0m09:21:25.616207 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.orders, now test.datapai.unique_stg_orders_order_id.e3b841c71a)
+[0m09:21:25.630282 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_orders_order_id.81cfe2fe64"
+[0m09:21:25.630930 [debug] [Thread-3  ]: Began compiling node test.datapai.unique_stg_orders_order_id.e3b841c71a
+[0m09:21:25.631558 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_orders_order_id.81cfe2fe64 (compile): 09:21:25.616776 => 09:21:25.631347
+[0m09:21:25.640494 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_orders_order_id.81cfe2fe64
+[0m09:21:25.633981 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned.080fb20aad"
+[0m09:21:25.640921 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_orders_order_id.81cfe2fe64 (execute): 09:21:25.640739 => 09:21:25.640748
+[0m09:21:25.642440 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.unique_stg_orders_order_id.e3b841c71a"
+[0m09:21:25.643374 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_orders_order_id.81cfe2fe64
+[0m09:21:25.644297 [debug] [Thread-2  ]: Began running node model.datapai.dim_track
+[0m09:21:25.644820 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_orders_order_id.81cfe2fe64, now model.datapai.dim_track)
+[0m09:21:25.645480 [debug] [Thread-2  ]: Began compiling node model.datapai.dim_track
+[0m09:21:25.651526 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.dim_track"
+[0m09:21:25.652474 [debug] [Thread-1  ]: Timing info for test.datapai.accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned.080fb20aad (compile): 09:21:25.622198 => 09:21:25.652216
+[0m09:21:25.653582 [debug] [Thread-2  ]: Timing info for model.datapai.dim_track (compile): 09:21:25.645716 => 09:21:25.653373
+[0m09:21:25.655767 [debug] [Thread-2  ]: Began executing node model.datapai.dim_track
+[0m09:21:25.654656 [debug] [Thread-3  ]: Timing info for test.datapai.unique_stg_orders_order_id.e3b841c71a (compile): 09:21:25.634585 => 09:21:25.654421
+[0m09:21:25.655068 [debug] [Thread-1  ]: Began executing node test.datapai.accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned.080fb20aad
+[0m09:21:25.656206 [debug] [Thread-2  ]: Timing info for model.datapai.dim_track (execute): 09:21:25.656025 => 09:21:25.656033
+[0m09:21:25.656586 [debug] [Thread-3  ]: Began executing node test.datapai.unique_stg_orders_order_id.e3b841c71a
+[0m09:21:25.657337 [debug] [Thread-1  ]: Timing info for test.datapai.accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned.080fb20aad (execute): 09:21:25.657106 => 09:21:25.657116
+[0m09:21:25.658151 [debug] [Thread-2  ]: Finished running node model.datapai.dim_track
+[0m09:21:25.658846 [debug] [Thread-3  ]: Timing info for test.datapai.unique_stg_orders_order_id.e3b841c71a (execute): 09:21:25.658616 => 09:21:25.658627
+[0m09:21:25.659987 [debug] [Thread-1  ]: Finished running node test.datapai.accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned.080fb20aad
+[0m09:21:25.660460 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_track_album_id.8e679e40b6
+[0m09:21:25.661677 [debug] [Thread-3  ]: Finished running node test.datapai.unique_stg_orders_order_id.e3b841c71a
+[0m09:21:25.662137 [debug] [Thread-1  ]: Began running node test.datapai.not_null_stg_track_genre_id.cf83941793
+[0m09:21:25.663340 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly model.datapai.dim_track, now test.datapai.not_null_stg_track_album_id.8e679e40b6)
+[0m09:21:25.663799 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_track_media_type_id.8d676c31f1
+[0m09:21:25.665528 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned.080fb20aad, now test.datapai.not_null_stg_track_genre_id.cf83941793)
+[0m09:21:25.666614 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_track_album_id.8e679e40b6
+[0m09:21:25.667215 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_orders_order_id.e3b841c71a, now test.datapai.not_null_stg_track_media_type_id.8d676c31f1)
+[0m09:21:25.667621 [debug] [Thread-1  ]: Began compiling node test.datapai.not_null_stg_track_genre_id.cf83941793
+[0m09:21:25.673875 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_track_media_type_id.8d676c31f1
+[0m09:21:25.679819 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_track_album_id.8e679e40b6"
+[0m09:21:25.686509 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_track_album_id.8e679e40b6 (compile): 09:21:25.667881 => 09:21:25.686291
+[0m09:21:25.687619 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.not_null_stg_track_genre_id.cf83941793"
+[0m09:21:25.688747 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_track_media_type_id.8d676c31f1"
+[0m09:21:25.689154 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_track_album_id.8e679e40b6
+[0m09:21:25.691179 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_track_album_id.8e679e40b6 (execute): 09:21:25.690930 => 09:21:25.690942
+[0m09:21:25.692870 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_track_album_id.8e679e40b6
+[0m09:21:25.693267 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_track_track_bytes.0f9f9470d9
+[0m09:21:25.694615 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_track_album_id.8e679e40b6, now test.datapai.not_null_stg_track_track_bytes.0f9f9470d9)
+[0m09:21:25.694970 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_track_track_bytes.0f9f9470d9
+[0m09:21:25.701670 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_track_genre_id.cf83941793 (compile): 09:21:25.674160 => 09:21:25.701399
+[0m09:21:25.702603 [debug] [Thread-1  ]: Began executing node test.datapai.not_null_stg_track_genre_id.cf83941793
+[0m09:21:25.703087 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_track_genre_id.cf83941793 (execute): 09:21:25.702893 => 09:21:25.702901
+[0m09:21:25.703845 [debug] [Thread-1  ]: Finished running node test.datapai.not_null_stg_track_genre_id.cf83941793
+[0m09:21:25.704252 [debug] [Thread-1  ]: Began running node test.datapai.not_null_stg_track_track_id.176bd09265
+[0m09:21:25.705765 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_track_genre_id.cf83941793, now test.datapai.not_null_stg_track_track_id.176bd09265)
+[0m09:21:25.706775 [debug] [Thread-1  ]: Began compiling node test.datapai.not_null_stg_track_track_id.176bd09265
+[0m09:21:25.713022 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_track_track_bytes.0f9f9470d9"
+[0m09:21:25.713580 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_track_track_bytes.0f9f9470d9 (compile): 09:21:25.695213 => 09:21:25.713386
+[0m09:21:25.713907 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_track_track_bytes.0f9f9470d9
+[0m09:21:25.714466 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_track_track_bytes.0f9f9470d9 (execute): 09:21:25.714215 => 09:21:25.714228
+[0m09:21:25.715305 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_track_track_bytes.0f9f9470d9
+[0m09:21:25.720377 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.not_null_stg_track_track_id.176bd09265"
+[0m09:21:25.720910 [debug] [Thread-2  ]: Began running node test.datapai.not_null_stg_track_track_milliseconds.578ce7a180
+[0m09:21:25.721413 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_track_media_type_id.8d676c31f1 (compile): 09:21:25.680134 => 09:21:25.721163
+[0m09:21:25.722662 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_track_track_bytes.0f9f9470d9, now test.datapai.not_null_stg_track_track_milliseconds.578ce7a180)
+[0m09:21:25.723201 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_track_media_type_id.8d676c31f1
+[0m09:21:25.725797 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_track_media_type_id.8d676c31f1 (execute): 09:21:25.725562 => 09:21:25.725575
+[0m09:21:25.724841 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_track_track_id.176bd09265 (compile): 09:21:25.707086 => 09:21:25.724604
+[0m09:21:25.726939 [debug] [Thread-1  ]: Began executing node test.datapai.not_null_stg_track_track_id.176bd09265
+[0m09:21:25.727403 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_track_track_id.176bd09265 (execute): 09:21:25.727222 => 09:21:25.727229
+[0m09:21:25.728117 [debug] [Thread-1  ]: Finished running node test.datapai.not_null_stg_track_track_id.176bd09265
+[0m09:21:25.724006 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_stg_track_track_milliseconds.578ce7a180
+[0m09:21:25.726543 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_track_media_type_id.8d676c31f1
+[0m09:21:25.728488 [debug] [Thread-1  ]: Began running node test.datapai.not_null_stg_track_track_name.9190c61d6c
+[0m09:21:25.819965 [debug] [Thread-3  ]: Began running node test.datapai.not_null_stg_track_track_unit_price.3541e4453d
+[0m09:21:25.826320 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_stg_track_track_milliseconds.578ce7a180"
+[0m09:21:25.827079 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_track_track_id.176bd09265, now test.datapai.not_null_stg_track_track_name.9190c61d6c)
+[0m09:21:25.827709 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_track_media_type_id.8d676c31f1, now test.datapai.not_null_stg_track_track_unit_price.3541e4453d)
+[0m09:21:25.828548 [debug] [Thread-1  ]: Began compiling node test.datapai.not_null_stg_track_track_name.9190c61d6c
+[0m09:21:25.829377 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_track_track_milliseconds.578ce7a180 (compile): 09:21:25.729168 => 09:21:25.829149
+[0m09:21:25.830030 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_stg_track_track_unit_price.3541e4453d
+[0m09:21:25.837702 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_stg_track_track_milliseconds.578ce7a180
+[0m09:21:25.835085 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.not_null_stg_track_track_name.9190c61d6c"
+[0m09:21:25.847666 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_stg_track_track_unit_price.3541e4453d"
+[0m09:21:25.848224 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_stg_track_track_milliseconds.578ce7a180 (execute): 09:21:25.847942 => 09:21:25.847959
+[0m09:21:25.849315 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_track_track_name.9190c61d6c (compile): 09:21:25.830306 => 09:21:25.849105
+[0m09:21:25.850208 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_track_track_unit_price.3541e4453d (compile): 09:21:25.837997 => 09:21:25.849996
+[0m09:21:25.852205 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_stg_track_track_unit_price.3541e4453d
+[0m09:21:25.851498 [debug] [Thread-1  ]: Began executing node test.datapai.not_null_stg_track_track_name.9190c61d6c
+[0m09:21:25.851098 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_stg_track_track_milliseconds.578ce7a180
+[0m09:21:25.853740 [debug] [Thread-2  ]: Began running node test.datapai.unique_stg_track_track_id.39ecf945cc
+[0m09:21:25.852640 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_stg_track_track_unit_price.3541e4453d (execute): 09:21:25.852449 => 09:21:25.852469
+[0m09:21:25.853069 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_stg_track_track_name.9190c61d6c (execute): 09:21:25.852857 => 09:21:25.852866
+[0m09:21:25.854271 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_track_track_milliseconds.578ce7a180, now test.datapai.unique_stg_track_track_id.39ecf945cc)
+[0m09:21:25.855722 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_stg_track_track_unit_price.3541e4453d
+[0m09:21:25.856587 [debug] [Thread-1  ]: Finished running node test.datapai.not_null_stg_track_track_name.9190c61d6c
+[0m09:21:25.857175 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_stg_track_track_id.39ecf945cc
+[0m09:21:25.857647 [debug] [Thread-3  ]: Began running node model.datapai.obt_invoice
+[0m09:21:25.858571 [debug] [Thread-1  ]: Began running node test.datapai.not_null_customers_customer_id.5c9bf9911d
+[0m09:21:25.864506 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_track_track_unit_price.3541e4453d, now model.datapai.obt_invoice)
+[0m09:21:25.865978 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_stg_track_track_id.39ecf945cc"
+[0m09:21:25.866658 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_stg_track_track_name.9190c61d6c, now test.datapai.not_null_customers_customer_id.5c9bf9911d)
+[0m09:21:25.867095 [debug] [Thread-3  ]: Began compiling node model.datapai.obt_invoice
+[0m09:21:25.868041 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_track_track_id.39ecf945cc (compile): 09:21:25.858854 => 09:21:25.867822
+[0m09:21:25.868441 [debug] [Thread-1  ]: Began compiling node test.datapai.not_null_customers_customer_id.5c9bf9911d
+[0m09:21:25.874055 [debug] [Thread-2  ]: Began executing node test.datapai.unique_stg_track_track_id.39ecf945cc
+[0m09:21:25.875389 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.obt_invoice"
+[0m09:21:25.883458 [debug] [Thread-2  ]: Timing info for test.datapai.unique_stg_track_track_id.39ecf945cc (execute): 09:21:25.883199 => 09:21:25.883214
+[0m09:21:25.885047 [debug] [Thread-2  ]: Finished running node test.datapai.unique_stg_track_track_id.39ecf945cc
+[0m09:21:25.886246 [debug] [Thread-2  ]: Began running node test.datapai.unique_customers_customer_id.c5af1ff4b1
+[0m09:21:25.886795 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_stg_track_track_id.39ecf945cc, now test.datapai.unique_customers_customer_id.c5af1ff4b1)
+[0m09:21:25.887190 [debug] [Thread-2  ]: Began compiling node test.datapai.unique_customers_customer_id.c5af1ff4b1
+[0m09:21:25.889045 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.not_null_customers_customer_id.5c9bf9911d"
+[0m09:21:25.896874 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_customers_customer_id.5c9bf9911d (compile): 09:21:25.875686 => 09:21:25.896648
+[0m09:21:25.896225 [debug] [Thread-3  ]: Timing info for model.datapai.obt_invoice (compile): 09:21:25.868753 => 09:21:25.895996
+[0m09:21:25.895554 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.unique_customers_customer_id.c5af1ff4b1"
+[0m09:21:25.897213 [debug] [Thread-1  ]: Began executing node test.datapai.not_null_customers_customer_id.5c9bf9911d
+[0m09:21:25.899026 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_customers_customer_id.5c9bf9911d (execute): 09:21:25.898765 => 09:21:25.898778
+[0m09:21:25.898512 [debug] [Thread-2  ]: Timing info for test.datapai.unique_customers_customer_id.c5af1ff4b1 (compile): 09:21:25.890829 => 09:21:25.898292
+[0m09:21:25.897556 [debug] [Thread-3  ]: Began executing node model.datapai.obt_invoice
+[0m09:21:25.899793 [debug] [Thread-1  ]: Finished running node test.datapai.not_null_customers_customer_id.5c9bf9911d
+[0m09:21:25.900179 [debug] [Thread-2  ]: Began executing node test.datapai.unique_customers_customer_id.c5af1ff4b1
+[0m09:21:25.900702 [debug] [Thread-3  ]: Timing info for model.datapai.obt_invoice (execute): 09:21:25.900474 => 09:21:25.900485
+[0m09:21:25.901251 [debug] [Thread-1  ]: Began running node test.datapai.accepted_values_orders_status__placed__shipped__completed__return_pending__returned.be6b5b5ec3
+[0m09:21:25.901876 [debug] [Thread-2  ]: Timing info for test.datapai.unique_customers_customer_id.c5af1ff4b1 (execute): 09:21:25.901638 => 09:21:25.901650
+[0m09:21:25.902663 [debug] [Thread-3  ]: Finished running node model.datapai.obt_invoice
+[0m09:21:25.903240 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_customers_customer_id.5c9bf9911d, now test.datapai.accepted_values_orders_status__placed__shipped__completed__return_pending__returned.be6b5b5ec3)
+[0m09:21:25.904088 [debug] [Thread-2  ]: Finished running node test.datapai.unique_customers_customer_id.c5af1ff4b1
+[0m09:21:25.904527 [debug] [Thread-3  ]: Began running node test.datapai.not_null_orders_amount.106140f9fd
+[0m09:21:25.905464 [debug] [Thread-1  ]: Began compiling node test.datapai.accepted_values_orders_status__placed__shipped__completed__return_pending__returned.be6b5b5ec3
+[0m09:21:25.906266 [debug] [Thread-2  ]: Began running node test.datapai.not_null_orders_bank_transfer_amount.7743500c49
+[0m09:21:25.906836 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly model.datapai.obt_invoice, now test.datapai.not_null_orders_amount.106140f9fd)
+[0m09:21:25.912827 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.unique_customers_customer_id.c5af1ff4b1, now test.datapai.not_null_orders_bank_transfer_amount.7743500c49)
+[0m09:21:25.917757 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.accepted_values_orders_status__placed__shipped__completed__return_pending__returned.be6b5b5ec3"
+[0m09:21:25.918174 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_orders_amount.106140f9fd
+[0m09:21:25.918578 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_orders_bank_transfer_amount.7743500c49
+[0m09:21:25.924670 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_orders_amount.106140f9fd"
+[0m09:21:25.925489 [debug] [Thread-1  ]: Timing info for test.datapai.accepted_values_orders_status__placed__shipped__completed__return_pending__returned.be6b5b5ec3 (compile): 09:21:25.907168 => 09:21:25.925250
+[0m09:21:25.930923 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_orders_bank_transfer_amount.7743500c49"
+[0m09:21:25.931531 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_orders_amount.106140f9fd (compile): 09:21:25.918947 => 09:21:25.931315
+[0m09:21:25.931937 [debug] [Thread-1  ]: Began executing node test.datapai.accepted_values_orders_status__placed__shipped__completed__return_pending__returned.be6b5b5ec3
+[0m09:21:25.933402 [debug] [Thread-1  ]: Timing info for test.datapai.accepted_values_orders_status__placed__shipped__completed__return_pending__returned.be6b5b5ec3 (execute): 09:21:25.933155 => 09:21:25.933168
+[0m09:21:25.932887 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_orders_bank_transfer_amount.7743500c49 (compile): 09:21:25.926257 => 09:21:25.932674
+[0m09:21:25.932417 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_orders_amount.106140f9fd
+[0m09:21:25.935238 [debug] [Thread-1  ]: Finished running node test.datapai.accepted_values_orders_status__placed__shipped__completed__return_pending__returned.be6b5b5ec3
+[0m09:21:25.936035 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_orders_bank_transfer_amount.7743500c49
+[0m09:21:25.936565 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_orders_amount.106140f9fd (execute): 09:21:25.936320 => 09:21:25.936330
+[0m09:21:25.937280 [debug] [Thread-1  ]: Began running node test.datapai.not_null_orders_coupon_amount.ab90c90625
+[0m09:21:25.937875 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_orders_bank_transfer_amount.7743500c49 (execute): 09:21:25.937652 => 09:21:25.937663
+[0m09:21:25.939222 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_orders_amount.106140f9fd
+[0m09:21:25.940078 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.accepted_values_orders_status__placed__shipped__completed__return_pending__returned.be6b5b5ec3, now test.datapai.not_null_orders_coupon_amount.ab90c90625)
+[0m09:21:25.941223 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_orders_bank_transfer_amount.7743500c49
+[0m09:21:25.941867 [debug] [Thread-3  ]: Began running node test.datapai.not_null_orders_credit_card_amount.d3ca593b59
+[0m09:21:25.942245 [debug] [Thread-1  ]: Began compiling node test.datapai.not_null_orders_coupon_amount.ab90c90625
+[0m09:21:25.942763 [debug] [Thread-2  ]: Began running node test.datapai.not_null_orders_customer_id.c5f02694af
+[0m09:21:25.945134 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_orders_amount.106140f9fd, now test.datapai.not_null_orders_credit_card_amount.d3ca593b59)
+[0m09:21:25.951444 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_orders_bank_transfer_amount.7743500c49, now test.datapai.not_null_orders_customer_id.c5f02694af)
+[0m09:21:25.952814 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_orders_customer_id.c5f02694af
+[0m09:21:25.950569 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.not_null_orders_coupon_amount.ab90c90625"
+[0m09:21:25.952413 [debug] [Thread-3  ]: Began compiling node test.datapai.not_null_orders_credit_card_amount.d3ca593b59
+[0m09:21:25.959990 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_orders_customer_id.c5f02694af"
+[0m09:21:25.965019 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.not_null_orders_credit_card_amount.d3ca593b59"
+[0m09:21:25.966144 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_orders_coupon_amount.ab90c90625 (compile): 09:21:25.945903 => 09:21:25.965899
+[0m09:21:25.966830 [debug] [Thread-1  ]: Began executing node test.datapai.not_null_orders_coupon_amount.ab90c90625
+[0m09:21:25.967259 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_orders_coupon_amount.ab90c90625 (execute): 09:21:25.967075 => 09:21:25.967085
+[0m09:21:25.968241 [debug] [Thread-1  ]: Finished running node test.datapai.not_null_orders_coupon_amount.ab90c90625
+[0m09:21:25.969455 [debug] [Thread-1  ]: Began running node test.datapai.not_null_orders_gift_card_amount.413a0d2d7a
+[0m09:21:25.973208 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_orders_customer_id.c5f02694af (compile): 09:21:25.953043 => 09:21:25.972971
+[0m09:21:25.974475 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_orders_coupon_amount.ab90c90625, now test.datapai.not_null_orders_gift_card_amount.413a0d2d7a)
+[0m09:21:25.974969 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_orders_credit_card_amount.d3ca593b59 (compile): 09:21:25.960251 => 09:21:25.974734
+[0m09:21:25.975868 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_orders_customer_id.c5f02694af
+[0m09:21:25.976289 [debug] [Thread-1  ]: Began compiling node test.datapai.not_null_orders_gift_card_amount.413a0d2d7a
+[0m09:21:25.976681 [debug] [Thread-3  ]: Began executing node test.datapai.not_null_orders_credit_card_amount.d3ca593b59
+[0m09:21:25.977649 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_orders_customer_id.c5f02694af (execute): 09:21:25.977416 => 09:21:25.977427
+[0m09:21:25.985262 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.not_null_orders_gift_card_amount.413a0d2d7a"
+[0m09:21:25.986030 [debug] [Thread-3  ]: Timing info for test.datapai.not_null_orders_credit_card_amount.d3ca593b59 (execute): 09:21:25.985796 => 09:21:25.985809
+[0m09:21:25.986880 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_orders_customer_id.c5f02694af
+[0m09:21:25.987862 [debug] [Thread-3  ]: Finished running node test.datapai.not_null_orders_credit_card_amount.d3ca593b59
+[0m09:21:25.991037 [debug] [Thread-3  ]: Began running node test.datapai.relationships_orders_customer_id__customer_id__ref_customers_.c6ec7f58f2
+[0m09:21:25.990397 [debug] [Thread-2  ]: Began running node test.datapai.not_null_orders_order_id.cf6c17daed
+[0m09:21:25.989435 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_orders_gift_card_amount.413a0d2d7a (compile): 09:21:25.977905 => 09:21:25.988117
+[0m09:21:25.991577 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_orders_credit_card_amount.d3ca593b59, now test.datapai.relationships_orders_customer_id__customer_id__ref_customers_.c6ec7f58f2)
+[0m09:21:25.992764 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_orders_customer_id.c5f02694af, now test.datapai.not_null_orders_order_id.cf6c17daed)
+[0m09:21:25.993210 [debug] [Thread-1  ]: Began executing node test.datapai.not_null_orders_gift_card_amount.413a0d2d7a
+[0m09:21:25.993855 [debug] [Thread-3  ]: Began compiling node test.datapai.relationships_orders_customer_id__customer_id__ref_customers_.c6ec7f58f2
+[0m09:21:25.994251 [debug] [Thread-2  ]: Began compiling node test.datapai.not_null_orders_order_id.cf6c17daed
+[0m09:21:25.995346 [debug] [Thread-1  ]: Timing info for test.datapai.not_null_orders_gift_card_amount.413a0d2d7a (execute): 09:21:25.995119 => 09:21:25.995129
+[0m09:21:26.005055 [debug] [Thread-3  ]: Writing injected SQL for node "test.datapai.relationships_orders_customer_id__customer_id__ref_customers_.c6ec7f58f2"
+[0m09:21:26.011679 [debug] [Thread-1  ]: Finished running node test.datapai.not_null_orders_gift_card_amount.413a0d2d7a
+[0m09:21:26.012748 [debug] [Thread-2  ]: Writing injected SQL for node "test.datapai.not_null_orders_order_id.cf6c17daed"
+[0m09:21:26.014060 [debug] [Thread-1  ]: Began running node test.datapai.unique_orders_order_id.fed79b3a6e
+[0m09:21:26.014529 [debug] [Thread-3  ]: Timing info for test.datapai.relationships_orders_customer_id__customer_id__ref_customers_.c6ec7f58f2 (compile): 09:21:25.995605 => 09:21:26.014306
+[0m09:21:26.015495 [debug] [Thread-1  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_orders_gift_card_amount.413a0d2d7a, now test.datapai.unique_orders_order_id.fed79b3a6e)
+[0m09:21:26.016100 [debug] [Thread-3  ]: Began executing node test.datapai.relationships_orders_customer_id__customer_id__ref_customers_.c6ec7f58f2
+[0m09:21:26.016601 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_orders_order_id.cf6c17daed (compile): 09:21:26.005338 => 09:21:26.016344
+[0m09:21:26.016979 [debug] [Thread-1  ]: Began compiling node test.datapai.unique_orders_order_id.fed79b3a6e
+[0m09:21:26.017829 [debug] [Thread-3  ]: Timing info for test.datapai.relationships_orders_customer_id__customer_id__ref_customers_.c6ec7f58f2 (execute): 09:21:26.017588 => 09:21:26.017601
+[0m09:21:26.018520 [debug] [Thread-2  ]: Began executing node test.datapai.not_null_orders_order_id.cf6c17daed
+[0m09:21:26.024963 [debug] [Thread-3  ]: Finished running node test.datapai.relationships_orders_customer_id__customer_id__ref_customers_.c6ec7f58f2
+[0m09:21:26.025479 [debug] [Thread-1  ]: Writing injected SQL for node "test.datapai.unique_orders_order_id.fed79b3a6e"
+[0m09:21:26.026259 [debug] [Thread-2  ]: Timing info for test.datapai.not_null_orders_order_id.cf6c17daed (execute): 09:21:26.026032 => 09:21:26.026043
+[0m09:21:26.027012 [debug] [Thread-3  ]: Began running node model.datapai.fct_playlist_track
+[0m09:21:26.028062 [debug] [Thread-2  ]: Finished running node test.datapai.not_null_orders_order_id.cf6c17daed
+[0m09:21:26.028781 [debug] [Thread-1  ]: Timing info for test.datapai.unique_orders_order_id.fed79b3a6e (compile): 09:21:26.018800 => 09:21:26.028564
+[0m09:21:26.029357 [debug] [Thread-3  ]: Re-using an available connection from the pool (formerly test.datapai.relationships_orders_customer_id__customer_id__ref_customers_.c6ec7f58f2, now model.datapai.fct_playlist_track)
+[0m09:21:26.029864 [debug] [Thread-1  ]: Began executing node test.datapai.unique_orders_order_id.fed79b3a6e
+[0m09:21:26.030648 [debug] [Thread-1  ]: Timing info for test.datapai.unique_orders_order_id.fed79b3a6e (execute): 09:21:26.030463 => 09:21:26.030469
+[0m09:21:26.030225 [debug] [Thread-3  ]: Began compiling node model.datapai.fct_playlist_track
+[0m09:21:26.031366 [debug] [Thread-1  ]: Finished running node test.datapai.unique_orders_order_id.fed79b3a6e
+[0m09:21:26.038318 [debug] [Thread-3  ]: Writing injected SQL for node "model.datapai.fct_playlist_track"
+[0m09:21:26.039588 [debug] [Thread-3  ]: Timing info for model.datapai.fct_playlist_track (compile): 09:21:26.031699 => 09:21:26.039374
+[0m09:21:26.039889 [debug] [Thread-3  ]: Began executing node model.datapai.fct_playlist_track
+[0m09:21:26.040226 [debug] [Thread-3  ]: Timing info for model.datapai.fct_playlist_track (execute): 09:21:26.040067 => 09:21:26.040074
+[0m09:21:26.040933 [debug] [Thread-3  ]: Finished running node model.datapai.fct_playlist_track
+[0m09:21:26.041768 [debug] [Thread-2  ]: Began running node model.datapai.obt_playlist_track
+[0m09:21:26.042320 [debug] [Thread-2  ]: Re-using an available connection from the pool (formerly test.datapai.not_null_orders_order_id.cf6c17daed, now model.datapai.obt_playlist_track)
+[0m09:21:26.045839 [debug] [Thread-2  ]: Began compiling node model.datapai.obt_playlist_track
+[0m09:21:26.050109 [debug] [Thread-2  ]: Writing injected SQL for node "model.datapai.obt_playlist_track"
+[0m09:21:26.050615 [debug] [Thread-2  ]: Timing info for model.datapai.obt_playlist_track (compile): 09:21:26.046075 => 09:21:26.050430
+[0m09:21:26.050899 [debug] [Thread-2  ]: Began executing node model.datapai.obt_playlist_track
+[0m09:21:26.053630 [debug] [Thread-2  ]: Timing info for model.datapai.obt_playlist_track (execute): 09:21:26.051098 => 09:21:26.051106
+[0m09:21:26.054366 [debug] [Thread-2  ]: Finished running node model.datapai.obt_playlist_track
+[0m09:21:26.057354 [debug] [MainThread]: Connection 'master' was properly closed.
+[0m09:21:26.057624 [debug] [MainThread]: Connection 'model.datapai.obt_playlist_track' was properly closed.
+[0m09:21:26.057829 [debug] [MainThread]: Connection 'model.datapai.fct_playlist_track' was properly closed.
+[0m09:21:26.058017 [debug] [MainThread]: Connection 'test.datapai.unique_orders_order_id.fed79b3a6e' was properly closed.
+[0m09:21:26.082082 [debug] [MainThread]: Command end result
+[0m09:21:26.128283 [debug] [MainThread]: Acquiring new snowflake connection 'generate_catalog'
+[0m09:21:26.128676 [info ] [MainThread]: Building catalog
+[0m09:21:26.148827 [debug] [ThreadPool]: Acquiring new snowflake connection 'DATAPAI.information_schema'
+[0m09:21:26.157532 [debug] [ThreadPool]: Using snowflake connection "DATAPAI.information_schema"
+[0m09:21:26.157948 [debug] [ThreadPool]: On DATAPAI.information_schema: /* {"app": "dbt", "dbt_version": "1.5.8", "profile_name": "datapai_snowflake", "target_name": "dev", "connection_name": "DATAPAI.information_schema"} */
+with tables as (
+
+          select
+              table_catalog as "table_database",
+              table_schema as "table_schema",
+              table_name as "table_name",
+              table_type as "table_type",
+              comment as "table_comment",
+
+              -- note: this is the _role_ that owns the table
+              table_owner as "table_owner",
+
+              'Clustering Key' as "stats:clustering_key:label",
+              clustering_key as "stats:clustering_key:value",
+              'The key used to cluster this table' as "stats:clustering_key:description",
+              (clustering_key is not null) as "stats:clustering_key:include",
+
+              'Row Count' as "stats:row_count:label",
+              row_count as "stats:row_count:value",
+              'An approximate count of rows in this table' as "stats:row_count:description",
+              (row_count is not null) as "stats:row_count:include",
+
+              'Approximate Size' as "stats:bytes:label",
+              bytes as "stats:bytes:value",
+              'Approximate size of the table as reported by Snowflake' as "stats:bytes:description",
+              (bytes is not null) as "stats:bytes:include",
+
+              'Last Modified' as "stats:last_modified:label",
+              to_varchar(convert_timezone('UTC', last_altered), 'yyyy-mm-dd HH24:MI'||'UTC') as "stats:last_modified:value",
+              'The timestamp for last update/change' as "stats:last_modified:description",
+              (last_altered is not null and table_type='BASE TABLE') as "stats:last_modified:include"
+
+          from DATAPAI.INFORMATION_SCHEMA.tables
+
+      ),
+
+      columns as (
+
+          select
+              table_catalog as "table_database",
+              table_schema as "table_schema",
+              table_name as "table_name",
+
+              column_name as "column_name",
+              ordinal_position as "column_index",
+              data_type as "column_type",
+              comment as "column_comment"
+
+          from DATAPAI.INFORMATION_SCHEMA.columns
+      )
+
+      select *
+      from tables
+      join columns using ("table_database", "table_schema", "table_name")
+      where (upper("table_schema") = upper('datapai') or upper("table_schema") = upper('csv') or upper("table_schema") = upper('datapai_test_audit') or upper("table_schema") = upper('datapai_audit'))
+      order by "column_index"
+[0m09:21:26.158256 [debug] [ThreadPool]: Opening a new connection, currently in state init
+[0m09:21:28.939584 [debug] [ThreadPool]: SQL status: SUCCESS 1553 in 3.0 seconds
+[0m09:21:29.299370 [debug] [ThreadPool]: On DATAPAI.information_schema: Close
+[0m09:21:29.703108 [info ] [MainThread]: Catalog written to /home/ec2-user/git/dbt-demo/target/catalog.json
+[0m09:21:29.706246 [debug] [MainThread]: Command `dbt docs generate` succeeded at 09:21:29.706064 after 9.49 seconds
+[0m09:21:29.706585 [debug] [MainThread]: Connection 'generate_catalog' was properly closed.
+[0m09:21:29.706805 [debug] [MainThread]: Connection 'DATAPAI.information_schema' was properly closed.
+[0m09:21:29.707060 [debug] [MainThread]: Flushing usage events
