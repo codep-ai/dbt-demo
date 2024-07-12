@@ -1,1 +1,0 @@
-select * from DATAPAI.DATAPAI.raw_generated

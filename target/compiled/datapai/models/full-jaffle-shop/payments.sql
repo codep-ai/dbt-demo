@@ -1,1 +1,0 @@
-select * from DATAPAI.DATAPAI.stg_payments
