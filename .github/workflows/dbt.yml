@@ -73,7 +73,7 @@ jobs:
     environment: ${{inputs.env}}
     timeout-minutes: 230
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - run: echo "/home/ubuntu/.local/bin" >> $GITHUB_PATH
@@ -133,7 +133,7 @@ jobs:
     environment: ${{inputs.env}}
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Set up Python

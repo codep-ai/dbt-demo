@@ -22,7 +22,7 @@ jobs:
     environment: nonprod
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - run: pip3 install redshift_connector
