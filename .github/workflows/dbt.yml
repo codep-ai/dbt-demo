@@ -81,7 +81,7 @@ jobs:
       - run: pip install -r requirements.txt
         working-directory: .
       # - run: pip install psycopg2 pyyaml psycopg2-binary
-      - uses: aws-actions/configure-aws-credentials@v3
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -154,7 +154,7 @@ jobs:
       # - name: Confirm Black code compliance (psf/black)
       #   run: black airflow/dags --check
       # - run: pytest -v
-      # - uses: aws-actions/configure-aws-credentials@v3
+      # - uses: aws-actions/configure-aws-credentials@v4
       #   with:
       #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
