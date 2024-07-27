@@ -1,0 +1,9 @@
+
+
+============================== 19:11:31.555741 | d71cb5e6-6854-4d87-8733-9f650d7d2a86 ==============================
+[0m19:11:31.555741 [info ] [MainThread]: Running with dbt=1.7.7
+[0m19:11:31.562926 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'version_check': 'True', 'profiles_dir': '/Users/linlin/git/dbt-demo', 'log_path': '/Users/linlin/git/dbt-demo/logs', 'debug': 'False', 'fail_fast': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'invocation_command': 'dbt docs serve', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'introspect': 'True', 'target_path': 'None', 'static_parser': 'True', 'send_anonymous_usage_stats': 'False'}
+[0m19:11:31.573569 [error] [MainThread]: Encountered an error:
+Parsing Error
+  Env var required but not provided: 'SNOWFLAKE_ACCOUNT'
+[0m19:11:31.584524 [debug] [MainThread]: Flushing usage events

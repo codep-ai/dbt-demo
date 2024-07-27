@@ -1,0 +1,58 @@
+version: 2
+registries:
+  npm-cmc:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{secrets.DEPENDABOT_PAT}}
+updates:
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "15:00" # UTC=2am AEDT
+    reviewers:
+      - "cmctechnology/apacdata"
+    commit-message:
+      prefix: "chore(bump): "
+
+  # Maintain dependencies for Terraform
+  - package-ecosystem: "terraform"
+    directory: "infra-accounts"
+    schedule:
+      interval: "weekly"
+      time: "15:00" # UTC=2am AEDT
+    reviewers:
+      - "cmctechnology/apacdata"
+    commit-message:
+      prefix: "chore(bump): "
+
+  # Maintain dependencies for Terraform
+  - package-ecosystem: "terraform"
+    directory: "infra-environments"
+    schedule:
+      interval: "weekly"
+      time: "15:00" # UTC=2am AEDT
+    reviewers:
+      - "cmctechnology/apacdata"
+    commit-message:
+      prefix: "chore(bump): "
+
+  # Maintain NPM dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "15:00" # UTC=2am AEDT
+    registries:
+      - npm-cmc
+    reviewers:
+      - "cmctechnology/apacdata"
+    commit-message:
+      prefix: "chore(bump): "
+    allow:
+      - dependency-type: production
+    ignore:
+      # For all packages, ignore all patch updates
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]

@@ -1,0 +1,29 @@
+name: dbt close
+on:
+  pull_request:
+    types: [closed]
+env:
+  env: nonprod
+  STAGE: ci
+  ACCOUNT_ID: 911042445072
+  ACTION: delete
+  PRODUCT: apacdata
+  REDSHIFT_HOST: ${{secrets.DEV_REDSHIFT_HOST}}
+  REDSHIFT_PASSWORD: ${{ secrets.DEV_REDSHIFT_PASSWORD }}
+  REDSHIFT_PORT: 5439
+  REDSHIFT_USERNAME: ${{ secrets.DEV_REDSHIFT_USERNAME }}
+  REGION: ap-southeast-2
+  SERVICE: data-pipeline
+  PR_NUMBER: ${{github.event.pull_request.number}}
+jobs:
+  clean:
+    name: dbt
+    runs-on: ["self-hosted", "ubuntu", "x64", "apac", "nonprod"]
+    environment: nonprod
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - run: pip3 install redshift_connector
+      - run: python3 clean_pr.py
