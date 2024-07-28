@@ -12,15 +12,14 @@ jobs:
       env: nonprod
       env_name: dev
       slim_ci: true
-      bucket_name: apacdata-dev-airflow
-      dbt_bucket: "s3://apacdata-dev-airflow/dags/dbt/"
-      redshift_database: cmc_db
-      tf_var_role_name: apacdata-pipeline_cd-nonprod
+      bucket_name: airflow-dag-s3
+      dbt_bucket: "s3://airflow-dag-s3/dag/dbt/bi_team/"
       github_runner: '["self-hosted", "ubuntu", "x64", "apac", "nonprod"]'
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      redshift_host: ${{secrets.DEV_REDSHIFT_HOST}}
-      redshift_password: ${{ secrets.DEV_REDSHIFT_PASSWORD }}
-      redshift_username: ${{ secrets.DEV_REDSHIFT_USERNAME }}
-      TEAM_PAT: ${{ secrets.PACKAGES }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
