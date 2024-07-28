@@ -19,7 +19,7 @@ jobs:
       tf_var_role_name: apacdata-pipeline_cd-nonprod
       github_runner: '["self-hosted", "ubuntu", "x64", "apac", "nonprod"]'
     secrets:
-      TEAM_PAT: ${{ secrets.PACKAGES }}
+
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       redshift_host: ${{secrets.NFR_REDSHIFT_HOST}}

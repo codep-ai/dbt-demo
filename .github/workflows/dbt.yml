@@ -20,11 +20,20 @@ on:
       dbt_bucket:
         required: true
         type: string
-      redshift_database:
+      SNOWFLAKE_ACCOUNT:
         required: true
         type: string
-      tf_var_role_name:
+      SNOWFLAKE_USER:
         required: true
+        type: string
+      SNOWFLAKE_PASSWORD:
+        equired: true
+        type: string
+      SNOWFLAKE_ROLE:
+        required: true
+        type: string
+      SNOWFLAKE_SCHEMA:
+        equired: true
         type: string
       github_runner:
         required: true
@@ -38,14 +47,6 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-      TEAM_PAT:
-        required: true
-      redshift_host:
-        required: true
-      redshift_username:
-        required: true
-      redshift_password:
-        required: true
 env:
   env: ${{inputs.env}}
   STAGE: ${{inputs.stage}}
@@ -55,16 +56,10 @@ env:
   ACTION: deploy
   BUCKET_NAME: ${{inputs.bucket_name}}
   PRODUCT: apacdata
-  REDSHIFT_DATABASE_NAME: ${{inputs.redshift_database}}
-  REDSHIFT_HOST: ${{secrets.redshift_host}} # '/apacdata/dev/cmc/redshift/dns_name'
-  REDSHIFT_PASSWORD: ${{secrets.redshift_password}}
-  REDSHIFT_PORT: 5439 # '/apacdata/dev/cmc/redshift/port'
-  REDSHIFT_USERNAME: ${{secrets.redshift_username}} # '/apacdata/dev/cmc/redshift/master_username'
   REGION: ap-southeast-2
   SERVICE: data-pipeline
-  TEAM_NAME: apacdata
+  TEAM_NAME: datapai
   TF_VAR_account_id: ${{inputs.account_id}}
-  TF_VAR_role_name: ${{inputs.tf_var_role_name}}
   GITHUB_PR_NUMBER: ${{inputs.pr_number}}
 jobs:
   dbt:
