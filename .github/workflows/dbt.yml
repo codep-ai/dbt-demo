@@ -33,7 +33,7 @@ on:
         required: true
         type: string
       SNOWFLAKE_SCHEMA:
-        equired: true
+        required: true
         type: string
       github_runner:
         required: true
