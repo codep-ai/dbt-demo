@@ -27,7 +27,7 @@ on:
         required: true
         type: string
       SNOWFLAKE_PASSWORD:
-        equired: true
+        required: true
         type: string
       SNOWFLAKE_ROLE:
         required: true
