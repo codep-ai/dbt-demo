@@ -1,0 +1,26 @@
+name: dbt dev
+on:
+  push:
+    branches: [master]
+concurrency: infra-dev
+jobs:
+  cicd:
+    uses: ./.github/workflows/dbt.yml
+    with:
+      account_id: "073596371268"
+      stage: dev
+      env: nonprod
+      env_name: dev
+      slim_ci: true
+      bucket_name: apacdata-dev-airflow
+      dbt_bucket: "s3://apacdata-dev-airflow/dags/dbt/"
+      redshift_database: cmc_db
+      tf_var_role_name: apacdata-pipeline_cd-nonprod
+      github_runner: '["self-hosted", "ubuntu", "x64", "apac", "nonprod"]'
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      redshift_host: ${{secrets.DEV_REDSHIFT_HOST}}
+      redshift_password: ${{ secrets.DEV_REDSHIFT_PASSWORD }}
+      redshift_username: ${{ secrets.DEV_REDSHIFT_USERNAME }}
+      TEAM_PAT: ${{ secrets.PACKAGES }}

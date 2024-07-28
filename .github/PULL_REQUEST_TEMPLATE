@@ -1,0 +1,11 @@
+<!--
+
+1. Prefix the title of the PR with eather 'fix:' or  'feat:', depending on if the fix is a minor or major version.
+2. Pull Request title format: `fix: [<JIRA-TICKET ID>] Description`, or `feat: [<JIRA-TICKET ID>] Description`
+3. Branch format `<JIRA-TICKET-ID>`
+4. Please ensure that the PR has a clear description
+   For breaking changes, add a `BREAKING CHANGE: <description>` in the detailed description.
+
+-->
+
+# Description

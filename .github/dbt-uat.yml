@@ -1,0 +1,28 @@
+name: dbt uat
+on:
+  workflow_run:
+    workflows: ["dbt dev"]
+    types:
+      - completed
+concurrency: infra-uat
+jobs:
+  cicd:
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/dbt.yml
+    with:
+      account_id: "073596371268"
+      stage: uat
+      env: nonprod
+      env_name: uat
+      bucket_name: apacdata-uat-airflow
+      dbt_bucket: "s3://apacdata-uat-airflow/dags/dbt/"
+      redshift_database: cmc_db
+      tf_var_role_name: apacdata-pipeline_cd-nonprod
+      github_runner: '["self-hosted", "ubuntu", "x64", "apac", "nonprod"]'
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      redshift_host: ${{secrets.UAT_REDSHIFT_HOST}}
+      redshift_password: ${{ secrets.UAT_REDSHIFT_PASSWORD }}
+      redshift_username: ${{ secrets.UAT_REDSHIFT_USERNAME }}
+      TEAM_PAT: ${{ secrets.PACKAGES }}
