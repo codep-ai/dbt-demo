@@ -1,4 +1,5 @@
-name: dbt
+# .github/workflows/dbt.yml
+name: dbt Workflow
 on:
   workflow_call:
     inputs:
@@ -20,19 +21,10 @@ on:
       dbt_bucket:
         required: true
         type: string
-      SNOWFLAKE_ACCOUNT:
+      redshift_database:
         required: true
         type: string
-      SNOWFLAKE_USER:
-        required: true
-        type: string
-      SNOWFLAKE_PASSWORD:
-        required: true
-        type: string
-      SNOWFLAKE_ROLE:
-        required: true
-        type: string
-      SNOWFLAKE_SCHEMA:
+      tf_var_role_name:
         required: true
         type: string
       github_runner:
@@ -47,41 +39,30 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-env:
-  env: ${{inputs.env}}
-  STAGE: ${{inputs.stage}}
-  ACCOUNT_ID: ${{inputs.account_id}}
-  ACCOUNT_ENV: ${{inputs.env}}
-  ENV_NAME: ${{inputs.env_name}}
-  ACTION: deploy
-  BUCKET_NAME: ${{inputs.bucket_name}}
-  PRODUCT: apacdata
-  REGION: ap-southeast-2
-  SERVICE: data-pipeline
-  TEAM_NAME: datapai
-  TF_VAR_account_id: ${{inputs.account_id}}
-  GITHUB_PR_NUMBER: ${{inputs.pr_number}}
-  SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-  SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-  SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-  SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
-  SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
- 
+      TEAM_PAT:
+        required: true
+      redshift_host:
+        required: true
+      redshift_username:
+        required: true
+      redshift_password:
+        required: true
+
 jobs:
-  dbt:
-    name: dbt
+  data-check:
+    if: ${{ inputs.stage != 'ci' }}
+    name: Data Check
     runs-on: ${{ fromJSON(inputs.github_runner) }}
-    environment: ${{inputs.env}}
-    timeout-minutes: 230
+    environment: ${{ inputs.env }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
-        with:
-          persist-credentials: false
       - run: echo "/home/ubuntu/.local/bin" >> $GITHUB_PATH
       - run: echo "/usr/local/bin" >> $GITHUB_PATH
-      - run: pip install -r requirements.txt
-        working-directory: .
-      # - run: pip install psycopg2 pyyaml psycopg2-binary
+      - run: sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18 openssl
+      - name: Fix OpenSSL for GBST Database
+        run: sudo sed -i 's/DEFAULT:@SECLEVEL=2/DEFAULT:@SECLEVEL=0/g' /etc/ssl/openssl.cnf      
+      - run: pip install pyodbc boto3 redshift-connector pandas
       - uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -89,81 +70,114 @@ jobs:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::${{ env.TF_VAR_account_id }}:role/${{ env.TF_VAR_role_name }}
           role-duration-seconds: 7200
-      - run: aws s3 cp ${{ inputs.dbt_bucket }}target/manifest.json .
-        # --exclude 'dbt_packages/*'
-        working-directory: .
-      # - if: ${{ inputs.stage != 'ci' }}
-      #   run: python3 save_delta.py
-      - run: dbt deps --profiles-dir . --target ${{inputs.stage}}
-        working-directory: .
-      - name: check source freshness
-        run: dbt source freshness --profiles-dir . --target ${{inputs.stage}}
-        if: ${{ inputs.env == 'prod' }}
-        working-directory: .
+      - name: Freshness
+        run: python3 data_freshness.py
 
-        # iterate through all source nodes, create if missing, refresh metadata
-      - run: dbt run-operation stage_external_sources --profiles-dir . --target ${{inputs.stage}}
-        working-directory: .
-
-      - name: dbt slim CI build
-        if: ${{ inputs.slim_ci == 'true' || inputs.stage == 'ci' }}
-        run: dbt build --profiles-dir . --target ${{inputs.stage}}  --select "@state:modified" --defer --state .
-        working-directory: .
-
-
-      - name: dbt Full CI build
-        if: ${{ inputs.slim_ci != 'true' && inputs.stage != 'ci'  }}
-        run: dbt build --profiles-dir . --target ${{inputs.stage}} 
+  dbt:
+    name: DBT
+    runs-on: ${{ fromJSON(inputs.github_runner) }}
+    environment: ${{ inputs.env }}
+    timeout-minutes: 230
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "/home/ubuntu/.local/bin" >> $GITHUB_PATH
+      - run: echo "/usr/local/bin" >> $GITHUB_PATH
+      - run: pip install -r requirements.txt
         working-directory: dbt
-
-      - run: dbt docs generate --profiles-dir . --target ${{inputs.stage}}
+      - run: pip install psycopg2 pyyaml psycopg2-binary
+      - uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_account_id }}:role/${{ env.TF_VAR_role_name }}
+          role-duration-seconds: 7200
+      - name: Resume Redshift Cluster if Stopped
+        run: aws redshift resume-cluster --cluster-identifier ${{ inputs.env_name }}-cmc || true
+      - run: aws s3 cp ${{ inputs.dbt_bucket }}target/manifest.json .
+        working-directory: dbt
+      - name: Check Source Files are Updated
+        run: python3 update_sources.py || true
+      - run: cat source_awcdata.new.yml || true
+      - run: cat source_biref.new.yml || true
+      - run: cat source_cmcdata_archive.new.yml || true
+      - run: cat source_fact.new.yml || true
+      - run: cat source_frontoffice.new.yml || true
+      - run: cat source_pa_dca.new.yml || true
+      - run: cat source_pa_dcah.new.yml || true
+      - run: cat source_jpm.new.yml || true
+      - if: ${{ inputs.stage != 'ci' }}
+        run: python3 save_delta.py
+      - run: dbt deps --profiles-dir . --target ${{ inputs.stage }}
+        working-directory: dbt
+      - name: Check Source Freshness
+        run: dbt source freshness --profiles-dir . --target ${{ inputs.stage }}
+        if: ${{ inputs.env == 'prod' }}
+        working-directory: dbt
+      - run: dbt run-operation stage_external_sources --profiles-dir . --target ${{ inputs.stage }}
+        working-directory: dbt
+      - name: DBT Slim CI Build
+        if: ${{ inputs.slim_ci == 'true' || inputs.stage == 'ci' }}
+        run: dbt build --profiles-dir . --target ${{ inputs.stage }} --select "@state:modified" --defer --state .
+        working-directory: dbt
+      - name: DBT Full CI Build
+        if: ${{ inputs.slim_ci != 'true' && inputs.stage != 'ci' }}
+        run: dbt build --profiles-dir . --target ${{ inputs.stage }}
+        working-directory: dbt
+      - run: dbt docs generate --profiles-dir . --target ${{ inputs.stage }}
         if: ${{ inputs.stage == 'prod' }}
-        working-directory: .
-
+        working-directory: dbt
+      - run: rm dbt_packages/dbt_ml_preprocessing/integration_tests/dbt_packages/dbt_ml_preprocessing
+        working-directory: dbt
       - run: aws s3 sync . ${{ inputs.dbt_bucket }} --size-only --delete --exclude 'codeartifact.txt' --exclude 'static/*'
-        working-directory: .
+        working-directory: dbt
       - name: Publish Docs 🚀
         if: ${{ inputs.stage == 'prod' }}
         uses: JamesIves/github-pages-deploy-action@v4.4.3
         with:
           branch: gh-pages
-          folder: ./target
-  airflow:
-    name: Airflow
+          folder: dbt/target
+
+  dbt-image:
+    if: ${{ inputs.stage == 'prod' }}
+    name: DBT Image
     runs-on: ubuntu-latest
-    environment: ${{inputs.env}}
+    environment: ${{ inputs.env }}
     timeout-minutes: 40
+    needs: dbt
     steps:
       - uses: actions/checkout@v3
+      - run: echo "/home/ubuntu/.local/bin" >> $GITHUB_PATH
+      - run: echo "/usr/local/bin" >> $GITHUB_PATH
+      - run: pip install -r requirements.txt
+        working-directory: dbt
+      - run: dbt deps --profiles-dir .
+        working-directory: dbt
+      - uses: aws-actions/configure-aws-credentials@v3
         with:
-          persist-credentials: false
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
-      # - name: Install dependencies
-      #   run: |
-      #     pip install -r requirements/requirements.txt
-      #     pip install black flake8 sqlfluff black pytest flake8 apache-airflow==2.4.3
-      #     pip check
-      #   working-directory: airflow
-      # - name: Lint with Flake8
-      #   run: flake8 --ignore E501 dags --benchmark -v
-      #   working-directory: airflow
-      # - name: Black Diff
-      #   run: black airflow/dags --diff
-      # - name: Confirm Black code compliance (psf/black)
-      #   run: black airflow/dags --check
-      # - run: pytest -v
-      # - uses: aws-actions/configure-aws-credentials@v3
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ap-southeast-2
-      #     role-to-assume: arn:aws:iam::${{ env.TF_VAR_account_id }}:role/${{ env.TF_VAR_role_name }}
-      #     role-duration-seconds: 7200
-      # - name: upload airflow
-      #   run: aws s3 sync airflow s3://${{ env.BUCKET_NAME }} --size-only --exclude 'dags/dbt/*' --exclude 'plugins/*' --exclude 'requirements/*' --exclude 'dags/codeartifact.txt' --delete --exclude 'static/*'
-      # - run: aws mwaa get-environment --name ${{inputs.stage}}-airflow
-      # - run: echo $(aws mwaa create-web-login-token --name ${{inputs.stage}}-airflow ) | sed 's/./& /g'
-      # - run: python invoke_airflow.py
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::${{ env.TF_VAR_account_id }}:role/${{ env.TF_VAR_role_name }}
+          role-duration-seconds: 7200
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build, Tag, and Push Docker Image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: apacdata/cmc-dbt
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:${{ inputs.stage }}
+          docker push $REGISTRY/$REPOSITORY:${{ inputs.stage }}
+
+  dbt-release:
+    if: ${{ inputs.stage != 'dev' && inputs.stage != 'ci' }}
+    name: Release DBT Image
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    timeout-minutes: 40
+    needs: db
