@@ -1,6 +1,7 @@
 urllib3
-dbt-core==1.4.0
-dbt-redshift==1.4.0
+dbt-core==1.5.0
+dbt-redshift==1.5.0
+dbt-snowflake==1.5.0
 great_expectations[redshift]==0.18.3
 sqlfluff
 sqlfluff-templater-dbt
