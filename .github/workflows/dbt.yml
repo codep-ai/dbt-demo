@@ -133,7 +133,7 @@ jobs:
         working-directory: dbt
       - name: Publish Docs 🚀
         if: ${{ inputs.stage == 'prod' }}
-        uses: JamesIves/github-pages-deploy-action@v4.4.3
+        uses: JamesIves/github-pages-deploy-action@v4.6.3
         with:
           branch: gh-pages
           folder: dbt/targetßß
