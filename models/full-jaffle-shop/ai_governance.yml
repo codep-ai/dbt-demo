@@ -1,0 +1,683 @@
+##############################################################################
+# Datap.ai AI Governance Metadata — full-jaffle-shop
+#
+# This file adds model-level and column-level AI governance metadata to the
+# full-jaffle-shop demo dbt project.
+#
+# Metadata convention:
+#   model.meta.datapai.*   — Datap.ai AI governance keys (model level)
+#   column.meta.datapai.*  — Datap.ai AI governance keys (column level)
+#
+# Access levels:  deny | internal | restricted | approved
+# Sensitivity:    public | internal | confidential | restricted
+# Answer modes:   full | masked | aggregate_only | deny | metadata_only
+# PII classes:    none | direct | indirect | quasi_identifier
+# Masking rules:  none | redact | partial_mask | hash | tokenise
+##############################################################################
+
+version: 2
+
+models:
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # customers — AI-APPROVED, certified, contains PII fields
+  # Demonstrates: certified model with mixed column-level access
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: customers
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       true
+        ai_access_level:        approved
+        compliance_domain:      crm
+        sensitivity_level:      confidential
+        contains_pii:           true
+        contains_phi:           false
+        default_answer_mode:    masked
+        risk_tier:              medium
+        owner_team:             data-platform
+        business_owner:         head_of_analytics
+        steward:                data-governance-team
+        safe_description: >
+          Customer dimension table with aggregated order history.
+          Contains PII fields (name, age) that are masked in AI output.
+          Use for aggregate analytics; do not expose individual records.
+        retrieval_policy:       limited
+        summarization_policy:   masked_only
+        explanation_policy:     allow
+        rag_exposure:           metadata_only
+        export_policy:          deny
+        agent_action_policy:    deny
+        allowed_actions:
+          - select
+          - aggregate
+          - count
+        disallowed_actions:
+          - export
+          - download
+          - row_level_output
+        approved_ai_use_cases:
+          - text2sql
+          - bi_metric_explanation
+          - field_explanation
+          - dbt_model_explanation
+        blocked_ai_use_cases:
+          - export
+          - document_extraction
+    columns:
+      - name: customer_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       internal
+            masking_rule:         none
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            allowed_in_retrieval: true
+            allowed_in_summary:   true
+            allowed_in_export:    false
+            business_term:        customer_id
+            notes_for_ai: >
+              Primary key for the customers table. Safe to use in joins,
+              filters, and aggregations. Do not expose in public-facing output.
+
+      - name: first_name
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  direct
+            security_class:       confidential
+            masking_rule:         partial_mask
+            answer_mode:          masked
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+            allowed_in_retrieval: false
+            allowed_in_summary:   false
+            allowed_in_export:    false
+            business_term:        customer_first_name
+            notes_for_ai: >
+              Direct PII — customer first name. Must never appear in AI output
+              or summaries. Use customer_id for identification instead.
+
+      - name: last_name
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  direct
+            security_class:       confidential
+            masking_rule:         partial_mask
+            answer_mode:          masked
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+            allowed_in_retrieval: false
+            allowed_in_summary:   false
+            allowed_in_export:    false
+
+      - name: age
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  indirect
+            security_class:       confidential
+            masking_rule:         redact
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            allowed_in_retrieval: false
+            allowed_in_summary:   false
+            allowed_in_export:    false
+            notes_for_ai: >
+              Indirect PII. Use only in aggregate form (e.g. AVG(age), age brackets).
+              Do not expose individual age values in output.
+
+      - name: number_of_orders
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       internal
+            masking_rule:         none
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            allowed_in_retrieval: true
+            allowed_in_summary:   true
+            allowed_in_export:    false
+            business_term:        total_orders
+            semantic_aliases:
+              - order_count
+              - orders_placed
+
+      - name: customer_lifetime_value
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       internal
+            masking_rule:         none
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+            allowed_in_retrieval: true
+            allowed_in_summary:   true
+            allowed_in_export:    false
+            business_term:        lifetime_value
+            semantic_aliases:
+              - ltv
+              - clv
+              - customer_value
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # orders — AI-APPROVED, aggregate-only, financial data
+  # Demonstrates: aggregate_only enforcement
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: orders
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       true
+        ai_access_level:        approved
+        compliance_domain:      finance
+        sensitivity_level:      confidential
+        contains_pii:           false
+        contains_phi:           false
+        default_answer_mode:    aggregate_only
+        risk_tier:              high
+        owner_team:             finance-team
+        business_owner:         cfo
+        steward:                data-governance-team
+        safe_description: >
+          Order fact table. Aggregate-only: AI may report on counts, sums,
+          and averages but may NOT return individual order records.
+          Financial data — treat as confidential.
+        retrieval_policy:       limited
+        summarization_policy:   aggregate_only
+        explanation_policy:     allow
+        rag_exposure:           metadata_only
+        export_policy:          deny
+        agent_action_policy:    deny
+        allowed_actions:
+          - count
+          - sum
+          - average
+          - aggregate
+        disallowed_actions:
+          - row_level_select
+          - export
+          - download
+        approved_ai_use_cases:
+          - text2sql
+          - bi_metric_explanation
+          - dbt_model_explanation
+        blocked_ai_use_cases:
+          - export
+          - rag
+    columns:
+      - name: order_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  none
+            security_class:       internal
+            masking_rule:         none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+            allowed_in_retrieval: false
+            allowed_in_summary:   false
+            notes_for_ai: >
+              Primary key. Do not expose individual order IDs in output.
+              Use COUNT(order_id) for aggregations.
+
+      - name: customer_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  none
+            security_class:       internal
+            masking_rule:         none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            notes_for_ai: >
+              Foreign key. Use for GROUP BY aggregations (e.g. orders per customer).
+              Do not expose raw customer_id lists.
+
+      - name: amount
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       confidential
+            masking_rule:         none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+            allowed_in_retrieval: false
+            allowed_in_summary:   false
+            allowed_in_export:    false
+            business_term:        order_amount
+            semantic_aliases:
+              - order_value
+              - revenue
+              - transaction_amount
+            notes_for_ai: >
+              Individual order amount. Aggregate-only: use SUM(amount), AVG(amount),
+              MAX(amount). Never expose individual transaction values.
+
+      - name: status
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       internal
+            masking_rule:         none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            allowed_in_retrieval: false
+            allowed_in_summary:   false
+            business_term:        order_status
+            semantic_aliases:
+              - order_state
+              - fulfillment_status
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # payments — RESTRICTED, financial PCI-adjacent data
+  # Demonstrates: restricted model, limited AI use
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: payments
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       false
+        ai_access_level:        restricted
+        compliance_domain:      finance_pci
+        sensitivity_level:      restricted
+        contains_pii:           false
+        contains_phi:           false
+        default_answer_mode:    aggregate_only
+        risk_tier:              critical
+        owner_team:             finance-team
+        business_owner:         cfo
+        steward:                data-governance-team
+        safe_description: >
+          Payment transaction records. Restricted access — aggregate queries
+          only. Do not expose payment method details or individual amounts.
+        retrieval_policy:       deny
+        summarization_policy:   aggregate_only
+        explanation_policy:     safe_only
+        rag_exposure:           deny
+        export_policy:          deny
+        agent_action_policy:    deny
+        allowed_actions:
+          - count
+          - sum_aggregate
+        disallowed_actions:
+          - export
+          - download
+          - row_level_select
+          - rag
+        approved_ai_use_cases:
+          - bi_metric_explanation
+        blocked_ai_use_cases:
+          - text2sql
+          - rag
+          - export
+          - summarization
+        approved_workspaces:
+          - finance
+          - executive
+    columns:
+      - name: payment_id
+        meta:
+          datapai:
+            ai_exposed:           false
+            answer_mode:          deny
+            notes_for_ai:         Payment IDs must never be exposed.
+
+      - name: order_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  none
+            security_class:       restricted
+            masking_rule:         none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+
+      - name: payment_method
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       confidential
+            masking_rule:         none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        payment_type
+            semantic_aliases:
+              - payment_channel
+              - tender_type
+
+      - name: amount
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       restricted
+            masking_rule:         none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+            business_term:        payment_amount
+            notes_for_ai: >
+              Individual payment amount. Aggregate-only. Use SUM, AVG, COUNT.
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # membership — AI-APPROVED, public-safe metrics
+  # Demonstrates: approved public-facing model with safe columns
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: membership
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       true
+        ai_access_level:        approved
+        compliance_domain:      subscriptions
+        sensitivity_level:      internal
+        contains_pii:           false
+        contains_phi:           false
+        default_answer_mode:    full
+        risk_tier:              low
+        owner_team:             product-team
+        safe_description: >
+          Customer membership and subscription status. Safe for AI use.
+          Can be used for filtering, grouping, and reporting.
+        retrieval_policy:       allow
+        summarization_policy:   allow
+        explanation_policy:     allow
+        rag_exposure:           allow
+        export_policy:          deny
+        agent_action_policy:    deny
+        allowed_actions:
+          - select
+          - aggregate
+          - filter
+          - explain
+        approved_ai_use_cases:
+          - text2sql
+          - rag
+          - summarization
+          - bi_metric_explanation
+          - field_explanation
+          - dbt_model_explanation
+    columns:
+      - name: customer_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+
+      - name: plan_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        subscription_plan
+
+      - name: status
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        membership_status
+            semantic_aliases:
+              - subscription_status
+              - plan_status
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # events — INTERNAL only, high-volume behavioural data
+  # Demonstrates: internal access, summarization allowed, RAG denied
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: events
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       false
+        ai_access_level:        internal
+        compliance_domain:      behavioural
+        sensitivity_level:      internal
+        contains_pii:           true
+        contains_phi:           false
+        default_answer_mode:    aggregate_only
+        risk_tier:              medium
+        owner_team:             data-platform
+        safe_description: >
+          Web and app event stream. Contains session and page-view data.
+          PII fields (ip_address, user_agent) are excluded from AI context.
+          Aggregate use only — do not expose individual events.
+        retrieval_policy:       deny
+        summarization_policy:   aggregate_only
+        explanation_policy:     safe_only
+        rag_exposure:           deny
+        export_policy:          deny
+        agent_action_policy:    deny
+        approved_ai_use_cases:
+          - text2sql
+          - bi_metric_explanation
+        blocked_ai_use_cases:
+          - rag
+          - export
+          - summarization
+    columns:
+      - name: event_id
+        meta:
+          datapai:
+            ai_exposed:           false
+            answer_mode:          deny
+
+      - name: session_id
+        meta:
+          datapai:
+            ai_exposed:           false
+            answer_mode:          deny
+            notes_for_ai:         Session IDs must not be exposed.
+
+      - name: ip_address
+        meta:
+          datapai:
+            ai_exposed:           false
+            pii:                  indirect
+            answer_mode:          deny
+            notes_for_ai:         IP address is indirect PII — excluded from all AI contexts.
+
+      - name: event_type
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        event_category
+
+      - name: created_at
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        event_timestamp
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # users — DENIED — raw user table, access=private
+  # Demonstrates: hard deny — dbt access=private maps to ai_access_level=deny
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: users
+    config:
+      access: private
+    meta:
+      datapai:
+        ai_enabled:             false
+        ai_access_level:        deny
+        compliance_domain:      identity
+        sensitivity_level:      restricted
+        contains_pii:           true
+        contains_phi:           false
+        default_answer_mode:    deny
+        risk_tier:              critical
+        owner_team:             identity-team
+        safe_description: >
+          Raw user identity table. Hard deny for all AI use.
+          Access controlled by the identity-team only.
+        retrieval_policy:       deny
+        summarization_policy:   deny
+        explanation_policy:     deny
+        rag_exposure:           deny
+        export_policy:          deny
+        agent_action_policy:    deny
+        blocked_ai_use_cases:
+          - text2sql
+          - rag
+          - summarization
+          - export
+          - explanation
+          - field_explanation
+          - dbt_model_explanation
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # plan — AI-APPROVED, product catalog, public-safe
+  # Demonstrates: fully approved model, all columns safe
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: plan
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       true
+        ai_access_level:        approved
+        compliance_domain:      product
+        sensitivity_level:      public
+        contains_pii:           false
+        contains_phi:           false
+        default_answer_mode:    full
+        risk_tier:              low
+        owner_team:             product-team
+        safe_description: >
+          Product/subscription plan catalog. Fully AI-approved.
+          Safe for RAG, Text2SQL, summarization, and explanation.
+        retrieval_policy:       allow
+        summarization_policy:   allow
+        explanation_policy:     allow
+        rag_exposure:           allow
+        export_policy:          deny
+        agent_action_policy:    deny
+        allowed_actions:
+          - select
+          - filter
+          - aggregate
+          - explain
+          - rag
+        approved_ai_use_cases:
+          - text2sql
+          - rag
+          - summarization
+          - bi_metric_explanation
+          - field_explanation
+          - dbt_model_explanation
+    columns:
+      - name: id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       public
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        plan_id
+
+      - name: name
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       public
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        plan_name
+            semantic_aliases:
+              - subscription_name
+              - tier_name
+
+      - name: monthly_price
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       public
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+            business_term:        plan_price
+            semantic_aliases:
+              - subscription_price
+              - monthly_cost

@@ -1,0 +1,530 @@
+##############################################################################
+# Datap.ai AI Governance Metadata — chinook (music store demo)
+#
+# Demonstrates AI governance across a multi-domain data model:
+#   stg_customer  — direct PII, restricted
+#   stg_employee  — PII + PHI-adjacent (salary), hard-restricted
+#   stg_invoice   — financial, aggregate-only
+#   stg_track     — product catalog, fully approved
+#   stg_artist    — public reference data, fully approved
+#   stg_album     — public reference data, fully approved
+#   stg_genre     — public reference data, fully approved
+##############################################################################
+
+version: 2
+
+models:
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # stg_customer — RESTRICTED, direct PII
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: stg_customer
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       false
+        ai_access_level:        restricted
+        compliance_domain:      crm_pii
+        sensitivity_level:      restricted
+        contains_pii:           true
+        contains_phi:           false
+        default_answer_mode:    masked
+        risk_tier:              high
+        owner_team:             data-platform
+        safe_description: >
+          Staged customer records from Chinook music store.
+          Contains direct PII (name, email, phone, address).
+          AI may use this for aggregate customer analytics only.
+          Individual records and PII fields are masked.
+        retrieval_policy:       deny
+        summarization_policy:   masked_only
+        explanation_policy:     safe_only
+        rag_exposure:           deny
+        export_policy:          deny
+        agent_action_policy:    deny
+        allowed_actions:
+          - count
+          - aggregate
+        disallowed_actions:
+          - row_level_select
+          - export
+          - rag
+        approved_ai_use_cases:
+          - text2sql
+          - bi_metric_explanation
+        blocked_ai_use_cases:
+          - rag
+          - export
+          - summarization
+        approved_workspaces:
+          - analytics
+          - data-governance
+    columns:
+      - name: customer_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+
+      - name: first_name
+        meta:
+          datapai:
+            ai_exposed:           false
+            pii:                  direct
+            security_class:       restricted
+            masking_rule:         redact
+            answer_mode:          deny
+            allowed_in_output:    false
+            allowed_in_where:     false
+            allowed_in_group_by:  false
+            notes_for_ai:         Direct PII — completely excluded from AI context.
+
+      - name: last_name
+        meta:
+          datapai:
+            ai_exposed:           false
+            pii:                  direct
+            masking_rule:         redact
+            answer_mode:          deny
+            notes_for_ai:         Direct PII — excluded.
+
+      - name: email
+        meta:
+          datapai:
+            ai_exposed:           false
+            pii:                  direct
+            masking_rule:         redact
+            answer_mode:          deny
+            notes_for_ai:         Email address — direct PII, excluded from AI.
+
+      - name: phone
+        meta:
+          datapai:
+            ai_exposed:           false
+            pii:                  direct
+            masking_rule:         redact
+            answer_mode:          deny
+
+      - name: city
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  quasi_identifier
+            masking_rule:         none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            notes_for_ai: >
+              Quasi-identifier — city alone is acceptable for grouping
+              but do not combine with name/email.
+
+      - name: country
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       internal
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        customer_country
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # stg_employee — DENIED for most AI, salary is PHI-adjacent
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: stg_employee
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       false
+        ai_access_level:        restricted
+        compliance_domain:      hr_sensitive
+        sensitivity_level:      restricted
+        contains_pii:           true
+        contains_phi:           false
+        default_answer_mode:    deny
+        risk_tier:              critical
+        owner_team:             hr-team
+        business_owner:         chro
+        safe_description: >
+          Employee records. Contains PII and salary data.
+          Severely restricted — do not use in AI outputs or summaries.
+          Available only for org-chart count queries in the hr workspace.
+        retrieval_policy:       deny
+        summarization_policy:   deny
+        explanation_policy:     deny
+        rag_exposure:           deny
+        export_policy:          deny
+        agent_action_policy:    deny
+        approved_ai_use_cases: []
+        blocked_ai_use_cases:
+          - text2sql
+          - rag
+          - summarization
+          - export
+          - explanation
+        approved_workspaces:
+          - hr
+    columns:
+      - name: employee_id
+        meta:
+          datapai:
+            ai_exposed:           false
+            answer_mode:          deny
+
+      - name: first_name
+        meta:
+          datapai:
+            ai_exposed:           false
+            pii:                  direct
+            answer_mode:          deny
+
+      - name: last_name
+        meta:
+          datapai:
+            ai_exposed:           false
+            pii:                  direct
+            answer_mode:          deny
+
+      - name: title
+        meta:
+          datapai:
+            ai_exposed:           false
+            answer_mode:          deny
+
+      - name: birth_date
+        meta:
+          datapai:
+            ai_exposed:           false
+            pii:                  direct
+            answer_mode:          deny
+            notes_for_ai:         Date of birth is direct PII — hard deny.
+
+      - name: hire_date
+        meta:
+          datapai:
+            ai_exposed:           false
+            answer_mode:          deny
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # stg_invoice — RESTRICTED, financial, aggregate-only
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: stg_invoice
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       true
+        ai_access_level:        approved
+        compliance_domain:      finance
+        sensitivity_level:      confidential
+        contains_pii:           false
+        contains_phi:           false
+        default_answer_mode:    aggregate_only
+        risk_tier:              high
+        owner_team:             finance-team
+        safe_description: >
+          Invoice/revenue data for the Chinook music store.
+          Certified for aggregate financial analytics.
+          Do not expose individual invoice amounts or customer linkages.
+        retrieval_policy:       limited
+        summarization_policy:   aggregate_only
+        explanation_policy:     allow
+        rag_exposure:           metadata_only
+        export_policy:          deny
+        agent_action_policy:    deny
+        allowed_actions:
+          - count
+          - sum
+          - average
+          - aggregate
+          - group_by_country
+        approved_ai_use_cases:
+          - text2sql
+          - bi_metric_explanation
+          - dbt_model_explanation
+        blocked_ai_use_cases:
+          - rag
+          - export
+    columns:
+      - name: invoice_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+
+      - name: customer_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        false
+            pii:                  none
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+
+      - name: billing_country
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        invoice_country
+
+      - name: total
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       confidential
+            answer_mode:          aggregate_only
+            allowed_in_output:    false
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+            business_term:        invoice_total
+            semantic_aliases:
+              - revenue
+              - sale_amount
+            notes_for_ai: >
+              Invoice total. Use SUM(total), AVG(total), COUNT(*).
+              Do not expose individual totals.
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # stg_track — APPROVED, product catalog
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: stg_track
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       true
+        ai_access_level:        approved
+        compliance_domain:      product_catalog
+        sensitivity_level:      public
+        contains_pii:           false
+        contains_phi:           false
+        default_answer_mode:    full
+        risk_tier:              low
+        owner_team:             data-platform
+        safe_description: >
+          Music track catalog. Fully AI-approved for all use cases.
+          No PII or sensitive data. Safe for RAG, Text2SQL, and summarization.
+        retrieval_policy:       allow
+        summarization_policy:   allow
+        explanation_policy:     allow
+        rag_exposure:           allow
+        export_policy:          deny
+        agent_action_policy:    deny
+        allowed_actions:
+          - select
+          - filter
+          - aggregate
+          - rag
+          - explain
+        approved_ai_use_cases:
+          - text2sql
+          - rag
+          - summarization
+          - bi_metric_explanation
+          - field_explanation
+          - dbt_model_explanation
+    columns:
+      - name: track_id
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       public
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+
+      - name: name
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       public
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  true
+            business_term:        track_name
+            allowed_in_retrieval: true
+            allowed_in_summary:   true
+
+      - name: unit_price
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            security_class:       public
+            answer_mode:          full
+            allowed_in_output:    true
+            allowed_in_where:     true
+            allowed_in_group_by:  false
+            business_term:        track_price
+            semantic_aliases:
+              - price
+              - cost
+
+      - name: milliseconds
+        meta:
+          datapai:
+            ai_exposed:           true
+            ai_selectable:        true
+            pii:                  none
+            answer_mode:          full
+            allowed_in_output:    true
+            business_term:        track_duration_ms
+            semantic_aliases:
+              - duration
+              - length
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # stg_artist, stg_album, stg_genre — PUBLIC reference data, fully approved
+  # ────────────────────────────────────────────────────────────────────────────
+  - name: stg_artist
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       true
+        ai_access_level:        approved
+        sensitivity_level:      public
+        contains_pii:           false
+        default_answer_mode:    full
+        risk_tier:              low
+        safe_description:       Music artist reference data. Fully AI-approved.
+        retrieval_policy:       allow
+        summarization_policy:   allow
+        explanation_policy:     allow
+        rag_exposure:           allow
+        export_policy:          deny
+        approved_ai_use_cases:
+          - text2sql
+          - rag
+          - summarization
+          - field_explanation
+    columns:
+      - name: artist_id
+        meta:
+          datapai:
+            ai_exposed: true
+            ai_selectable: true
+            pii: none
+            answer_mode: full
+            allowed_in_output: true
+      - name: name
+        meta:
+          datapai:
+            ai_exposed: true
+            ai_selectable: true
+            pii: none
+            answer_mode: full
+            allowed_in_output: true
+            allowed_in_retrieval: true
+            allowed_in_summary: true
+            business_term: artist_name
+
+  - name: stg_album
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       true
+        ai_access_level:        approved
+        sensitivity_level:      public
+        contains_pii:           false
+        default_answer_mode:    full
+        risk_tier:              low
+        safe_description:       Music album catalog. Fully AI-approved.
+        retrieval_policy:       allow
+        summarization_policy:   allow
+        explanation_policy:     allow
+        rag_exposure:           allow
+        export_policy:          deny
+        approved_ai_use_cases:
+          - text2sql
+          - rag
+          - summarization
+          - field_explanation
+    columns:
+      - name: album_id
+        meta:
+          datapai:
+            ai_exposed: true
+            ai_selectable: true
+            pii: none
+            answer_mode: full
+            allowed_in_output: true
+      - name: title
+        meta:
+          datapai:
+            ai_exposed: true
+            ai_selectable: true
+            pii: none
+            answer_mode: full
+            allowed_in_output: true
+            allowed_in_retrieval: true
+            business_term: album_title
+
+  - name: stg_genre
+    meta:
+      datapai:
+        ai_enabled:             true
+        certified_for_ai:       true
+        ai_access_level:        approved
+        sensitivity_level:      public
+        contains_pii:           false
+        default_answer_mode:    full
+        risk_tier:              low
+        safe_description:       Music genre reference. Fully AI-approved.
+        retrieval_policy:       allow
+        summarization_policy:   allow
+        explanation_policy:     allow
+        rag_exposure:           allow
+        export_policy:          deny
+        approved_ai_use_cases:
+          - text2sql
+          - rag
+          - summarization
+          - field_explanation
+    columns:
+      - name: genre_id
+        meta:
+          datapai:
+            ai_exposed: true
+            ai_selectable: true
+            pii: none
+            answer_mode: full
+            allowed_in_output: true
+      - name: name
+        meta:
+          datapai:
+            ai_exposed: true
+            ai_selectable: true
+            pii: none
+            answer_mode: full
+            allowed_in_output: true
+            business_term: genre_name
