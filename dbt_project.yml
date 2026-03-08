@@ -25,6 +25,8 @@ seeds:
     schema: mk_seed
   finance:
     schema: fn_seed
+  ai_mart:
+    schema: ai_mart_seed
 
 # Configuring models: https://docs.getdbt.com/docs/configuring-models
 models:
@@ -49,6 +51,14 @@ models:
     +tags:
       - "hourly"
       - "published"
+  # ── AI Governance Mart ── (v1.4 Elementary-integrated guardrail layer)
+  # Naming: dim_ai_* / fct_ai_* per AI warehouse naming convention
+  ai_mart:
+    +schema: ai_mart
+    +materialized: view
+    +tags:
+      - "ai_governance"
+      - "guardrail"
 #  Error handling :  switch on flag store_failures, to store the failure results into the audit table
 #  this flag can be set up at different levels, please refer to https://docs.getdbt.com/reference/resource-configs/store_failures
 tests:

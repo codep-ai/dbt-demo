@@ -1,0 +1,302 @@
+##############################################################################
+# AI Mart — Source Declarations                                              #
+# Branch: feature/elementary-guardrail-mart  |  Spec: claude_build_spec_v1.4#
+#                                                                            #
+# Sources:                                                                   #
+#   1. elementary   — Elementary audit tables (models, columns, test results,#
+#                     run results, invocations, freshness). Created by dbt   #
+#                     on-run-end hooks after every `dbt run / test`.         #
+#   2. ai_mart_seed — Seeds compiled from ai_governance.yml files.           #
+#                     These are the primary demo-mode policy catalog tables. #
+#                                                                            #
+# Naming convention: dim_ai_* / fct_ai_*  (v1.4 AI warehouse standard)      #
+##############################################################################
+
+version: 2
+
+sources:
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 1. Elementary — warehouse-native dbt metadata & test evidence layer
+  #    Elementary 0.7.5 materialises these into `<schema>_audit` by default.
+  #    In this project: dbt_project.yml sets `elementary: +schema: audit`.
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: elementary
+    schema: "{{ target.schema }}_audit"
+    description: >
+      Elementary Data observability tables.  Populated by Elementary's
+      on-run-end hooks every time dbt runs.  Provides warehouse-native
+      evidence for the Datap.ai AI guardrail mart layer: model metadata,
+      column metadata, test results, run results, freshness, invocations.
+    tables:
+
+      # ── Model metadata ──────────────────────────────────────────────────
+      - name: dbt_models
+        description: >
+          One row per dbt model node compiled in the latest manifest.
+          Includes the raw `meta` JSON blob carrying `meta.datapai.*`
+          AI governance keys authored in ai_governance.yml files.
+        columns:
+          - name: unique_id
+            description: Full dbt unique ID — model.<package>.<name>
+          - name: name
+            description: Model name (unqualified)
+          - name: alias
+            description: Materialization alias (if different from name)
+          - name: schema_name
+            description: Target schema
+          - name: database_name
+            description: Target database
+          - name: package_name
+            description: dbt project / package name
+          - name: original_path
+            description: Relative file path of the model SQL
+          - name: materialization
+            description: "view | table | incremental | ephemeral"
+          - name: meta
+            description: >
+              Raw JSON/VARIANT meta blob from dbt YAML.
+              Contains datapai.* keys: ai_enabled, sensitivity_level, etc.
+          - name: tags
+            description: JSON array of model-level tags
+          - name: description
+            description: Human-readable model description
+          - name: config
+            description: Full config JSON blob
+          - name: fqn
+            description: Fully-qualified node name array (JSON)
+          - name: created_at
+            description: Timestamp this row was written by Elementary
+
+      # ── Column metadata ─────────────────────────────────────────────────
+      - name: dbt_columns
+        description: >
+          One row per column defined in a dbt model's YAML schema.
+          Includes column-level `meta` JSON with `meta.datapai.*` keys
+          (pii, masking_rule, answer_mode, allowed_in_output, etc.).
+        columns:
+          - name: unique_id
+            description: Column unique ID
+          - name: model_unique_id
+            description: FK → dbt_models.unique_id
+          - name: name
+            description: Column name
+          - name: data_type
+            description: Declared data type (may be null if not specified)
+          - name: meta
+            description: Raw JSON meta blob for the column
+          - name: description
+            description: Column description from YAML
+          - name: tags
+            description: JSON array of column-level tags
+
+      # ── Test results ────────────────────────────────────────────────────
+      - name: elementary_test_results
+        description: >
+          One row per dbt test execution.  Used by fct_ai_asset_quality to
+          score the data quality health of each AI-governed model and drive
+          quality-gated eligibility decisions.
+        columns:
+          - name: id
+            description: Surrogate key (md5 hash)
+          - name: model_unique_id
+            description: FK → dbt_models.unique_id (may be null for source tests)
+          - name: test_unique_id
+            description: dbt test unique_id
+          - name: invocation_id
+            description: FK → dbt_invocations.invocation_id
+          - name: detected_at
+            description: Timestamp of test execution
+          - name: database_name
+          - name: schema_name
+          - name: table_name
+            description: Model/table the test ran against
+          - name: column_name
+            description: Column tested (null for model-level tests)
+          - name: test_type
+            description: "generic | singular | dbt_expectations | ..."
+          - name: test_sub_type
+            description: "not_null | unique | accepted_values | ..."
+          - name: status
+            description: "pass | fail | warn | error"
+          - name: failures
+            description: Number of failing rows (null if pass)
+          - name: test_params
+            description: JSON test parameters / config
+
+      # ── Run results ─────────────────────────────────────────────────────
+      - name: dbt_run_results
+        description: >
+          One row per node execution result (model, test, seed, snapshot).
+          Used by fct_ai_asset_quality to determine whether the latest
+          dbt run for a governed model succeeded or failed.
+        columns:
+          - name: model_execution_id
+            description: Execution ID for this node run
+          - name: invocation_id
+            description: FK → dbt_invocations.invocation_id
+          - name: unique_id
+            description: FK → dbt_models.unique_id
+          - name: status
+            description: "success | error | skipped | warn | fail"
+          - name: execution_time
+            description: Run time in seconds
+          - name: rows_affected
+            description: Rows written (for incremental/table materializations)
+          - name: generated_at
+            description: Timestamp this result was recorded
+
+      # ── Invocations ─────────────────────────────────────────────────────
+      - name: dbt_invocations
+        description: >
+          One row per dbt invocation (dbt run, dbt test, etc.).
+          Used by fct_ai_asset_quality and fct_ai_policy_catalog_versions
+          to anchor quality signals and policy snapshots to specific runs.
+        columns:
+          - name: invocation_id
+            description: dbt invocation UUID
+          - name: generated_at
+            description: Timestamp invocation was recorded by Elementary
+          - name: run_started_at
+            description: dbt run start timestamp
+          - name: run_completed_at
+            description: dbt run end timestamp
+          - name: status
+            description: "success | error | partial_success"
+          - name: command
+            description: "dbt run | dbt test | dbt build | ..."
+          - name: project_name
+            description: dbt project name
+          - name: dbt_version
+            description: dbt version used
+          - name: target_name
+            description: Target profile name (dev / prod / etc.)
+          - name: selected
+            description: Nodes selected for this invocation (JSON)
+
+      # ── Source freshness ────────────────────────────────────────────────
+      - name: dbt_source_freshness_results
+        description: >
+          One row per dbt source freshness check execution.
+          Used by fct_ai_asset_quality to surface freshness staleness
+          as a quality gate signal for AI-governed assets.
+        columns:
+          - name: source_freshness_execution_id
+            description: Surrogate PK
+          - name: unique_id
+            description: Source unique_id
+          - name: max_loaded_at
+            description: Timestamp of latest record in the source table
+          - name: snapshotted_at
+            description: Timestamp of freshness check
+          - name: status
+            description: "pass | warn | error"
+          - name: warn_after
+            description: JSON warn threshold config
+          - name: error_after
+            description: JSON error threshold config
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 2. AI Mart Seeds — compiled from ai_governance.yml files
+  #    Primary policy catalog for the demo environment.
+  #    In production, models read directly from Elementary's dbt_models /
+  #    dbt_columns JSON columns via the JSON-extraction pattern in the models.
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: ai_mart_seed
+    schema: "{{ target.schema }}_ai_mart_seed"
+    description: >
+      Seed tables derived from ai_governance.yml files.  Provide a
+      structured, SQL-queryable version of the AI policy catalog without
+      requiring JSON parsing of Elementary's meta columns.
+      Used as the primary source for dim_ai_governed_assets and
+      dim_ai_governed_fields in demo mode.
+    tables:
+
+      - name: ai_governed_assets_seed
+        description: >
+          Model-level AI governance policy.  One row per governed dbt model.
+          Sourced from meta.datapai.* keys in ai_governance.yml files covering
+          full-jaffle-shop and chinook demo domains.
+        columns:
+          - name: model_name
+            description: dbt model name — matches Elementary dbt_models.name
+          - name: domain
+            description: Domain folder (full-jaffle-shop | chinook)
+          - name: ai_enabled
+            description: "true if model is eligible for AI use"
+          - name: certified_for_ai
+            description: "true if model has been reviewed and certified"
+          - name: ai_access_level
+            description: "deny | internal | restricted | approved"
+          - name: sensitivity_level
+            description: "public | internal | confidential | restricted"
+          - name: contains_pii
+            description: Whether the model contains any PII columns
+          - name: contains_phi
+            description: Whether the model contains PHI columns
+          - name: default_answer_mode
+            description: "full | masked | aggregate_only | deny | metadata_only"
+          - name: risk_tier
+            description: "low | medium | high | critical"
+          - name: compliance_domain
+            description: Business compliance domain tag
+          - name: owner_team
+            description: Data owner team
+          - name: business_owner
+            description: Business data owner role
+          - name: steward
+            description: Data steward / governance contact
+          - name: retrieval_policy
+            description: "allow | limited | deny"
+          - name: summarization_policy
+            description: "allow | masked_only | aggregate_only | deny"
+          - name: explanation_policy
+            description: "allow | safe_only | deny"
+          - name: rag_exposure
+            description: "allow | metadata_only | deny"
+          - name: export_policy
+            description: "allow | deny"
+          - name: agent_action_policy
+            description: "allow | deny"
+          - name: safe_description
+            description: AI-safe description of the model
+
+      - name: ai_governed_fields_seed
+        description: >
+          Column-level AI governance policy.  One row per column per model.
+          Sourced from column meta.datapai.* keys in ai_governance.yml files.
+        columns:
+          - name: model_name
+            description: Parent model name (FK → ai_governed_assets_seed)
+          - name: column_name
+            description: Column name
+          - name: ai_exposed
+            description: Whether the column is visible in AI context
+          - name: ai_selectable
+            description: Whether the AI may SELECT this column
+          - name: pii_class
+            description: "none | direct | indirect | quasi_identifier"
+          - name: phi
+            description: Whether the column contains PHI
+          - name: masking_rule
+            description: "none | redact | partial_mask | hash | tokenise"
+          - name: answer_mode
+            description: "full | masked | aggregate_only | deny | metadata_only"
+          - name: allowed_in_output
+            description: Safe to include in AI response output
+          - name: allowed_in_where
+            description: Safe to use in WHERE clause
+          - name: allowed_in_group_by
+            description: Safe to use in GROUP BY
+          - name: allowed_in_retrieval
+            description: Safe to include in RAG retrieval chunks
+          - name: allowed_in_summary
+            description: Safe to include in summarization output
+          - name: allowed_in_export
+            description: Safe to export
+          - name: business_term
+            description: Canonical business term for this column
+          - name: security_class
+            description: "public | internal | confidential | restricted"
+          - name: notes_for_ai
+            description: Governance note surfaced to AI at context-filter time

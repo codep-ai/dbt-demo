@@ -1,0 +1,486 @@
+##############################################################################
+# AI Mart — Schema, Tests, and Lightdash-Friendly Documentation              #
+# Branch: feature/elementary-guardrail-mart  |  Spec: claude_build_spec_v1.4 #
+#                                                                             #
+# Naming convention: dim_ai_* / fct_ai_*  (v1.4 AI warehouse standard)       #
+#                                                                             #
+# Lightdash dashboards served by this mart:                                   #
+#   - AI-certified assets overview                                            #
+#   - Restricted assets and fields                                            #
+#   - Assets blocked by test failures                                         #
+#   - Runtime eligibility by use case                                         #
+#   - Policy catalog coverage and drift                                       #
+#   - Approved vs blocked AI use cases by domain/team                        #
+##############################################################################
+
+version: 2
+
+models:
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # dim_ai_governed_assets
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: dim_ai_governed_assets
+    description: >
+      Conformed dimension of AI-governed dbt assets (models and sources).
+      Combines static AI governance policy from ai_governance.yml seed data
+      with operational Elementary evidence (latest run status, test health).
+
+      Primary source for Lightdash governance dashboards showing which assets
+      are AI-eligible, certified, restricted, or blocked — and why.
+
+      Joins to:
+        fct_ai_asset_quality         — for quality scores and gate details
+        fct_ai_asset_runtime_eligibility — for per-use-case eligibility
+        fct_ai_policy_catalog_versions   — for policy catalog version context
+
+    columns:
+
+      - name: asset_key
+        description: >
+          Stable surrogate key: <domain>.<model_name>.
+          Example: full-jaffle-shop.customers
+        tests:
+          - not_null
+          - unique
+
+      - name: resource_type
+        description: "Always 'model' in this version. Future: 'source' | 'exposure'."
+
+      - name: asset_name
+        description: dbt model name (unqualified)
+        tests:
+          - not_null
+
+      - name: project_name
+        description: "Domain folder: full-jaffle-shop | chinook"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['full-jaffle-shop', 'chinook']
+
+      - name: unique_id
+        description: dbt unique_id (model.<package>.<name>) — from Elementary when available
+
+      - name: ai_enabled
+        description: "true = model is eligible for AI use per governance policy"
+        tests:
+          - not_null
+
+      - name: certified_for_ai
+        description: "true = model has been reviewed and formally certified for AI"
+
+      - name: ai_access_level
+        description: "Governance access tier: deny | internal | restricted | approved"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['deny', 'internal', 'restricted', 'approved']
+
+      - name: sensitivity_level
+        description: "Data sensitivity: public | internal | confidential | restricted"
+        tests:
+          - accepted_values:
+              values: ['public', 'internal', 'confidential', 'restricted']
+
+      - name: contains_pii
+        description: "true if the model contains any PII columns"
+        tests:
+          - not_null
+
+      - name: contains_phi
+        description: "true if the model contains PHI columns (hard deny for AI)"
+        tests:
+          - not_null
+
+      - name: default_answer_mode
+        description: "Default AI response mode: full | masked | aggregate_only | deny | metadata_only"
+        tests:
+          - accepted_values:
+              values: ['full', 'masked', 'aggregate_only', 'deny', 'metadata_only']
+
+      - name: risk_tier
+        description: "Risk classification: low | medium | high | critical"
+        tests:
+          - accepted_values:
+              values: ['low', 'medium', 'high', 'critical']
+
+      - name: eligibility_status
+        description: >
+          High-level eligibility status for Lightdash dashboards.
+          Values: certified | approved | internal | restricted |
+                  blocked | blocked_run_failed | blocked_tests_failed
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['certified', 'approved', 'internal', 'restricted',
+                       'blocked', 'blocked_run_failed', 'blocked_tests_failed']
+
+      - name: latest_test_health_status
+        description: "passing | warning | failing | no_tests"
+        tests:
+          - accepted_values:
+              values: ['passing', 'warning', 'failing', 'no_tests']
+
+      - name: is_ai_enabled
+        description: "Lightdash boolean: is this asset enabled for AI?"
+        tests:
+          - not_null
+
+      - name: is_certified_for_ai
+        description: "Lightdash boolean: is this asset formally certified?"
+        tests:
+          - not_null
+
+      - name: is_pii_model
+        description: "Lightdash boolean: does this model contain PII?"
+        tests:
+          - not_null
+
+      - name: is_phi_model
+        description: "Lightdash boolean: does this model contain PHI?"
+        tests:
+          - not_null
+
+      - name: is_aggregate_only
+        description: "Lightdash boolean: is this model aggregate-only for AI output?"
+        tests:
+          - not_null
+
+      - name: is_hard_deny
+        description: "Lightdash boolean: is this model hard-denied for all AI use?"
+        tests:
+          - not_null
+
+      - name: computed_at
+        description: Timestamp this row was computed
+        tests:
+          - not_null
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # dim_ai_governed_fields
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: dim_ai_governed_fields
+    description: >
+      Conformed dimension of AI-governed columns with field-level policy
+      and exposure settings.
+
+      Combines column-level policy from ai_governance.yml seed data with
+      Elementary column structural metadata (data type, description).
+
+      The effective_field_policy field is the resolved AI decision for this
+      column, taking into account parent model policy propagation.
+
+      Joins to dim_ai_governed_assets via asset_key.
+
+    columns:
+
+      - name: field_key
+        description: >
+          Stable surrogate key: <domain>.<model_name>.<column_name>.
+          Example: full-jaffle-shop.customers.first_name
+        tests:
+          - not_null
+          - unique
+
+      - name: asset_key
+        description: Parent model key — FK to dim_ai_governed_assets.asset_key
+        tests:
+          - not_null
+
+      - name: asset_name
+        description: Parent model name
+        tests:
+          - not_null
+
+      - name: column_name
+        description: Column name
+        tests:
+          - not_null
+
+      - name: ai_exposed
+        description: "true = column is visible in AI context"
+        tests:
+          - not_null
+
+      - name: ai_selectable
+        description: "true = AI may SELECT this column"
+        tests:
+          - not_null
+
+      - name: pii
+        description: "PII classification: none | direct | indirect | quasi_identifier"
+        tests:
+          - accepted_values:
+              values: ['none', 'direct', 'indirect', 'quasi_identifier']
+
+      - name: masking_rule
+        description: "Masking applied to this field: none | redact | partial_mask | hash | tokenise"
+        tests:
+          - accepted_values:
+              values: ['none', 'redact', 'partial_mask', 'hash', 'tokenise']
+
+      - name: answer_mode
+        description: "Field-level AI answer mode: full | masked | aggregate_only | deny | metadata_only"
+        tests:
+          - accepted_values:
+              values: ['full', 'masked', 'aggregate_only', 'deny', 'metadata_only']
+
+      - name: effective_field_policy
+        description: >
+          Resolved field-level policy after applying parent model policy
+          and PII/PHI propagation rules.
+          This is the value used by the runtime policy compiler.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['full', 'masked', 'aggregate_only', 'deny', 'metadata_only']
+
+      - name: join_sensitivity
+        description: "low | quasi_join_risk | pii_join_risk | phi_join_risk"
+        tests:
+          - accepted_values:
+              values: ['low', 'quasi_join_risk', 'pii_join_risk', 'phi_join_risk']
+
+      - name: is_ai_exposed
+        description: "Lightdash boolean: is column in AI context?"
+        tests:
+          - not_null
+
+      - name: is_pii
+        description: "Lightdash boolean: is this column PII?"
+        tests:
+          - not_null
+
+      - name: is_phi
+        description: "Lightdash boolean: is this column PHI?"
+        tests:
+          - not_null
+
+      - name: requires_masking
+        description: "Lightdash boolean: does this column require masking?"
+        tests:
+          - not_null
+
+      - name: is_hard_deny
+        description: "Lightdash boolean: is this column hard-denied?"
+        tests:
+          - not_null
+
+      - name: can_appear_in_output
+        description: "Lightdash boolean: safe to include in AI response?"
+        tests:
+          - not_null
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # fct_ai_asset_quality
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: fct_ai_asset_quality
+    description: >
+      Operational quality evidence for AI-governed assets.
+      Aggregates Elementary test results, run results, and freshness signals
+      per asset.  Drives quality-gated eligibility decisions.
+
+      Quality gate rules:
+        - Critical tests fail     → should_block_ai_use = true,  quality_gate_status = 'tests_failed'
+        - Latest run failed       → should_block_ai_use = true,  quality_gate_status = 'run_failed'
+        - Warnings only           → should_warn_ai_use  = true,  quality_gate_status = 'warning'
+        - Freshness stale         → should_warn_ai_use  = true,  quality_gate_status = 'freshness_error'
+        - No tests defined        → quality_gate_status = 'no_tests' (neutral)
+        - Policy blocked          → quality_gate_status = 'policy_blocked'
+        - All passing             → quality_gate_status = 'pass'
+
+    columns:
+
+      - name: asset_key
+        description: FK to dim_ai_governed_assets.asset_key
+        tests:
+          - not_null
+          - unique
+
+      - name: quality_gate_status
+        description: "pass | warning | tests_failed | run_failed | freshness_error | no_tests | policy_blocked"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['pass', 'warning', 'tests_failed', 'run_failed',
+                       'freshness_error', 'no_tests', 'policy_blocked', 'unknown']
+
+      - name: latest_quality_score
+        description: "Quality score 0-100: 100=healthy, 75=warnings, 25=failures, 0=blocked"
+        tests:
+          - not_null
+
+      - name: should_block_ai_use
+        description: "true = quality gate failed — block AI use for this asset"
+        tests:
+          - not_null
+
+      - name: should_warn_ai_use
+        description: "true = soft quality warning — allow AI use with caution flag"
+        tests:
+          - not_null
+
+      - name: failing_tests_count
+        description: Number of failing dbt tests for this asset in the latest invocation
+        tests:
+          - not_null
+
+      - name: computed_at
+        description: Timestamp this row was computed
+        tests:
+          - not_null
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # fct_ai_policy_catalog_versions
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: fct_ai_policy_catalog_versions
+    description: >
+      Version / audit snapshot of the compiled AI guardrail policy catalog.
+      One row per dbt invocation (or 'seed-v1' in demo mode).
+
+      Provides:
+        - Policy catalog version string (used by WarehousePolicyCompiler)
+        - Asset and field counts for this snapshot
+        - Coverage percentages (certified, quality-healthy, output-safe)
+        - Invocation metadata for traceability
+
+      Useful for Lightdash: "Policy catalog drift over time",
+      "Coverage metrics by run".
+
+    columns:
+
+      - name: policy_catalog_version
+        description: >
+          Stable version string for this policy catalog snapshot.
+          Equals the Elementary invocation_id in production,
+          or 'seed-v1' in demo mode.
+        tests:
+          - not_null
+
+      - name: generated_at
+        description: Timestamp this snapshot was generated
+        tests:
+          - not_null
+
+      - name: assets_total
+        description: Total number of dbt models with AI governance metadata
+        tests:
+          - not_null
+
+      - name: ai_certified_assets_count
+        description: Count of AI-certified models
+        tests:
+          - not_null
+
+      - name: pct_assets_certified
+        description: "Percentage of AI-enabled assets that are certified (0-100)"
+
+      - name: pct_fields_output_safe
+        description: "Percentage of all governed fields safe for AI output (0-100)"
+
+      - name: pct_assets_quality_healthy
+        description: "Percentage of AI-enabled assets passing quality gate (0-100)"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # fct_ai_asset_runtime_eligibility
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: fct_ai_asset_runtime_eligibility
+    description: >
+      Precomputed runtime eligibility per (asset × AI use case).
+      This is the PRIMARY mart consumed by the Datap.ai runtime policy
+      compiler (WarehousePolicyCompiler).
+
+      Combines static governance policy (dim_ai_governed_assets) with
+      operational quality signals (fct_ai_asset_quality) to produce a
+      per-use-case eligibility decision.
+
+      Decisions:
+        eligible              — approved for this use case
+        eligible_certified    — approved, with formal certification
+        eligible_internal     — approved for internal teams only
+        eligible_restricted   — approved but workspace-restricted
+        eligible_with_warning — approved but quality degraded
+        blocked               — hard blocked (policy or quality)
+
+      Used by runtime to decide: can we use this model for this use case,
+      and if so, what answer mode and masking applies?
+
+    columns:
+
+      - name: asset_key
+        description: FK to dim_ai_governed_assets.asset_key
+        tests:
+          - not_null
+
+      - name: ai_use_case
+        description: >
+          AI use case this eligibility applies to.
+          Values: text2sql | rag_retrieval | summarization | export |
+                  explanation | bi_metric_explanation | field_explanation |
+                  dbt_model_explanation | document_extraction | tool_action |
+                  airbyte_trigger | narrative_insight | semantic_search |
+                  data_profiling | model_comparison | dashboard_explanation
+        tests:
+          - not_null
+
+      - name: runtime_eligibility_status
+        description: >
+          Eligibility verdict for this asset + use case combination.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['eligible', 'eligible_certified', 'eligible_internal',
+                       'eligible_restricted', 'eligible_with_warning', 'blocked']
+
+      - name: runtime_answer_mode
+        description: "Effective answer mode: full | masked | aggregate_only | deny | metadata_only"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['full', 'masked', 'aggregate_only', 'deny', 'metadata_only']
+
+      - name: runtime_block_flag
+        description: "true = hard block applies — do not use this asset for this use case"
+        tests:
+          - not_null
+
+      - name: runtime_warning_flag
+        description: "true = soft warning — use with caution flag"
+        tests:
+          - not_null
+
+      - name: runtime_masking_required
+        description: "true = masking must be applied before AI output"
+        tests:
+          - not_null
+
+      - name: runtime_approval_required
+        description: "true = explicit workspace/tenant approval required before use"
+        tests:
+          - not_null
+
+      - name: is_eligible
+        description: "Lightdash boolean: is this asset eligible for this use case?"
+        tests:
+          - not_null
+
+      - name: is_policy_blocked
+        description: "Lightdash boolean: blocked by governance policy?"
+        tests:
+          - not_null
+
+      - name: is_quality_blocked
+        description: "Lightdash boolean: blocked by quality gate?"
+        tests:
+          - not_null
+
+      - name: computed_at
+        description: Timestamp this eligibility was computed
+        tests:
+          - not_null
+
+      - name: runtime_reason_summary
+        description: Human-readable explanation of the eligibility decision
+        tests:
+          - not_null

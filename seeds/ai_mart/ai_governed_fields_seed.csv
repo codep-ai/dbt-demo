@@ -1,0 +1,53 @@
+model_name,column_name,ai_exposed,ai_selectable,pii_class,phi,masking_rule,answer_mode,allowed_in_output,allowed_in_where,allowed_in_group_by,allowed_in_retrieval,allowed_in_summary,allowed_in_export,business_term,security_class,notes_for_ai
+customers,customer_id,true,true,none,false,none,full,true,true,true,true,true,false,customer_id,internal,Primary key for customers. Safe for joins filters and aggregations. Do not expose in public-facing output.
+customers,first_name,true,false,direct,false,partial_mask,masked,false,true,false,false,false,false,customer_first_name,confidential,Direct PII. Must never appear in AI output or summaries.
+customers,last_name,true,false,direct,false,partial_mask,masked,false,true,false,false,false,false,customer_last_name,confidential,Direct PII. Must never appear in AI output or summaries.
+customers,age,true,false,indirect,false,redact,aggregate_only,false,true,true,false,false,false,customer_age,confidential,Indirect PII. Use only in aggregate form (AVG(age) age brackets). Do not expose individual age values.
+customers,number_of_orders,true,true,none,false,none,full,true,true,true,true,true,false,total_orders,internal,
+customers,customer_lifetime_value,true,true,none,false,none,full,true,true,false,true,true,false,lifetime_value,internal,
+orders,order_id,true,false,none,false,none,aggregate_only,false,true,false,false,false,false,order_id,internal,Primary key. Do not expose individual order IDs. Use COUNT(order_id).
+orders,customer_id,true,false,none,false,none,aggregate_only,false,true,true,false,false,false,orders_customer_id,internal,Foreign key. Use for GROUP BY aggregations. Do not expose raw customer_id lists.
+orders,amount,true,true,none,false,none,aggregate_only,false,true,false,false,false,false,order_amount,confidential,Individual order amount. Aggregate-only: SUM AVG MAX. Never expose individual transaction values.
+orders,status,true,true,none,false,none,aggregate_only,false,true,true,false,false,false,order_status,internal,
+payments,payment_id,false,false,none,false,none,deny,false,false,false,false,false,false,payment_id,restricted,Payment IDs must never be exposed.
+payments,order_id,true,false,none,false,none,aggregate_only,false,true,true,false,false,false,payments_order_id,restricted,
+payments,payment_method,true,true,none,false,none,aggregate_only,false,true,true,false,false,false,payment_type,confidential,
+payments,amount,true,true,none,false,none,aggregate_only,false,true,false,false,false,false,payment_amount,restricted,Individual payment amount. Aggregate-only.
+membership,customer_id,true,false,none,false,none,aggregate_only,false,true,true,false,false,false,membership_customer_id,internal,
+membership,plan_id,true,true,none,false,none,full,true,true,true,false,false,false,subscription_plan,internal,
+membership,status,true,true,none,false,none,full,true,true,true,false,false,false,membership_status,internal,
+events,event_id,false,false,none,false,none,deny,false,false,false,false,false,false,event_id,restricted,
+events,session_id,false,false,none,false,none,deny,false,false,false,false,false,false,session_id,restricted,Session IDs must not be exposed.
+events,ip_address,false,false,indirect,false,redact,deny,false,false,false,false,false,false,ip_address,restricted,IP address is indirect PII — excluded from all AI contexts.
+events,event_type,true,true,none,false,none,aggregate_only,false,true,true,false,false,false,event_category,internal,
+events,created_at,true,true,none,false,none,aggregate_only,false,true,true,false,false,false,event_timestamp,internal,
+plan,id,true,true,none,false,none,full,true,true,true,false,false,false,plan_id,public,
+plan,name,true,true,none,false,none,full,true,true,true,false,false,false,plan_name,public,
+plan,monthly_price,true,true,none,false,none,full,true,true,false,false,false,false,plan_price,public,
+stg_customer,customer_id,true,false,none,false,none,aggregate_only,false,true,true,false,false,false,stg_customer_id,internal,
+stg_customer,first_name,false,false,direct,false,redact,deny,false,false,false,false,false,false,stg_customer_first_name,restricted,Direct PII — completely excluded from AI context.
+stg_customer,last_name,false,false,direct,false,redact,deny,false,false,false,false,false,false,stg_customer_last_name,restricted,Direct PII — excluded.
+stg_customer,email,false,false,direct,false,redact,deny,false,false,false,false,false,false,customer_email,restricted,Email address — direct PII excluded from AI.
+stg_customer,phone,false,false,direct,false,redact,deny,false,false,false,false,false,false,customer_phone,restricted,
+stg_customer,city,true,true,quasi_identifier,false,none,aggregate_only,false,true,true,false,false,false,customer_city,internal,Quasi-identifier — city alone acceptable for grouping but do not combine with name/email.
+stg_customer,country,true,true,none,false,none,full,true,true,true,false,false,false,customer_country,internal,
+stg_employee,employee_id,false,false,none,false,none,deny,false,false,false,false,false,false,employee_id,restricted,
+stg_employee,first_name,false,false,direct,false,none,deny,false,false,false,false,false,false,employee_first_name,restricted,
+stg_employee,last_name,false,false,direct,false,none,deny,false,false,false,false,false,false,employee_last_name,restricted,
+stg_employee,title,false,false,none,false,none,deny,false,false,false,false,false,false,employee_title,restricted,
+stg_employee,birth_date,false,false,direct,false,none,deny,false,false,false,false,false,false,employee_birth_date,restricted,Date of birth is direct PII — hard deny.
+stg_employee,hire_date,false,false,none,false,none,deny,false,false,false,false,false,false,employee_hire_date,restricted,
+stg_invoice,invoice_id,true,false,none,false,none,aggregate_only,false,true,false,false,false,false,invoice_id,internal,
+stg_invoice,customer_id,true,false,none,false,none,aggregate_only,false,true,true,false,false,false,invoice_customer_id,internal,
+stg_invoice,billing_country,true,true,none,false,none,full,true,true,true,false,false,false,invoice_country,internal,
+stg_invoice,total,true,true,none,false,none,aggregate_only,false,true,false,false,false,false,invoice_total,confidential,Invoice total. Use SUM AVG COUNT. Do not expose individual totals.
+stg_track,track_id,true,true,none,false,none,full,true,true,true,false,false,false,track_id,public,
+stg_track,name,true,true,none,false,none,full,true,true,true,true,true,false,track_name,public,
+stg_track,unit_price,true,true,none,false,none,full,true,true,false,false,false,false,track_price,public,
+stg_track,milliseconds,true,true,none,false,none,full,true,false,false,false,false,false,track_duration_ms,public,
+stg_artist,artist_id,true,true,none,false,none,full,true,true,true,false,false,false,artist_id,public,
+stg_artist,name,true,true,none,false,none,full,true,true,true,true,true,false,artist_name,public,
+stg_album,album_id,true,true,none,false,none,full,true,true,true,false,false,false,album_id,public,
+stg_album,title,true,true,none,false,none,full,true,true,true,true,false,false,album_title,public,
+stg_genre,genre_id,true,true,none,false,none,full,true,true,true,false,false,false,genre_id,public,
+stg_genre,name,true,true,none,false,none,full,true,true,true,false,false,false,genre_name,public,
