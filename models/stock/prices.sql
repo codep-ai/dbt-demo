@@ -4,9 +4,9 @@
         table_type           = 'iceberg',
         external_volume      = var('external_volume', 'DATAPAI_S3_VOL'),
         base_location_subpath = 'prices',
-        unique_key           = ['ticker', 'date', 'exchange'],
+        unique_key           = ['ticker', 'trade_date', 'exchange'],
         incremental_strategy = 'merge',
-        cluster_by           = ['exchange', 'date'],
+        cluster_by           = ['exchange', 'trade_date'],
     )
 }}
 
@@ -27,7 +27,7 @@
 
 SELECT
     $1:ticker::VARCHAR(20)    AS ticker,
-    $1:date::DATE             AS date,
+    $1:trade_date::DATE       AS trade_date,
     $1:open::DOUBLE           AS open,
     $1:high::DOUBLE           AS high,
     $1:low::DOUBLE            AS low,

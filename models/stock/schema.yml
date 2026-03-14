@@ -14,7 +14,7 @@ models:
         description: "Stock ticker symbol (e.g. AAPL, BHP.AX)"
         tests:
           - not_null
-      - name: date
+      - name: trade_date
         description: "Trading date (YYYY-MM-DD)"
         tests:
           - not_null
