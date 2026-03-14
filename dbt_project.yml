@@ -59,6 +59,15 @@ models:
     +tags:
       - "ai_governance"
       - "guardrail"
+
+  # ── Stock Iceberg models (Snowflake Managed Iceberg → S3 bronze) ──────────
+  stock:
+    +database: "{{ env_var('SNOWFLAKE_DATABASE', 'DATAPAI') }}"
+    +schema:   STOCK
+    +tags:
+      - "iceberg"
+      - "stock"
+      - "ohlcv"
 #  Error handling :  switch on flag store_failures, to store the failure results into the audit table
 #  this flag can be set up at different levels, please refer to https://docs.getdbt.com/reference/resource-configs/store_failures
 tests:
@@ -66,6 +75,13 @@ tests:
   +schema: test_audit
   +limit: 1000 # apply for all tests
 vars:
+  # ── Stock Iceberg vars ─────────────────────────────────────────────────────
+  # S3 bucket for stock data (set S3_BUCKET_STOCK in env / .bash_profile)
+  s3_bucket:       "{{ env_var('S3_BUCKET_STOCK', 'codepais3') }}"
+  s3_raw_base:     "stock/raw"
+  external_volume: "DATAPAI_S3_VOL"
+  raw_stage:       "S3_RAW_STAGE"
+  # ──────────────────────────────────────────────────────────────────────────
 # # sample only: The `env_dev` variable will be accessible in all resources
 #   env_dev: 'dev'
 #env_variable: {{ env_var('env') }}

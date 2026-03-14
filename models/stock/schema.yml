@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: prices
+    description: >
+      Daily OHLCV prices for US and ASX stocks.
+      Snowflake Managed Iceberg table — Snowflake writes Iceberg format to
+      s3://${S3_BUCKET_STOCK}/stock/bronze/prices/.
+      Data loaded by scripts/sync_snowflake_iceberg.py via S3 raw stage.
+    config:
+      tags: ["iceberg", "daily", "ohlcv", "stock"]
+    columns:
+      - name: ticker
+        description: "Stock ticker symbol (e.g. AAPL, BHP.AX)"
+        tests:
+          - not_null
+      - name: date
+        description: "Trading date (YYYY-MM-DD)"
+        tests:
+          - not_null
+      - name: open
+        description: "Opening price"
+      - name: high
+        description: "Intraday high price"
+      - name: low
+        description: "Intraday low price"
+      - name: close
+        description: "Closing price"
+        tests:
+          - not_null
+      - name: adj_close
+        description: "Dividend/split-adjusted closing price"
+      - name: volume
+        description: "Volume traded"
+      - name: exchange
+        description: "Exchange code"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['US', 'ASX']
+      - name: source
+        description: "Data source identifier"
+        tests:
+          - accepted_values:
+              values: ['yahoo', 'polygon']
+
+  - name: ohlcv_intraday
+    description: >
+      30-minute OHLCV intraday bars for US and ASX stocks.
+      Snowflake Managed Iceberg table — Snowflake writes Iceberg format to
+      s3://${S3_BUCKET_STOCK}/stock/bronze/ohlcv_intraday/.
+      Data loaded by scripts/sync_snowflake_iceberg.py via S3 raw stage.
+    config:
+      tags: ["iceberg", "intraday", "ohlcv", "stock"]
+    columns:
+      - name: ticker
+        description: "Stock ticker symbol"
+        tests:
+          - not_null
+      - name: ts
+        description: "Bar open timestamp in UTC (TIMESTAMP_TZ)"
+        tests:
+          - not_null
+      - name: open
+        description: "Open price for the bar"
+      - name: high
+        description: "High price for the bar"
+      - name: low
+        description: "Low price for the bar"
+      - name: close
+        description: "Close price for the bar"
+        tests:
+          - not_null
+      - name: volume
+        description: "Volume traded in the bar"
+      - name: exchange
+        description: "Exchange code"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['US', 'ASX']
+      - name: source
+        description: "Data source identifier"
+        tests:
+          - accepted_values:
+              values: ['yahoo', 'polygon']
