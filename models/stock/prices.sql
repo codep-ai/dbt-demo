@@ -1,12 +1,10 @@
 {{
     config(
-        materialized         = 'incremental',
-        table_type           = 'iceberg',
-        external_volume      = var('external_volume', 'DATAPAI_S3_VOL'),
-        base_location_subpath = 'prices',
-        unique_key           = ['ticker', 'trade_date', 'exchange'],
-        incremental_strategy = 'merge',
-        cluster_by           = ['exchange', 'trade_date'],
+        materialized       = 'table',
+        table_format       = 'iceberg',
+        external_volume    = var('external_volume', 'DATAPAI_S3_VOL'),
+        base_location_root = 'prices',
+        cluster_by         = ['exchange', 'trade_date'],
     )
 }}
 
@@ -15,11 +13,14 @@
 
   Source:       S3 raw Parquet at s3://$S3_BUCKET_STOCK/stock/raw/prices/
   Stage:        DATAPAI.STOCK.S3_RAW_STAGE (DATAPAI_S3_INTEGRATION)
-  Bronze path:  s3://$S3_BUCKET_STOCK/stock/bronze/prices/  (written by Snowflake)
+  Bronze path:  s3://$S3_BUCKET_STOCK/stock/bronze/prices/STOCK/prices/  (written by Snowflake)
   Data loader:  scripts/sync_snowflake_iceberg.py  ← partition-level DELETE+INSERT
   Full rebuild: dbt run --full-refresh --select prices
 
   Schema managed by dbt.  Data loaded by sync_snowflake_iceberg.py.
+
+  Note: requires dbt-snowflake>=1.9 (Python 3.9+) for Managed Iceberg table_format config.
+  For daily delta loads use scripts/sync_snowflake_iceberg.py --mode delta.
 */
 
 {% set database = env_var('SNOWFLAKE_DATABASE', 'DATAPAI') %}
@@ -37,12 +38,3 @@ SELECT
     $1:exchange::VARCHAR(10)  AS exchange,
     $1:source::VARCHAR(20)    AS source
 FROM @{{ stage }}/prices/
-
-{% if is_incremental() %}
-/*
-  In incremental mode dbt generates MERGE INTO ... USING (this SELECT) ON unique_key.
-  For partition-level delta loads use sync_snowflake_iceberg.py --mode delta instead —
-  it does targeted DELETE + INSERT per exchange/year/month partition, which is faster.
-  Use `dbt run --full-refresh` only for complete table rebuilds.
-*/
-{% endif %}

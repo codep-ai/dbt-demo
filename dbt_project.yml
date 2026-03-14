@@ -61,13 +61,15 @@ models:
       - "guardrail"
 
   # ── Stock Iceberg models (Snowflake Managed Iceberg → S3 bronze) ──────────
-  stock:
-    +database: "{{ env_var('SNOWFLAKE_DATABASE', 'DATAPAI') }}"
-    +schema:   STOCK
-    +tags:
-      - "iceberg"
-      - "stock"
-      - "ohlcv"
+  # Project-name prefix required so dbt applies schema/database overrides
+  datapai:
+    stock:
+      +database: "{{ env_var('SNOWFLAKE_DATABASE', 'DATAPAI') }}"
+      +schema:   STOCK
+      +tags:
+        - "iceberg"
+        - "stock"
+        - "ohlcv"
 #  Error handling :  switch on flag store_failures, to store the failure results into the audit table
 #  this flag can be set up at different levels, please refer to https://docs.getdbt.com/reference/resource-configs/store_failures
 tests:
