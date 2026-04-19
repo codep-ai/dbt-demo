@@ -484,3 +484,66 @@ models:
         description: Human-readable explanation of the eligibility decision
         tests:
           - not_null
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # dim_ai_control
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: dim_ai_control
+    description: >
+      Main control dimension — one row per (framework_code, control_id).
+      Surrogate key via dbt_utils.surrogate_key for cross-adapter portability.
+      mandatory_records kept as pipe-separated string; consumers parse per
+      warehouse dialect.
+    columns:
+      - name: control_sk
+        description: MD5 surrogate key over (framework_code, control_id).
+        tests: [unique, not_null]
+      - name: framework_code
+        tests: [not_null]
+      - name: control_id
+        tests: [not_null]
+      - name: obligation_family
+        tests:
+          - not_null
+          - accepted_values:
+              values: [accountability, impact_assessment, risk_management, transparency, testing_monitoring, human_oversight, redress, third_party_supply_chain, data_governance, recordkeeping]
+  # ──────────────────────────────────────────────────────────────────────────
+  # stg_ai_chat_messages
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: stg_ai_chat_messages
+    description: >
+      Staging view over ai_chat_history.ext_chat_history. Thin normalization
+      layer; no redaction. Downstream fct_ai_chat_message applies SHA-256
+      hashing to content.
+    columns:
+      - name: message_id
+        tests: [not_null]
+      - name: session_id
+        tests: [not_null]
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # fct_ai_chat_message
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: fct_ai_chat_message
+    description: >
+      Per-LLM-turn fact for AI governance audit evidence. Grain = one message.
+      Content redacted to SHA-256 + length; raw text stays in S3 bronze
+      (7y Object Lock, Phase 1.13 architecture).
+    columns:
+      - name: message_sk
+        description: Surrogate key over (session_id, message_id).
+        tests: [unique, not_null]
+      - name: message_id
+        tests: [not_null]
+      - name: role
+        tests:
+          - not_null
+          - accepted_values:
+              values: [user, assistant, system]
+      - name: vertical
+        tests:
+          - not_null
+          - accepted_values:
+              values: [stock, health, trade]
+      - name: event_at
+        tests: [not_null]

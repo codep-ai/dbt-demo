@@ -26,7 +26,7 @@ seeds:
   finance:
     schema: fn_seed
   ai_mart:
-    schema: ai_mart_seed
+    +schema: ai_mart
 
 # Configuring models: https://docs.getdbt.com/docs/configuring-models
 models:

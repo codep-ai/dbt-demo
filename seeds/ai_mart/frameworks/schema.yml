@@ -1,0 +1,25 @@
+version: 2
+
+seeds:
+  - name: ai_controls_seed
+    config:
+      schema: ai_mart
+      quote_columns: false
+    description: >
+      Multi-jurisdiction AI governance control catalog. Each row is one
+      control from one framework (AU_6_2025, NIST_AI_RMF_10, UK_5_PRINCIPLES,
+      ISO_42001_2023, CO_AI_ACT_2024, FINRA_24_09, FCA_AI_DP5_22). Discriminator
+      columns (framework_code, country_code, jurisdiction_code,
+      obligation_family, effective_from) replace what would otherwise be
+      separate dim tables. See seeds/ai_mart/frameworks/README.md.
+    columns:
+      - name: framework_code
+        description: Discriminator — e.g. AU_6_2025, NIST_AI_RMF_10
+      - name: control_id
+        description: Framework-native control ID, unique within framework_code
+      - name: obligation_family
+        description: >
+          Normalised cross-framework obligation (accountability,
+          impact_assessment, risk_management, transparency,
+          testing_monitoring, human_oversight, redress,
+          third_party_supply_chain, data_governance, recordkeeping).
