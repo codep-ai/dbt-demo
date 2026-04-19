@@ -6,20 +6,100 @@ seeds:
       schema: ai_mart
       quote_columns: false
     description: >
-      Multi-jurisdiction AI governance control catalog. Each row is one
-      control from one framework (AU_6_2025, NIST_AI_RMF_10, UK_5_PRINCIPLES,
-      ISO_42001_2023, CO_AI_ACT_2024, FINRA_24_09, FCA_AI_DP5_22). Discriminator
-      columns (framework_code, country_code, jurisdiction_code,
-      obligation_family, effective_from) replace what would otherwise be
-      separate dim tables. See seeds/ai_mart/frameworks/README.md.
+      Multi-jurisdiction AI governance control catalog — the source-of-truth
+      seed feeding `dim_ai_control`. One row per control from one framework.
+      Flat-table design with discriminator columns (framework_code,
+      country_code, jurisdiction_code, obligation_family, effective_from)
+      replaces what would otherwise be separate dim_ai_framework /
+      dim_ai_jurisdiction mini-dims — see the README in this folder for
+      rationale.
+
+      Scope today (55 rows across 7 frameworks):
+        AU_6_2025       AU 6 Essential Practices (Oct 2025 guidance)  — complete
+        NIST_AI_RMF_10  NIST AI Risk Management Framework 1.0          — top-level only
+        UK_5_PRINCIPLES UK AI Regulation — 5 cross-sectoral principles — complete
+        ISO_42001_2023  ISO/IEC 42001:2023 Annex A controls            — stub (paywalled source)
+        CO_AI_ACT_2024  Colorado AI Act (SB24-205, effective Feb 2026) — stub
+        FINRA_24_09     FINRA Regulatory Notice 24-09                  — stub
+        FCA_AI_DP5_22   FCA DP5/22 + 2024 AI Update                    — stub
+
+      Update mechanism (Phase 2.2): TinyFish auto-refresh pulls canonical
+      source URLs weekly, AI-extracts via per-framework prompts in
+      `extractors/<framework_code>.md`, proposes diffs as PRs in dbt-demo.
+      Never auto-merged — human review required (regulator-facing data).
     columns:
       - name: framework_code
-        description: Discriminator — e.g. AU_6_2025, NIST_AI_RMF_10
+        description: >
+          Stable framework identifier. Values: `AU_6_2025`, `NIST_AI_RMF_10`,
+          `UK_5_PRINCIPLES`, `ISO_42001_2023`, `CO_AI_ACT_2024`, `FINRA_24_09`,
+          `FCA_AI_DP5_22`. Versioned — when a framework publishes a new
+          version, a new framework_code is created (e.g. `AU_6_2027`); old
+          rows are preserved for historical audit queries.
+      - name: framework_name
+        description: Human-readable framework name.
+      - name: framework_publisher
+        description: Issuing body — e.g. "Australian Government Department of Industry, Science and Resources", "NIST", "FINRA".
+      - name: jurisdiction_code
+        description: >
+          Full jurisdiction including sub-national scope. Values: `AU`, `US`,
+          `US-CO` (Colorado), `US-FIN` (US financial-services sector), `UK`,
+          `UK-FIN` (UK financial services), `INT` (international — ISO).
+      - name: country_code
+        description: >
+          Country-level code only, denormalised from jurisdiction_code for
+          simpler country-scoped queries. Values: `AU`, `US`, `UK`, `INT`.
+      - name: effective_from
+        description: ISO-8601 date when this version of the framework became effective.
+      - name: is_mandatory
+        description: >
+          `true` for enacted law / binding regulator mandate (Colorado AI Act,
+          FINRA 24-09, FCA DP5/22); `false` for voluntary guidance (AU 6,
+          NIST AI RMF, UK 5 Principles, ISO 42001).
+      - name: source_url
+        description: Canonical source URL for citation trail in compliance evidence PDFs.
       - name: control_id
-        description: Framework-native control ID, unique within framework_code
+        description: >
+          Framework-native control identifier — unique within `framework_code`.
+          Examples: `P1` (AU), `GOVERN-3` (NIST), `UK_P4` (UK), `A.3` (ISO),
+          `CO.6-1-1702` (Colorado).
+      - name: control_name
+        description: Short human-readable control title, verbatim from the source document.
+      - name: control_description
+        description: One-sentence description of the control obligation.
+      - name: control_category
+        description: Framework-native grouping verbatim from source (e.g. "Govern", "Accountability", "Supervision", "Lifecycle").
       - name: obligation_family
         description: >
-          Normalised cross-framework obligation (accountability,
-          impact_assessment, risk_management, transparency,
-          testing_monitoring, human_oversight, redress,
-          third_party_supply_chain, data_governance, recordkeeping).
+          Normalised cross-framework obligation family — the KEY column for
+          multi-jurisdiction governance queries. Values (closed set of 10):
+          `accountability`, `impact_assessment`, `risk_management`,
+          `transparency`, `testing_monitoring`, `human_oversight`, `redress`,
+          `third_party_supply_chain`, `data_governance`, `recordkeeping`.
+          Filter `WHERE obligation_family = 'accountability'` to see how all
+          7 frameworks express the same real-world obligation.
+      - name: mandatory_records
+        description: >
+          Pipe-separated list of artefacts/records the framework expects
+          organisations to produce as evidence (e.g. `AI governance policy|
+          job descriptions|governance forum minutes`). Pipe-separated (not
+          array) to stay portable across Snowflake / HANA / BigQuery.
+      - name: source_section
+        description: >
+          Pointer into the source document for audit traceability (e.g.
+          "Practice 1 — Accountability", "AI RMF 1.0 §5.1", "§6-1-1702").
+      - name: retrieved_date
+        description: >
+          ISO-8601 date when this row was last verified against the
+          authoritative source. Updated by TinyFish auto-refresh (Phase 2.2)
+          or manual review.
+      - name: status
+        description: >
+          Row quality signal. `complete` = fully authored + verified.
+          `top_level_only` = category captured but sub-items deferred
+          (e.g. NIST subcategories). `stub` = placeholder pending source
+          acquisition or verification (e.g. ISO Annex A paywalled, Colorado
+          AI Act enacted-text verification pending).
+      - name: notes
+        description: >
+          Free-form authoring notes, ambiguity flags, verification TODOs,
+          or interpretation caveats. Surface in evidence PDFs when non-empty.

@@ -5,13 +5,72 @@ sources:
     database: DATAPAI
     schema: AI_MART
     description: >
-      Immutable chat history Parquet archive (Phase 1.13). Source-of-truth
-      for AI conversation audit. External table over s3://codepais3/stock/raw/chat_history/.
-      DDL in macros/setup_ai_chat_external.sql.
+      Immutable chat-history Parquet archive source (Phase 1.13 cold tier).
+      Source-of-truth for AI conversation audit. Raw Parquet lives at
+      `s3://codepais3/stock/raw/chat_history/year=YYYY/month=MM/day=DD/part-*.parquet`,
+      written by the archival pipeline (`platform-be/scripts/archive_table_to_s3.py
+      --archive-name chat`). Snowflake external-table DDL is in
+      `macros/setup_ai_chat_external.sql` and creates `AI_MART.EXT_CHAT_HISTORY`
+      with path-partition columns (dt_year/dt_month/dt_day) extracted via
+      REGEXP on METADATA$FILENAME.
+
+      Downstream consumers:
+        • stg_ai_chat_messages (thin staging view)
+        • fct_ai_chat_message  (redacted audit fact)
     tables:
       - name: ext_chat_history
         description: >
-          Per-message rows archived from framework_db.datapai.chat_messages JOIN
-          chat_sessions. Partitioned by year/month/day via S3 path. No PII
-          redaction on this layer; downstream fct_ai_chat_message applies SHA-256
-          hashing to content.
+          Per-message rows, archived from framework_db.datapai.chat_messages
+          JOIN chat_sessions. Each row is one user prompt OR one AI response.
+          Partitioned by year/month/day via S3 path.
+
+          No PII redaction at this layer — `content` column contains raw text.
+          PII/PHI redaction applied downstream in fct_ai_chat_message (SHA-256
+          hash + length only; raw text stays in S3 Object Lock 7y bronze).
+        columns:
+          - name: message_id
+            description: Per-message BIGINT primary key from chat_messages source table.
+          - name: session_id
+            description: VARCHAR session identifier; groups messages into conversations.
+          - name: session_user_id
+            description: BIGINT end-user identifier from framework_db.users.id.
+          - name: ticker
+            description: Stock ticker context (stock vertical only; NULL for health / trade).
+          - name: exchange
+            description: Stock exchange context (stock vertical only; NULL for health / trade).
+          - name: session_title
+            description: Human-readable session label, typically LLM-generated at first message.
+          - name: session_created_at
+            description: TIMESTAMP_TZ — when the session was opened.
+          - name: role
+            description: VARCHAR — `user`, `assistant`, or `system`.
+          - name: content
+            description: >
+              VARCHAR — raw message text. **PII-bearing.** Present in this
+              bronze layer; removed/redacted in fct_ai_chat_message.
+          - name: model_used
+            description: VARCHAR — foundation-model identifier (e.g. `gemini-2.5-flash`).
+          - name: context_sources
+            description: >
+              VARCHAR (JSON) — context attached to the message when built (RAG
+              retrievals, tool calls, TinyFish scan results, user context).
+              Useful for reconstructing prompt composition at audit time.
+          - name: created_at
+            description: >
+              TIMESTAMP_TZ — when the message was actually created. This is
+              the event-time grain. Renamed to `event_at` in staging.
+          - name: archived_at
+            description: TIMESTAMP_TZ — when the row was written to S3 bronze Parquet.
+          - name: archive_run_id
+            description: >
+              VARCHAR — identifier of the archival run that wrote this row.
+              Groups rows archived together; useful for replay / diagnosis.
+          - name: dt_year
+            description: >
+              INTEGER — year partition extracted from S3 path `year=YYYY` via
+              `REGEXP_SUBSTR(METADATA$FILENAME, 'year=([0-9]+)', ...)`. Prune
+              by this for fast date-range queries.
+          - name: dt_month
+            description: INTEGER — month partition extracted from S3 path `month=MM`.
+          - name: dt_day
+            description: INTEGER — day partition extracted from S3 path `day=DD`.

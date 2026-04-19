@@ -486,100 +486,379 @@ models:
           - not_null
 
   # ──────────────────────────────────────────────────────────────────────────
-  # dim_ai_control
+  # dim_ai_control — compliance-framework control catalog (multi-jurisdiction)
   # ──────────────────────────────────────────────────────────────────────────
   - name: dim_ai_control
     description: >
-      Main control dimension — one row per (framework_code, control_id).
-      Surrogate key via dbt_utils.surrogate_key for cross-adapter portability.
-      mandatory_records kept as pipe-separated string; consumers parse per
-      warehouse dialect.
+      Conformed control dimension for AI governance frameworks. One row per
+      (framework_code, control_id) across AU 6 Practices, NIST AI RMF 1.0,
+      UK 5 Principles, ISO/IEC 42001:2023 Annex A, Colorado AI Act, FINRA
+      24-09, FCA DP5/22. Framework + jurisdiction attributes are denormalized
+      onto each row — no separate dim_ai_framework or dim_ai_jurisdiction
+      (hierarchy-as-columns pattern). `obligation_family` is the
+      cross-framework pivot that maps e.g. "Accountability" obligations
+      across all 7 frameworks without a bridge table.
+
+      Source:  ai_controls_seed (seed).
+      Updated: weekly via TinyFish auto-refresh (Phase 2.2) with PR review.
     columns:
       - name: control_sk
-        description: MD5 surrogate key over (framework_code, control_id).
+        description: >
+          MD5 surrogate key over (framework_code, control_id). Used by
+          dim_ai_agent.primary_control_sk to resolve which control an AI
+          agent is bound to.
         tests: [unique, not_null]
       - name: framework_code
+        description: >
+          Stable framework identifier, e.g. `AU_6_2025`, `NIST_AI_RMF_10`,
+          `ISO_42001_2023`. When a framework publishes a new version, a new
+          framework_code is created (not a mutation).
         tests: [not_null]
+      - name: framework_name
+        description: Human-readable framework name.
+      - name: framework_publisher
+        description: Issuing body (e.g. "Australian Government DISR", "NIST", "ISO/IEC").
+      - name: jurisdiction_code
+        description: >
+          Full scope — country and sub-national. Values: `AU`, `US`, `US-CO`,
+          `US-FIN`, `UK`, `UK-FIN`, `INT`. Used for sector-specific regulator
+          queries.
+        tests: [not_null]
+      - name: country_code
+        description: >
+          Country-level code denormalised from jurisdiction_code. Values:
+          `AU`, `US`, `UK`, `INT`. Simpler for country-scoped queries
+          ("which frameworks apply in the US?") without `LIKE 'US%'`.
+        tests: [not_null]
+      - name: effective_from
+        description: Framework version effective date (ISO 8601).
+      - name: is_mandatory
+        description: >
+          `true` for enacted law / regulator mandate (CO AI Act, FINRA 24-09,
+          FCA DP5/22); `false` for voluntary guidance (AU 6, NIST AI RMF,
+          UK 5 Principles, ISO 42001).
+      - name: source_url
+        description: Canonical source URL for citation trail in evidence PDFs.
       - name: control_id
+        description: >
+          Framework-native control identifier (e.g. `P1` for AU, `GOVERN-3`
+          for NIST, `A.3` for ISO, `§6-1-1702` for Colorado). Unique within
+          its framework_code.
         tests: [not_null]
+      - name: control_name
+        description: Short human-readable control title from the source document.
+      - name: control_description
+        description: One-sentence description of the control obligation.
+      - name: control_category
+        description: Framework-native grouping verbatim from source (e.g. "Govern", "Accountability", "Supervision").
       - name: obligation_family
+        description: >
+          Normalised cross-framework obligation family — the key column for
+          multi-jurisdiction governance queries. Filter `WHERE obligation_family
+          = 'accountability'` to see how every framework expresses the same
+          real-world obligation.
         tests:
           - not_null
           - accepted_values:
               values: [accountability, impact_assessment, risk_management, transparency, testing_monitoring, human_oversight, redress, third_party_supply_chain, data_governance, recordkeeping]
+      - name: mandatory_records
+        description: >
+          Pipe-separated list of artefacts the framework expects organisations
+          to produce as evidence (e.g. `AI governance policy|job descriptions|
+          governance forum minutes`). Consumers parse per warehouse dialect
+          (Snowflake SPLIT, HANA STRING_SPLIT, BigQuery SPLIT) — pipe-separated
+          to stay portable.
+      - name: source_section
+        description: Pointer into source document for audit traceability (e.g. "Practice 1 — Accountability", "AI RMF 1.0 §5.1").
+      - name: retrieved_date
+        description: When this row was last verified against source. Updated by TinyFish auto-refresh.
+      - name: status
+        description: >
+          `complete` — fully authored + verified. `top_level_only` — category
+          captured but subcategories deferred (e.g. NIST subcategories not yet
+          authored). `stub` — placeholder pending source acquisition (e.g.
+          ISO 42001 Annex A, paywalled).
+      - name: notes
+        description: Free-form authoring notes, ambiguity flags, or rework TODOs.
+
   # ──────────────────────────────────────────────────────────────────────────
-  # stg_ai_chat_messages
+  # stg_ai_chat_messages — staging over S3 Parquet bronze chat archive
   # ──────────────────────────────────────────────────────────────────────────
   - name: stg_ai_chat_messages
     description: >
-      Staging view over ai_chat_history.ext_chat_history. Thin normalization
-      layer; no redaction. Downstream fct_ai_chat_message applies SHA-256
-      hashing to content.
+      Thin staging view over the `ai_chat_history.ext_chat_history` external
+      table, which itself reads the Phase 1.13 chat_history Parquet archive
+      at `s3://codepais3/stock/raw/chat_history/year=YYYY/month=MM/day=DD/*`.
+      No redaction at this layer — `content` is still present. Downstream
+      `fct_ai_chat_message` applies SHA-256 hashing + drops raw content.
+
+      Vertical is hardcoded to `stock` in this staging because only the
+      stock-be archival pipeline is currently wired; health + trade will
+      union in via their own external tables when their Phase 1.13 pipelines
+      activate.
     columns:
       - name: message_id
+        description: Per-message PK from framework_db.datapai.chat_messages.
         tests: [not_null]
       - name: session_id
+        description: FK to chat_sessions; groups messages into conversation sessions.
         tests: [not_null]
+      - name: session_user_id
+        description: End-user identifier (framework_db.users.id).
+      - name: ticker
+        description: Stock ticker context (stock vertical only — null otherwise).
+      - name: exchange
+        description: Stock exchange context (stock vertical only — null otherwise).
+      - name: session_title
+        description: Human-readable session label (LLM-generated at first message).
+      - name: session_created_at
+        description: When the session was opened (TIMESTAMP_TZ).
+      - name: role
+        description: >
+          Speaker role in the conversation. Values: `user`, `assistant`,
+          `system`. Each AI response (assistant) is paired with a user
+          prompt (user) at a 1:1 ratio.
+      - name: content
+        description: >
+          Full message text — user prompt or AI response. **PII-bearing**.
+          Present in this staging layer only; downstream fct_ai_chat_message
+          replaces with content_sha256. Raw content stays in S3 bronze
+          (Object Lock, 7y retention).
+      - name: model_used
+        description: Foundation-model identifier (e.g. `gemini-2.5-flash`). Maps to dim_ai_agent.llm_name.
+      - name: context_sources
+        description: >
+          JSON-encoded list of context sources used for the response (RAG
+          retrievals, tool calls, TinyFish scans, user_context). Useful for
+          reconstructing the prompt composition at audit time.
+      - name: event_at
+        description: When the message was sent (original `created_at` from Postgres).
+      - name: archived_at
+        description: When the row was written to S3 Parquet bronze (archival run timestamp).
+      - name: archive_run_id
+        description: Identifier of the archival DAG/script run — groups rows archived together, useful for replaying or diagnosing issues.
+      - name: dt_year
+        description: Year partition extracted from S3 path `year=YYYY`. Prune by this for fast date-range queries.
+      - name: dt_month
+        description: Month partition extracted from S3 path `month=MM`.
+      - name: dt_day
+        description: Day partition extracted from S3 path `day=DD`.
+      - name: vertical
+        description: Product vertical. Currently hardcoded to `stock` (only vertical wired). `health` and `trade` will union in via their own external tables.
 
   # ──────────────────────────────────────────────────────────────────────────
-  # fct_ai_chat_message
+  # fct_ai_chat_message — per-LLM-turn fact for AI governance audit evidence
   # ──────────────────────────────────────────────────────────────────────────
   - name: fct_ai_chat_message
     description: >
-      Per-LLM-turn fact for AI governance audit evidence. Grain = one message.
-      Content redacted to SHA-256 + length; raw text stays in S3 bronze
-      (7y Object Lock, Phase 1.13 architecture).
+      Per-LLM-turn fact table. Grain = one chat message (user prompt or AI
+      response). This is the primary audit-evidence backbone for AI
+      governance — when an auditor asks "show me every LLM call subject to
+      AU Practice 1 between dates X and Y", it's answered from this fact
+      joined to dim_ai_agent → dim_ai_control.
+
+      PII POSTURE (audit-grade)
+      ─────────────────────────
+      `content` is NOT stored in this fact. Only `content_sha256` + `content_length`.
+      The raw text lives in the S3 Object Lock bronze (7y retention, Phase
+      1.13). Auditor proves existence via SHA-256 match; raw text retrievable
+      from S3 if subpoenaed. No PII surface duplicated into the warehouse.
+
+      JOIN PATH
+      ─────────
+      fct_ai_chat_message (via model_name → dim_ai_agent.llm_name*)
+        → dim_ai_agent (operational registry)
+        → dim_ai_control (via primary_control_sk)
+        → framework + obligation_family for evidence-PDF rollups
+
+      * Join is loose today because chat_messages source captures `model_used`
+        but not the agent identifier. Phase 2.2 TODO: enrich chat_messages
+        write-path to log agent_name alongside model_used.
     columns:
       - name: message_sk
-        description: Surrogate key over (session_id, message_id).
+        description: MD5 surrogate key over (session_id, message_id). Guaranteed unique.
         tests: [unique, not_null]
       - name: message_id
+        description: Business key from chat_messages source.
         tests: [not_null]
-      - name: role
-        tests:
-          - not_null
-          - accepted_values:
-              values: [user, assistant, system]
+      - name: session_id
+        description: Session identifier — groups messages into conversations.
+      - name: user_id
+        description: End-user identifier (renamed from session_user_id for fact-table conformance).
       - name: vertical
+        description: Product vertical (`stock` / `health` / `trade`). Partition key for large-scale customer deployments.
         tests:
           - not_null
           - accepted_values:
               values: [stock, health, trade]
+      - name: ticker
+        description: Stock ticker context (stock vertical only; null for health/trade).
+      - name: exchange
+        description: Stock exchange context (stock vertical only; null for health/trade).
+      - name: role
+        description: Speaker role — `user`, `assistant`, or `system`.
+        tests:
+          - not_null
+          - accepted_values:
+              values: [user, assistant, system]
+      - name: model_name
+        description: >
+          Foundation-model identifier used for this message (e.g.
+          `gemini-2.5-flash`). Joins to dim_ai_agent.llm_name (loose today —
+          see JOIN PATH note in table description).
+      - name: content_sha256
+        description: >
+          SHA-256 hash of the raw message content. Audit-grade proof that the
+          message content matches what's in S3 bronze without duplicating PII
+          into the warehouse.
+      - name: content_length
+        description: Character count of the raw message. Lightweight size measure without exposing content.
+      - name: context_sources
+        description: JSON-encoded list of context sources (RAG / tools / TinyFish / user context) used to build the prompt.
       - name: event_at
+        description: When the message was actually sent (event time, not archival time).
         tests: [not_null]
+      - name: session_created_at
+        description: When the enclosing session was opened.
+      - name: archived_at
+        description: When the row landed in S3 bronze.
+      - name: archive_run_id
+        description: Archival-DAG run identifier — batches rows archived together.
+      - name: dt_year
+        description: Year partition from S3 path.
+      - name: dt_month
+        description: Month partition from S3 path.
+      - name: dt_day
+        description: Day partition from S3 path.
+      - name: fct_built_at
+        description: When this fact row was materialized by dbt (lineage / freshness signal).
 
   # ──────────────────────────────────────────────────────────────────────────
-  # dim_ai_agent
+  # dim_ai_agent — conformed AI agent catalog (hierarchy-as-columns)
   # ──────────────────────────────────────────────────────────────────────────
   - name: dim_ai_agent
     description: >
-      Conformed AI agent dimension — one row per deployed agent (finest
-      governable unit). Hierarchy (agent / system / vendor / llm /
-      governance / lifecycle) denormalized as flat columns; group by
-      any level via SELECT. No mini-dims for vendor, llm, or role.
-      primary_control_sk joins to dim_ai_control for framework coverage.
+      Conformed AI agent dimension — one row per deployed agent, which is
+      the finest governable unit at DATAP.AI. "AI system" in ISO 42001 sense
+      (e.g. "Stock Debate Agent") is a GROUPING of agents (bull / bear /
+      moderator / fundamental / technical / chart-vision) — represented here
+      as the `system_name` column, not a separate dim.
+
+      HIERARCHY AS COLUMNS (Kimball-native, no mini-dims)
+      ────────────────────────────────────────────────────
+      Agent level (agent_name, agent_role, agent_framework, agent_purpose)
+      System level (system_name, domain)
+      Vendor level (vendor_name, vendor_type, vendor_jurisdiction)
+      LLM level (llm_name, llm_capability_tier, llm_context_window)
+      Governance (owner_user_id, risk_tier, approval_status, primary_control_sk)
+      Lifecycle (deployed_at, decommissioned_at, is_active)
+
+      Group by any level via a single `GROUP BY` column; no joins to
+      vendor/llm/role sub-dims needed.
+
+      Source:  ai_agents_seed (hand-curated operational registry).
+      Updated: when a new agent is deployed, re-approved, or decommissioned.
     columns:
       - name: agent_sk
-        description: MD5 surrogate key over agent_key
+        description: MD5 surrogate key over agent_key. Primary join key for fact tables.
         tests: [unique, not_null]
       - name: agent_key
+        description: >
+          Unique business key (format `<domain>.<system>.<role>`, e.g.
+          `stock.debate.bull`). Used for agent-level filter/groupings when the
+          surrogate key isn't convenient.
         tests: [unique, not_null]
       - name: agent_name
+        description: >
+          Agent binary or class name (e.g. `stock-debate-bull`,
+          `health-signals-cross-validation`). Matches the string logged by
+          platform-be's agent runtime.
         tests: [unique, not_null]
+      - name: agent_role
+        description: >
+          Agent's role in its parent system — e.g. `bull`, `bear`, `moderator`,
+          `fundamental`, `technical`, `chart-vision`, `retriever`, `summariser`,
+          `screener`, `investigator`, `phi-detector`.
+      - name: agent_framework
+        description: >
+          Agent-runtime framework — `agno`, `langchain`, `raw-llm`, or `custom`
+          (DATAP.AI's own framework on top of BaseAgent).
+      - name: agent_purpose
+        description: Short human-readable statement of what this agent does.
+      - name: system_name
+        description: >
+          Parent system grouping — multiple agents share one system name (e.g.
+          "Stock Debate Agent" covers 6 agent rows). Use `GROUP BY system_name`
+          for system-level rollups. This IS what ISO 42001 calls an "AI system"
+          but we keep the grain at agent for honest accounting.
       - name: domain
+        description: >
+          Product vertical / platform layer. Values: `stock`, `health`,
+          `trade`, `platform` (platform-be cross-vertical capabilities like
+          RAG, text2sql, dbt-guardrail).
         tests:
           - not_null
           - accepted_values:
               values: [stock, health, trade, platform]
+      - name: vendor_name
+        description: LLM provider — `google`, `openai`, `anthropic`, `self-hosted`.
+      - name: vendor_type
+        description: Commercial posture — `commercial`, `open-source`, `self-hosted`.
+      - name: vendor_jurisdiction
+        description: >
+          Where the vendor processes data. Relevant for data-residency
+          governance (EU AI Act cross-border transfers, HIPAA BAA requirements,
+          Australian Privacy Act APP 8).
+      - name: llm_name
+        description: >
+          Foundation model name (e.g. `gemini-2.5-flash`, `claude-sonnet-4-6`,
+          `gpt-4`). Joined from fct_ai_chat_message.model_name to answer
+          "which agents are powered by Gemini?"
+      - name: llm_capability_tier
+        description: >
+          Informal tier — `frontier` (top reasoning), `mid` (balanced),
+          `small` (cheap / bulk / edge). Drives cost + quality tradeoffs.
+      - name: llm_context_window
+        description: Model's input context window in tokens (e.g. 1,000,000 for Gemini Flash, 200,000 for Claude Sonnet).
+      - name: owner_user_id
+        description: Accountable person (email / user identifier). **The human on the hook per AU Practice 1 / NIST GOVERN-2 / FCA SMCR / ISO 42001 A.3.**
+      - name: owner_role_key
+        description: Accountable person's role (e.g. `cto`, `team-lead`, `data-governance-lead`).
       - name: risk_tier
+        description: >
+          Agent's risk classification — `low` / `medium` / `high`. Drives
+          review cadence + required oversight controls. Mirrors ISO 42001
+          A.5 impact assessment outcome and NIST AI RMF MAP-2 risk tier.
         tests:
           - not_null
           - accepted_values:
               values: [low, medium, high]
       - name: approval_status
+        description: >
+          Governance state — `approved` (production-ready, in use),
+          `pending` (under review), `deprecated` (decommission pending or
+          done). Only `approved` agents should produce user-facing output.
         tests:
           - not_null
           - accepted_values:
               values: [approved, pending, deprecated]
+      - name: primary_control_framework
+        description: Framework_code of the agent's primary governance binding (e.g. `AU_6_2025`). Joins to dim_ai_control.framework_code.
+      - name: primary_control_id
+        description: Control_id of the agent's primary governance binding (e.g. `P1`). Joins to dim_ai_control.control_id.
+      - name: primary_control_sk
+        description: >
+          MD5 surrogate key over (primary_control_framework, primary_control_id).
+          Matches dim_ai_control.control_sk — enables direct join
+          `dim_ai_agent a JOIN dim_ai_control c ON a.primary_control_sk = c.control_sk`.
+      - name: deployed_at
+        description: Date the agent was first deployed to production.
+      - name: decommissioned_at
+        description: Date the agent was retired (nullable — null means still active).
       - name: is_active
-        description: Derived — true when decommissioned_at is null
+        description: >
+          Derived — `true` when decommissioned_at is null. Use
+          `WHERE is_active = true` to filter for currently-live agents
+          without NULL-handling boilerplate.
+      - name: notes
+        description: Free-form authoring notes, caveats, or links to design docs.
