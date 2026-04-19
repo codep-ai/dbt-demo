@@ -3,14 +3,23 @@ version: 2
 seeds:
   - name: ai_agents_seed
     description: >
-      Hand-curated initial catalog of DATAP.AI deployed AI agents across
-      stock / health / platform domains. Feeds dim_ai_agent. Operational
-      registry — updated when a new agent is deployed, re-approved, or
-      decommissioned.
+      AI agent catalog — feeds dim_ai_agent. Grain: one row per agent
+      (sub-unit of a system; e.g. bull/bear/moderator inside a Debate
+      Agent each get their own row).
 
-      Grain: one row per agent (sub-unit of a system, e.g. bull/bear/
-      moderator inside Stock Debate Agent each get their own row).
-      Hierarchy (agent / system / vendor / llm / governance) is
+      SHIPPED CONTENT = EXAMPLE / DEMO DATA.
+      The 26 rows shipped in this seed are DATAPAI's own internal agent
+      catalog across stock / health / platform domains. They are included
+      so the product demos out-of-the-box — without example data, dim_ai_agent
+      is empty and downstream dashboards / fct_ai_chat_message joins /
+      ComplianceAssessmentAgent have nothing to show.
+
+      CUSTOMER SHOULD REPLACE these rows with their own agent inventory
+      before production deployment — either by editing this CSV in their
+      dbt package fork, by DB insert into `DATAPAI.AI_MART.AI_AGENTS_SEED`,
+      or via the runtime agent-registration API (future).
+
+      Hierarchy (agent / system / vendor / llm / governance / lifecycle)
       denormalized as flat columns; no mini-dims.
     config:
       quote_columns: false
