@@ -547,3 +547,39 @@ models:
               values: [stock, health, trade]
       - name: event_at
         tests: [not_null]
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # dim_ai_agent
+  # ──────────────────────────────────────────────────────────────────────────
+  - name: dim_ai_agent
+    description: >
+      Conformed AI agent dimension — one row per deployed agent (finest
+      governable unit). Hierarchy (agent / system / vendor / llm /
+      governance / lifecycle) denormalized as flat columns; group by
+      any level via SELECT. No mini-dims for vendor, llm, or role.
+      primary_control_sk joins to dim_ai_control for framework coverage.
+    columns:
+      - name: agent_sk
+        description: MD5 surrogate key over agent_key
+        tests: [unique, not_null]
+      - name: agent_key
+        tests: [unique, not_null]
+      - name: agent_name
+        tests: [unique, not_null]
+      - name: domain
+        tests:
+          - not_null
+          - accepted_values:
+              values: [stock, health, trade, platform]
+      - name: risk_tier
+        tests:
+          - not_null
+          - accepted_values:
+              values: [low, medium, high]
+      - name: approval_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: [approved, pending, deprecated]
+      - name: is_active
+        description: Derived — true when decommissioned_at is null

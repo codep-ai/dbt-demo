@@ -1,0 +1,51 @@
+version: 2
+
+seeds:
+  - name: ai_agents_seed
+    description: >
+      Hand-curated initial catalog of DATAP.AI deployed AI agents across
+      stock / health / platform domains. Feeds dim_ai_agent. Operational
+      registry — updated when a new agent is deployed, re-approved, or
+      decommissioned.
+
+      Grain: one row per agent (sub-unit of a system, e.g. bull/bear/
+      moderator inside Stock Debate Agent each get their own row).
+      Hierarchy (agent / system / vendor / llm / governance) is
+      denormalized as flat columns; no mini-dims.
+    config:
+      quote_columns: false
+    columns:
+      - name: agent_key
+        description: Unique agent identifier (format <domain>.<system>.<role>)
+        tests: [unique, not_null]
+      - name: agent_name
+        description: Agent binary / class name
+        tests: [unique, not_null]
+      - name: agent_role
+        tests: [not_null]
+      - name: system_name
+        description: Parent system grouping — multiple agents share one system
+        tests: [not_null]
+      - name: domain
+        tests:
+          - not_null
+          - accepted_values:
+              values: [stock, health, trade, platform]
+      - name: vendor_name
+        tests: [not_null]
+      - name: llm_name
+        tests: [not_null]
+      - name: risk_tier
+        tests:
+          - not_null
+          - accepted_values:
+              values: [low, medium, high]
+      - name: approval_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: [approved, pending, deprecated]
+      - name: primary_control_framework
+        description: FK to dim_ai_control.framework_code
+      - name: primary_control_id
+        description: FK to dim_ai_control.control_id (within framework)
