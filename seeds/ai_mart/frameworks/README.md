@@ -16,7 +16,7 @@ Do not add a generic `extras_json` column to the seed yet — wait until actual 
 
 ## File
 
-- **`ai_controls_seed.csv`** — 55 rows across 7 frameworks
+- **`ai_controls_seed.csv`** — 213 rows across 11 frameworks (OWASP_AGENTIC_2026 = 10 parents + 86 sub-guidelines sourced directly from the Dec 2025 PDF)
 
 ## Schema
 
@@ -84,6 +84,7 @@ Observation: `accountability`, `impact_assessment`, and `risk_management` are co
 | `FCA_AI_DP5_22` | FCA | DP5/22 + 2024 AI Update | 2024-01-01 | https://www.fca.org.uk/publications/discussion-papers/dp5-22-artificial-intelligence-machine-learning |
 | `APRA_AI_2025` | Australian Prudential Regulation Authority | CPS 230 effective 1 July 2025 + supervisory engagements 2025-26 | 2025-07-01 | https://www.apra.gov.au/operational-risk-management |
 | `ASIC_AI_2024` | Australian Securities and Investments Commission | REP 798 (Oct 2024) + Corporations Act s912A + 2026 enforcement priorities | 2024-10-29 | https://asic.gov.au/regulatory-resources/find-a-document/reports/rep-798-beware-the-gap-governance-arrangements-in-the-face-of-ai-innovation/ |
+| `OWASP_AGENTIC_2026` | OWASP Gen AI Security Project | Top 10 for Agentic Applications 2026 (ASI01–ASI10) | 2026-01-01 | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ |
 
 ## Rules
 
