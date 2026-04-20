@@ -83,7 +83,7 @@ Observation: `accountability`, `impact_assessment`, and `risk_management` are co
 | `FINRA_24_09` | FINRA | Notice 24-09 | 2024-06-27 | https://www.finra.org/rules-guidance/notices/24-09 |
 | `FCA_AI_DP5_22` | FCA | DP5/22 + 2024 AI Update | 2024-01-01 | https://www.fca.org.uk/publications/discussion-papers/dp5-22-artificial-intelligence-machine-learning |
 | `APRA_AI_2025` | Australian Prudential Regulation Authority | CPS 230 effective 1 July 2025 + supervisory engagements 2025-26 | 2025-07-01 | https://www.apra.gov.au/operational-risk-management |
-| `ASIC_AI_2024` | Australian Securities and Investments Commission | REP 775 (Oct 2024) + Corporations Act s912A + 2026 enforcement priorities | 2024-10-29 | https://asic.gov.au/regulatory-resources/find-a-document/reports/rep-775-beware-the-gap-governance-arrangements-in-the-face-of-ai-innovation/ |
+| `ASIC_AI_2024` | Australian Securities and Investments Commission | REP 798 (Oct 2024) + Corporations Act s912A + 2026 enforcement priorities | 2024-10-29 | https://asic.gov.au/regulatory-resources/find-a-document/reports/rep-798-beware-the-gap-governance-arrangements-in-the-face-of-ai-innovation/ |
 
 ## Rules
 
