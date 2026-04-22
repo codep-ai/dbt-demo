@@ -103,3 +103,20 @@ seeds:
         description: >
           Free-form authoring notes, ambiguity flags, verification TODOs,
           or interpretation caveats. Surface in evidence PDFs when non-empty.
+      - name: industry_scope
+        description: >
+          Which industry vertical this control applies to at RUNTIME. Values:
+          `shared` (cross-industry — AU 6, OWASP, ISO 42001, NIST, Privacy APPs,
+          state-gov AI frameworks) / `finance` (APRA, ASIC, FCA, FINRA) /
+          `healthcare` (TGA SaMD, My Health Records, NSQHS, AHPRA, Aged Care,
+          NDIS, WHO AI-for-health) / `gov` (public-sector-only). Authoring-time
+          column — used by the sync script to route rows into physically-split
+          Postgres tables (`dim_ai_control_finance`, `dim_ai_control_healthcare`,
+          …). `shared` rows are replicated into EVERY industry table so the gate
+          never needs to UNION across tables. Rationale: physical isolation
+          wins on runtime latency + MCP payload economics + RBAC clarity vs
+          one-table-with-filter; storage cost of duplication is ~200KB, trivial.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['shared', 'finance', 'healthcare', 'gov']

@@ -94,6 +94,7 @@ select
     h.retrieved_date,
     h.status,
     h.notes,
+    h.industry_scope,                                                                                   -- 'shared' | 'finance' | 'healthcare' | 'gov'
 
     -- Hierarchy (self-referencing)
     h.parent_control_id_computed                                                                        as parent_control_id,
