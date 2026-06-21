@@ -1,0 +1,4 @@
+model_name,control_id,binding_type,evidence_query,failure_mode,registered_at,notes
+fct_ai_chat_message,P1,output_attribution,"select count(*) from {{ ref('fct_ai_chat_message') }} where agent_id is null or message_at is null",warn_only,2026-06-21,Every chat message must have an attributed agent and a timestamp — satisfies AU_6_2025 Practice 1 (accountability).
+fct_ai_chat_message,P2,impact_recording,"select count(*) from {{ ref('fct_ai_chat_message') }} where governance_verdict is null",warn_only,2026-06-21,Every chat output must have a governance verdict recorded — satisfies AU_6_2025 Practice 2 (impact assessment).
+fct_ai_asset_runtime_eligibility,P4,eligibility_decision_logged,"select count(*) from {{ ref('fct_ai_asset_runtime_eligibility') }} where decision_at is null or decision is null",warn_only,2026-06-21,Every runtime eligibility decision must be logged with a timestamp and outcome — satisfies AU_6_2025 Practice 4 (transparency).
