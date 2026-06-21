@@ -1,0 +1,89 @@
+# Full build + state snapshot on merge to main.
+# Produces the prod manifest.json that slim CI defers against.
+
+name: dbt-merge
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "models/**"
+      - "macros/**"
+      - "seeds/**"
+      - "snapshots/**"
+      - "tests/**"
+      - "dbt_project.yml"
+      - "packages.yml"
+
+concurrency:
+  group: dbt-merge-main
+  cancel-in-progress: false
+
+env:
+  DBT_PROFILES_DIR: ./ci-profiles
+  DBT_TARGET: prod
+  SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+  SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_PROD_USER }}
+  SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PROD_PRIVATE_KEY }}
+  SNOWFLAKE_ROLE: DATAPAI_PROD_ROLE
+  SNOWFLAKE_DATABASE: DATAPAI
+  SNOWFLAKE_WAREHOUSE: DATAPAI_PROD_WH
+
+jobs:
+  build-and-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: |
+          python -m pip install --upgrade pip
+          pip install dbt-core==1.7.4 dbt-snowflake==1.7.1
+
+      - name: dbt deps
+        run: dbt deps
+
+      - name: dbt build — full
+        run: dbt build --fail-fast
+
+      - name: Run AI governance evidence queries
+        run: |
+          # Every binding's evidence query must return zero.
+          dbt run-operation verify_ai_governance_bindings || {
+              echo "::error::AI governance binding evidence query returned rows. See ai_mart audit views."
+              exit 1
+          }
+
+      - name: Snapshot prod manifest to S3
+        run: |
+          aws s3 cp \
+              target/manifest.json \
+              s3://datapai-dbt-state/main/manifest.json
+          aws s3 cp \
+              target/run_results.json \
+              s3://datapai-dbt-state/main/run_results.json
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-southeast-2
+
+      - name: Generate + publish dbt docs
+        run: |
+          dbt docs generate
+          # dbtdocs.service on platform.datap.ai pulls from this bucket
+          aws s3 sync \
+              target/ \
+              s3://datapai-dbt-state/main/docs/ \
+              --exclude "*" \
+              --include "manifest.json" \
+              --include "catalog.json" \
+              --include "index.html" \
+              --include "graph.gpickle"

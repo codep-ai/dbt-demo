@@ -1,0 +1,113 @@
+# Slim CI for the datapai dbt project.
+# Runs on every PR; builds only changed-or-downstream models against a
+# dev schema, deferring to the latest prod state snapshot.
+
+name: dbt-slim-ci
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "models/**"
+      - "macros/**"
+      - "seeds/**"
+      - "snapshots/**"
+      - "tests/**"
+      - "dbt_project.yml"
+      - "packages.yml"
+      - ".github/workflows/dbt-slim-ci.yml"
+
+concurrency:
+  group: dbt-slim-ci-${{ github.head_ref }}
+  cancel-in-progress: true
+
+env:
+  DBT_PROFILES_DIR: ./ci-profiles
+  DBT_TARGET: ci
+  SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+  SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_CI_USER }}
+  SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_CI_PRIVATE_KEY }}
+  SNOWFLAKE_ROLE: DATAPAI_CI_ROLE
+  SNOWFLAKE_DATABASE: DATAPAI_CI
+  SNOWFLAKE_WAREHOUSE: DATAPAI_CI_WH
+  SNOWFLAKE_SCHEMA: PR_${{ github.event.pull_request.number }}
+
+jobs:
+  build-changed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt + dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install \
+              dbt-core==1.7.4 \
+              dbt-snowflake==1.7.1 \
+              sqlfluff==3.0.0 \
+              sqlfluff-templater-dbt==3.0.0
+          dbt --version
+
+      - name: Pull prod state snapshot
+        run: |
+          mkdir -p ./prod-state
+          aws s3 cp \
+              s3://datapai-dbt-state/main/manifest.json \
+              ./prod-state/manifest.json
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-southeast-2
+
+      - name: dbt deps
+        run: dbt deps
+
+      - name: Lint changed SQL
+        run: |
+          CHANGED=$(git diff --name-only --diff-filter=ACM origin/main...HEAD | grep -E '^models/.*\.sql$' || true)
+          if [ -n "$CHANGED" ]; then
+              sqlfluff lint --dialect snowflake --templater dbt --processes 4 $CHANGED
+          else
+              echo "No SQL changes."
+          fi
+
+      - name: dbt build — modified+
+        run: |
+          dbt build \
+              --select state:modified+ \
+              --defer \
+              --state ./prod-state/ \
+              --fail-fast \
+              --vars '{"target_schema_prefix": "${{ env.SNOWFLAKE_SCHEMA }}_"}'
+
+      - name: dbt source freshness
+        run: dbt source freshness || echo "freshness warn — not blocking PR"
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-run-${{ github.event.pull_request.number }}
+          path: |
+            target/manifest.json
+            target/run_results.json
+            target/compiled/
+            logs/
+          retention-days: 14
+
+      - name: Tear down PR schema
+        if: always()
+        run: |
+          dbt run-operation drop_pr_schema \
+              --args "{schema_name: ${{ env.SNOWFLAKE_SCHEMA }}}" \
+              || echo "tear-down skipped"

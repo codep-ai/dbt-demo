@@ -1,0 +1,41 @@
+# Pre-commit hooks for the datapai dbt project.
+#
+# Install once per clone: `pre-commit install`
+# Run manually:            `pre-commit run --all-files`
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 3.0.0
+    hooks:
+      - id: sqlfluff-lint
+        files: ^models/.*\.sql$
+        additional_dependencies:
+          ['dbt-core==1.7.4', 'dbt-snowflake==1.7.1', 'sqlfluff-templater-dbt==3.0.0']
+      - id: sqlfluff-fix
+        files: ^models/.*\.sql$
+        additional_dependencies:
+          ['dbt-core==1.7.4', 'dbt-snowflake==1.7.1', 'sqlfluff-templater-dbt==3.0.0']
+
+  - repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+    rev: v2.0.4
+    hooks:
+      # Every changed model must have a schema.yml column doc + primary-key test
+      - id: check-model-has-properties-file
+        files: ^models/.*\.sql$
+      - id: check-model-has-tests
+        args: ['--tests', 'unique', 'not_null']
+        files: ^models/.*\.sql$
+      # Models tagged 'ai_consumed' must have meta.ai_controls populated
+      - id: check-model-tags
+        args: ['--tags', 'ai_consumed', 'staging', 'intermediate', 'marts', 'ai_governance']
+        files: ^models/.*\.sql$

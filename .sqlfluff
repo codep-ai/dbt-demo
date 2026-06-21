@@ -1,0 +1,48 @@
+[sqlfluff]
+dialect = snowflake
+templater = dbt
+runaway_limit = 10
+max_line_length = 120
+indent_unit = space
+
+# Exclude generated + vendor dirs
+exclude_rules = AM05, ST06, ST07, RF02, RF03, LT05
+# AM05/ST06/ST07: noisy on dbt-generated SQL
+# RF02/RF03: column references — too noisy on staging models that use `select *`
+# LT05: line length on URLs in comments
+
+[sqlfluff:templater:dbt]
+project_dir = .
+profiles_dir = .
+profile = datapai_snowflake
+target = dev
+
+[sqlfluff:indentation]
+indented_joins = false
+indented_using_on = true
+template_blocks_indent = false
+
+[sqlfluff:layout:type:comma]
+spacing_before = touch
+line_position = trailing
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.identifiers]
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.literals]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.types]
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:references.keywords]
+unquoted_identifiers_policy = all
+
+[sqlfluff:rules:ambiguous.column_references]  # AM03
+group_by_and_order_by_style = consistent
