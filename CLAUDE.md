@@ -20,13 +20,30 @@ The reusable wisdom lives in `macros/`, the cross-domain conventions live in
 this file + `docs/`. Each vertical re-uses the same patterns — staging
 discriminator pattern, ai_governance tagging, Elementary tests, dbt-expectations.
 
-## Targets
+## Targets — two adapters, two roles
 
-- **Profile**: `datapai_snowflake` (Snowflake, key-pair auth via `airbyte_user`)
-- **Adapter**: `dbt-snowflake` is the **one and only** dbt adapter we run.
-  ClickHouse is fed by Kafka engine + Materialized View (CH-native ELT),
-  not by dbt. See `docs/architecture/4-layer-lakehouse-narrative.md` in
-  `datapai-cfd-be` for the decision.
+Both adapters configured side-by-side is the **proof of the warehouse-
+portability promise** we make commercially. The swap is a profile flip,
+not a future-engineering item.
+
+| Profile | Adapter | Role | Used when |
+|---|---|---|---|
+| `datapai_snowflake` | `dbt-snowflake` (key-pair auth via `airbyte_user`) | Production target — audit-bound governed marts | Today, every customer |
+| `datapai_clickhouse` | `dbt-clickhouse` | Engine-portability lever — same models recompile against CH | When a customer consolidates to CH-only to cut SF cost |
+
+**ClickHouse plays two roles in the architecture; only one of them is dbt:**
+
+- **CH as realtime tier** (Kafka engine + MV + ReplacingMergeTree) — NOT
+  managed by dbt. The CH realtime tables (`realtime.fct_tick_*`) are
+  populated by CH-native event-driven ELT. dbt does not run on this path.
+- **CH as warehouse** (replacing SF) — IS managed by dbt-clickhouse. Same
+  CFD staging + intermediate + mart models recompile against the
+  `datapai_clickhouse` profile and write to CH `cfd.*` schema. This is
+  the consolidation case the portability pitch is about.
+
+See `docs/architecture/4-layer-lakehouse-narrative.md` in `datapai-cfd-be`
+for the full decision context.
+
 - **Permanent tables** for stock; **views** for `ai_mart` (auditor-readable
   + no-cost guardrails); **tables** elsewhere.
 

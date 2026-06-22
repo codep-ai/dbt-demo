@@ -87,20 +87,49 @@ datapai:
     dbt_rpc: debug  # Set the log level to debug for dbt-rpc.
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ClickHouse adapter — intentionally NOT configured here.
+# ClickHouse adapter — CONFIGURED AND READY (engine-portability lever)
 #
-# Architecture decision (2026-06-22): dbt-snowflake is the one and only dbt
-# adapter we run. ClickHouse is fed by Kafka engine + Materialized View
-# (CH's own native ELT primitives), not by dbt. dbt's value is in the
-# audit-bound Snowflake marts; CH realtime transforms are event-driven and
-# do not need a batch transform layer on top.
+# Two roles for ClickHouse in our architecture. Only ONE of them uses dbt:
 #
-# Models stay portable across adapters by being written in a portable SQL
-# subset (no SF-specific QUALIFY/LATERAL FLATTEN/STREAMS unless gated by
-# a macro). If TMGM or another customer later consolidates to CH-only,
-# add a datapai_clickhouse block here and `dbt run --profile
-# datapai_clickhouse`; ~80–90% of marts port without changes.
+#   1. CH as the REALTIME serving tier (alongside Snowflake, today's shape).
+#      Fed by Kafka engine + Materialized View + ReplacingMergeTree, NOT
+#      by dbt. The realtime path does not flow through this profile.
 #
-# See: docs/architecture/4-layer-lakehouse-narrative.md
-#      docs/architecture/kafka-routing-decision.md (cfd-be)
+#   2. CH as the WAREHOUSE (replacing Snowflake entirely if a customer
+#      consolidates to cut SF cost). This is exactly when dbt-clickhouse
+#      earns its keep — same dbt models, swap the profile target, recompile.
+#      ~80–90% of marts port without changes; SF-specific Jinja gates the
+#      remaining 10–20%. Migration becomes a 3–6 week dbt re-target instead
+#      of a 12-month hand-rewrite.
+#
+# Both adapters configured side-by-side IS the proof of the warehouse-
+# portability commercial promise we make to TMGM and similar customers.
+# Without this block, that promise is theoretical. With it, the swap is a
+# `dbt run --profile datapai_clickhouse` demo away.
+#
+# Schema `cfd` in CH used for the consolidation case; staging models still
+# read from source('cfd_lake', ...) — under dbt-clickhouse this resolves via
+# the iceberg() table function pointed at s3://customer-cfd-lake/.
+#
+# See: ~/git/datapai-cfd-be/docs/architecture/4-layer-lakehouse-narrative.md
+#      ~/git/datapai-cfd-be/docs/architecture/kafka-routing-decision.md
+#      ~/git/datapai-cfd-be/docs/strategy/2026-06-15-datapai-tmgm-information-brief.md §1.6
 # ─────────────────────────────────────────────────────────────────────────────
+datapai_clickhouse:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      driver: http
+      host: "{{ env_var('CLICKHOUSE_HOST', '127.0.0.1') }}"
+      port: "{{ env_var('CLICKHOUSE_HTTP_PORT', '8123') | as_number }}"
+      user: default
+      password: "{{ env_var('OPENLIT_CLICKHOUSE_PASSWORD', 'datapai') }}"
+      schema: cfd
+      secure: false
+      connect_timeout: 10
+      send_receive_timeout: 60
+      sync_request_timeout: 10
+      check_exchange: true
+      use_lw_deletes: false
+      cluster_mode: false
