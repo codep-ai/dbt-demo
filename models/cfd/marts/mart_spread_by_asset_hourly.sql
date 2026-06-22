@@ -17,7 +17,7 @@ hourly as (
     select
         asset_class,
         symbol,
-        date_trunc('hour', ts_utc)        as event_hour,
+        cast(date_trunc('hour', ts_utc) as timestamp_ntz(6)) as event_hour,
         count(*)                          as ticks,
         round(avg(spread_pips)::numeric, 3) as avg_spread_pips,
         round(min(spread_pips)::numeric, 3) as min_spread_pips,

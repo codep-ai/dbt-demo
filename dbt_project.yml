@@ -70,6 +70,18 @@ models:
         - "iceberg"
         - "stock"
         - "ohlcv"
+    cfd:
+      +database: "{{ env_var('SNOWFLAKE_DATABASE', 'DATAPAI') }}"
+      +schema:   CFD
+      +tags:
+        - "iceberg"
+        - "cfd"
+      marts:
+        +materialized:    table
+        +table_format:    iceberg
+        +external_volume: "CFD_LAKE_VOL"
+      staging:
+        +materialized: view
 #  Error handling :  switch on flag store_failures, to store the failure results into the audit table
 #  this flag can be set up at different levels, please refer to https://docs.getdbt.com/reference/resource-configs/store_failures
 tests:

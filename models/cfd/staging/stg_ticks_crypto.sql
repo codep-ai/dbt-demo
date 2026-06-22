@@ -4,10 +4,12 @@
 ) }}
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- stg_ticks_crypto — staging view over lake.fct_tick_crypto.
--- Crypto streams 24/7 — no overnight session like FX. The `session` field
--- is repurposed as exchange-region (GLOBAL/ASIA/LONDON/NY) and may not
--- carry the same semantics as FX session.
+-- stg_ticks_crypto — staging view over CFD_LAKE.fct_tick_crypto, the SF-registered
+-- Iceberg table that points at the Kafka-Connect-written metadata.json in
+-- s3://datapai-cfd-lake/lake/fct_tick_crypto/. Casts TS_UTC (VARCHAR in the
+-- raw Iceberg) to TIMESTAMP_NTZ and emits a synthetic ingested_at from
+-- current_timestamp at view materialization (no native ingest timestamp
+-- in the Kafka Connect Iceberg sink output).
 -- ─────────────────────────────────────────────────────────────────────────────
 
 with raw as (
@@ -17,15 +19,15 @@ with raw as (
 final as (
     select
         symbol,
-        ts_utc,
+        cast(try_to_timestamp_ntz(ts_utc) as timestamp_ntz(6)) as ts_utc,
         bid,
         ask,
         mid,
         spread_pips,
-        session       as exchange_region,
+    session       as exchange_region,
         source,
-        asset_class,
-        ingested_at
+    asset_class,
+        cast(current_timestamp() as timestamp_ntz(6)) as ingested_at
     from raw
 )
 

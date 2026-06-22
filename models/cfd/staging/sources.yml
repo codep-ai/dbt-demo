@@ -1,21 +1,29 @@
 version: 2
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CFD sources — ONE source, the Iceberg lake in S3.
+# CFD sources — TWO physical surfaces, ONE logical contract.
 #
-# Architecture decision (2026-06-22): dbt runs on Snowflake only. The
-# Snowflake-produced Iceberg marts ARE the audit-canonical store.
-# ClickHouse is fed directly from Kafka (Kafka engine + Materialized View
-# inside datapai_openlit_clickhouse) — no dbt on the CH path, no second
-# source declaration needed here.
+# 1. cfd_lake  — Iceberg tables in AWS S3 (written by Kafka Connect's Iceberg
+#                sink). Read by dbt-snowflake via Open Catalog external volume
+#                (production write target; Iceberg producer).
+#                Schema in Snowflake: CFD_LAKE
 #
-# See: cfd-be/docs/architecture/4-layer-lakehouse-narrative.md
-#      cfd-be/docs/architecture/kafka-routing-decision.md
+# 2. cfd_realtime — CH-native ReplacingMergeTree tables fed by Kafka engine +
+#                   MV inside datapai_openlit_clickhouse. Read by
+#                   dbt-clickhouse for sub-second realtime marts.
+#                   Schema in CH: realtime
+#
+# Same logical contract (symbol, ts_utc, bid, ask, mid, spread_pips, session,
+# source, asset_class, ingested_at) — both consumed via {{ source(...) }}
+# but dbt-snowflake and dbt-clickhouse each resolve to their own physical
+# tier. Source name is the only thing that differs.
 # ─────────────────────────────────────────────────────────────────────────────
 
 sources:
   # ── CFD lake (Snowflake via Open Catalog) ──────────────────────────────────
   - name: cfd_lake
+    schema: CFD_LAKE
+    database: DATAPAI
     description: |
       Iceberg lake in AWS S3 (s3://datapai-cfd-lake/lake/). The Kafka
       Connect Iceberg sink writes parquet + manifests every 5-minute
