@@ -1,0 +1,161 @@
+version: 2
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CFD lake — Iceberg tables written by Kafka Connect's Iceberg sink to AWS S3.
+# Bucket: s3://datapai-cfd-lake/lake/
+# Catalog: tabulario/iceberg-rest (local dev), Snowflake Open Catalog (prod).
+# Each table is one asset class routed by the asset_class column.
+# ─────────────────────────────────────────────────────────────────────────────
+
+sources:
+  - name: cfd_lake
+    description: |
+      Iceberg lake in AWS S3 (s3://datapai-cfd-lake/lake/). The Kafka
+      Connect Iceberg sink writes parquet + manifests every 5-minute
+      commit cycle, partitioned by asset_class via the Iceberg sink
+      route-field config. The same Iceberg files are queryable from
+      ClickHouse (Iceberg REST), Snowflake (Open Catalog), Athena
+      (Glue Data Catalog), and any other Iceberg-aware engine.
+    meta:
+      datapai:
+        owner_team:     "platform"
+        owner_email:    "zhaodongn@hotmail.com"
+        loaded_by:      "kafka-connect-iceberg-sink"
+        landing_zone:   "s3://datapai-cfd-lake/lake/"
+        catalog:        "tabulario/iceberg-rest (dev) | Snowflake Open Catalog (prod)"
+        sla_freshness_mins: 5
+    freshness:
+      warn_after: { count: 10, period: minute }
+      error_after: { count: 30, period: minute }
+    loaded_at_field: ingested_at
+    tables:
+
+      - name: fct_tick_fx
+        description: |
+          FX spot tick stream — EURUSD / USDJPY / GBPUSD / AUDUSD / XAUUSD.
+          One row per simulated quote with bid, ask, mid, spread in pips,
+          trading session (ASIA / LONDON / NY / OVERLAP_LDN_NY), and
+          ingestion timestamp. Schema version 2 added asset_class column
+          on 2026-06-22.
+        meta:
+          datapai:
+            business_purpose: |
+              Foundational FX market data for the AI Trade Council (CFD/FX
+              vertical), BI dashboards (carry, spread, session distribution),
+              and the dbt-derived AFSL-defensible reporting marts.
+            technical_provenance: |
+              Producer: cfd-ref-producer@fx.service. Kafka topic ticks.fx,
+              3 partitions. Kafka Connect Iceberg sink writes here on
+              5-minute commit interval. ReplacingMergeTree dedup key
+              (symbol, ts_utc).
+            operational_notes: |
+              Producer cadence — 5-minute populate for first 30 minutes
+              after start, then 30-minute steady-state. SLA freshness
+              warn=10min, error=30min.
+        columns:
+          - name: symbol
+            description: "FX pair (e.g. EURUSD)"
+            tests: [not_null]
+          - name: ts_utc
+            description: "Tick wall-clock time (UTC) at the moment of quote"
+            tests: [not_null]
+          - name: bid
+            description: "Bid price"
+          - name: ask
+            description: "Ask price"
+          - name: mid
+            description: "Mid price = (bid + ask) / 2"
+          - name: spread_pips
+            description: "Bid-ask spread expressed in pips"
+          - name: session
+            description: "Trading session at ts_utc: ASIA / LONDON / NY / OVERLAP_LDN_NY"
+          - name: source
+            description: "Tick provider — 'datapai_sim' for the synthetic stream"
+          - name: asset_class
+            description: "'fx' — used by the Iceberg sink to route into this table"
+          - name: ingested_at
+            description: "Kafka Connect / Iceberg sink ingestion timestamp"
+            tests: [not_null]
+
+      - name: fct_tick_crypto
+        description: |
+          Cryptocurrency tick stream — BTCUSD / ETHUSD / XRPUSD / SOLUSD /
+          ADAUSD. Crypto trades 24/7 so the session column carries
+          exchange-region semantics (GLOBAL/ASIA/LONDON/NY) rather than
+          FX-style trading sessions.
+        meta:
+          datapai:
+            business_purpose: |
+              Crypto market coverage for crypto-AFSL prospects (CoinSpot,
+              Independent Reserve, Swyftx). Same Council orchestration as
+              FX but with crypto-tuned personas (volatility-aware risk
+              officer, on-chain analyst). Supports BI dashboards for
+              spread comparison vs CEX benchmarks.
+            technical_provenance: |
+              Producer: cfd-ref-producer@crypto.service. Kafka topic
+              ticks.crypto, 3 partitions. Asset class 'crypto' routes
+              into this Iceberg table via iceberg.table.lake.fct_tick_
+              crypto.route-regex config.
+            operational_notes: |
+              Top-5-by-market-cap symbols only. Wider spread (1.2 pip mean)
+              than FX (0.8) reflecting crypto reality. Session field is
+              exchange region, NOT trading session.
+        columns:
+          - name: symbol
+            description: "Crypto pair vs USD (e.g. BTCUSD)"
+            tests: [not_null]
+          - name: ts_utc
+            tests: [not_null]
+          - name: ingested_at
+            tests: [not_null]
+
+      - name: fct_tick_index
+        description: |
+          Equity index tick stream — SPX500 / US30 / NAS100 / UK100 / GER40.
+          Mid prices reflect CFD-style continuous quotes (not exchange
+          official prices).
+        meta:
+          datapai:
+            business_purpose: |
+              Index coverage for institutional CFD prospects (TMGM, ACY,
+              Pepperstone). Powers the index-rotation strategy in the AI
+              Trade Council and the cross-asset correlation dashboards.
+            technical_provenance: |
+              Producer: cfd-ref-producer@index.service. Kafka topic
+              ticks.index, 3 partitions.
+            operational_notes: |
+              Tick size varies per index (SPX500/NAS100 = 0.25, US30 = 1.0,
+              UK100/GER40 = 0.5). Standard FX-style session breakdown.
+        columns:
+          - name: symbol
+            description: "Index symbol (SPX500 / US30 / NAS100 / UK100 / GER40)"
+            tests: [not_null]
+          - name: ts_utc
+            tests: [not_null]
+          - name: ingested_at
+            tests: [not_null]
+
+      - name: fct_tick_commodity
+        description: |
+          Commodity tick stream — WTI crude, Brent crude, natural gas.
+          Gold lives in the FX topic (XAUUSD) per industry convention.
+        meta:
+          datapai:
+            business_purpose: |
+              Energy + ag commodity coverage for the energy-trading sub
+              vertical and for commodity-aware diversification analytics
+              in the AI Trade Council.
+            technical_provenance: |
+              Producer: cfd-ref-producer@commodity.service. Kafka topic
+              ticks.commodity, 3 partitions.
+            operational_notes: |
+              Three symbols only at launch. WTIUSD / BRENTUSD price in
+              USD per barrel; NATGAS prices in USD per MMBtu.
+        columns:
+          - name: symbol
+            description: "Commodity symbol (WTIUSD / BRENTUSD / NATGAS)"
+            tests: [not_null]
+          - name: ts_utc
+            tests: [not_null]
+          - name: ingested_at
+            tests: [not_null]

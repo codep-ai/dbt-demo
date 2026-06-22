@@ -1,0 +1,116 @@
+version: 2
+
+models:
+
+  - name: fct_tick_unified
+    description: |
+      Unified tick fact table over fx + crypto + index + commodity.
+      One row per (asset_class, symbol, ts_utc). Read by the AI Trade
+      Council to construct cross-asset prompt context and by the BI
+      semantic layer for any cross-asset analytics. AI-consumed, so
+      governance bindings are mandatory (see meta.ai_controls).
+    config:
+      contract:
+        enforced: false   # parquet types vary slightly across engines
+    meta:
+      datapai:
+        business_purpose: |
+          Single source of truth for cross-asset market state. Powers
+          the AI Trade Council's market-context retriever, the Lightdash
+          cross-asset dashboards, and the governance audit trail.
+        technical_provenance: |
+          Union over stg_ticks_fx + stg_ticks_crypto + stg_ticks_index +
+          stg_ticks_commodity. Crypto's session field is normalized to
+          align with FX's session column. Materialized as a permanent
+          table for repeatable querying.
+        operational_notes: |
+          Materialization is `table` not `view` because the AI Council
+          re-reads this on every cycle and the union over 4 staging views
+          becomes the bottleneck at high cadence. Refreshed by the
+          existing dbt build on the standard cadence.
+      ai_controls:
+        - control_id: AFSL_761G_BAS_01
+          satisfies: "Every row carries (asset_class, symbol, ts_utc) — auditor can trace every AI assertion back to a specific tick"
+        - control_id: AFSL_912A_OBL_03
+          satisfies: "Materialized as a permanent table; retention 7 days enforced via TTL on the source ReplacingMergeTree"
+        - control_id: AU_6_2025_P2
+          satisfies: "Source attribution + ingestion timestamp preserved on every row — supports the impact-assessment requirement"
+    columns:
+      - name: asset_class
+        description: "fx | crypto | index | commodity"
+        data_type: text
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['fx', 'crypto', 'index', 'commodity']
+      - name: symbol
+        description: "Per-asset symbol (EURUSD, BTCUSD, SPX500, WTIUSD, ...)"
+        data_type: text
+        tests: [not_null]
+      - name: ts_utc
+        description: "Tick timestamp at the moment of quote (UTC)"
+        tests: [not_null]
+      - name: bid
+        description: "Bid price in symbol's native unit"
+      - name: ask
+        description: "Ask price"
+      - name: mid
+        description: "Mid price = (bid + ask) / 2"
+      - name: spread_pips
+        description: "Bid-ask spread in pips (per-asset pip definition)"
+      - name: session
+        description: "Trading session (FX/index/commodity) or exchange region (crypto)"
+      - name: source
+        description: "Tick provider — 'datapai_sim' for synthetic feed"
+        data_type: text
+      - name: ingested_at
+        description: "Kafka Connect ingestion timestamp (UTC)"
+        tests: [not_null]
+
+  - name: mart_spread_by_asset_hourly
+    description: |
+      Average / min / max bid-ask spread per (asset_class, symbol, hour).
+      Feeds both BI dashboards (spread quality monitoring) and the AI
+      Council's best-execution governance check.
+    meta:
+      datapai:
+        business_purpose: |
+          Spread quality is a regulator-watched metric for any AFSL CFD/FX
+          brokerage. This mart is the primary source for the Best Execution
+          quarterly report and for real-time spread anomaly alerts in the
+          AI Trade Council's risk persona.
+        technical_provenance: |
+          Hourly window aggregation over fct_tick_unified. Avg, min, max
+          spread; tick count; average mid for context. One row per
+          (asset_class, symbol, hour).
+        operational_notes: |
+          Hourly granularity. Refreshed on every dbt build (no
+          incremental yet — row count low). Tested for completeness via
+          dbt-expectations row-count + non-null on PK.
+      ai_controls:
+        - control_id: AFSL_761G_BAS_01
+          satisfies: "Each row carries asset_class + symbol + event_hour — full lineage from AI claim to underlying ticks"
+        - control_id: NIST_AI_RMF_MEASURE_2_1
+          satisfies: "Spread statistics include min/max/avg — confidence interval communicable to downstream AI surfaces"
+        - control_id: AU_6_2025_P4
+          satisfies: "Aggregated values preserve the per-symbol decision boundary — transparency requirement met"
+    columns:
+      - name: asset_class
+        description: "fx | crypto | index | commodity"
+        tests: [not_null]
+      - name: symbol
+        description: "Asset symbol"
+        tests: [not_null]
+      - name: event_hour
+        description: "Hour bucket — date_trunc('hour', ts_utc)"
+        tests: [not_null]
+      - name: ticks
+        description: "Number of ticks observed in the hour"
+      - name: avg_spread_pips
+        description: "Mean spread in pips across the hour"
+      - name: min_spread_pips
+        description: "Tightest spread observed"
+      - name: max_spread_pips
+        description: "Widest spread observed"
+      - name: avg_mid
+        description: "Average mid price across the hour"

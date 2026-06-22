@@ -1,0 +1,39 @@
+version: 2
+
+models:
+
+  - name: stg_ticks_fx
+    description: "Staging view over lake.fct_tick_fx — 1:1 with source, no derived fields"
+    columns:
+      - name: symbol
+        tests: [not_null]
+      - name: ts_utc
+        tests: [not_null]
+      - name: asset_class
+        description: "Always 'fx' for this staging view"
+
+  - name: stg_ticks_crypto
+    description: "Staging view over lake.fct_tick_crypto. Crypto's 'session' field is renamed to 'exchange_region' to reflect 24/7 trading semantics."
+    columns:
+      - name: symbol
+        tests: [not_null]
+      - name: ts_utc
+        tests: [not_null]
+      - name: exchange_region
+        description: "GLOBAL / ASIA / LONDON / NY — where the price was quoted, not a trading session"
+
+  - name: stg_ticks_index
+    description: "Staging view over lake.fct_tick_index — equity indices"
+    columns:
+      - name: symbol
+        tests: [not_null]
+      - name: ts_utc
+        tests: [not_null]
+
+  - name: stg_ticks_commodity
+    description: "Staging view over lake.fct_tick_commodity — energy + ag commodities (gold is in FX)"
+    columns:
+      - name: symbol
+        tests: [not_null]
+      - name: ts_utc
+        tests: [not_null]
