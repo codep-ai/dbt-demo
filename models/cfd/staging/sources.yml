@@ -1,13 +1,20 @@
 version: 2
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CFD lake — Iceberg tables written by Kafka Connect's Iceberg sink to AWS S3.
-# Bucket: s3://datapai-cfd-lake/lake/
-# Catalog: tabulario/iceberg-rest (local dev), Snowflake Open Catalog (prod).
-# Each table is one asset class routed by the asset_class column.
+# CFD sources — ONE source, the Iceberg lake in S3.
+#
+# Architecture decision (2026-06-22): dbt runs on Snowflake only. The
+# Snowflake-produced Iceberg marts ARE the audit-canonical store.
+# ClickHouse is fed directly from Kafka (Kafka engine + Materialized View
+# inside datapai_openlit_clickhouse) — no dbt on the CH path, no second
+# source declaration needed here.
+#
+# See: cfd-be/docs/architecture/4-layer-lakehouse-narrative.md
+#      cfd-be/docs/architecture/kafka-routing-decision.md
 # ─────────────────────────────────────────────────────────────────────────────
 
 sources:
+  # ── CFD lake (Snowflake via Open Catalog) ──────────────────────────────────
   - name: cfd_lake
     description: |
       Iceberg lake in AWS S3 (s3://datapai-cfd-lake/lake/). The Kafka

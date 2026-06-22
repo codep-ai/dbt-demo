@@ -23,11 +23,47 @@ discriminator pattern, ai_governance tagging, Elementary tests, dbt-expectations
 ## Targets
 
 - **Profile**: `datapai_snowflake` (Snowflake, key-pair auth via `airbyte_user`)
-- **Adapter**: `dbt-snowflake` (primary). `dbt-clickhouse` adapter is used
-  for the CFD realtime branch in a parallel repo (`datapai-cfd-be`); do
-  not commit ClickHouse SQL in this repo.
+- **Adapter**: `dbt-snowflake` is the **one and only** dbt adapter we run.
+  ClickHouse is fed by Kafka engine + Materialized View (CH-native ELT),
+  not by dbt. See `docs/architecture/4-layer-lakehouse-narrative.md` in
+  `datapai-cfd-be` for the decision.
 - **Permanent tables** for stock; **views** for `ai_mart` (auditor-readable
   + no-cost guardrails); **tables** elsewhere.
+
+## Portable SQL — the warehouse-portability discipline
+
+> Models must compile cleanly on Snowflake **today** AND on ClickHouse
+> **tomorrow** with minimal rewrite. This is a commercial promise we make
+> to customers (TMGM in particular): if they later consolidate to
+> ClickHouse-only to reduce SF spend, the migration is a 3–6 week dbt
+> re-target — not a 12-month rewrite.
+
+**Five rules to keep models portable:**
+
+1. **Portable SQL subset by default.** Standard SELECT/JOIN/WHERE/GROUP BY,
+   CTEs, window functions, standard aggregates. These compile on every
+   adapter.
+2. **SF-specific constructs go behind macros or `target.type` gates.**
+   `QUALIFY`, `LATERAL FLATTEN`, `VARIANT`, `OBJECT_CONSTRUCT`, SF
+   `MERGE` — wrap in a macro with a SF body and a CH body, OR gate with
+   `{% if target.type == 'snowflake' %}` so the same model file emits
+   different SQL per adapter without forking the file.
+3. **Prefer `dbt_utils` + `dbt_expectations` over hand-rolled SQL.** Both
+   ship cross-adapter implementations of the common patterns
+   (`surrogate_key`, `pivot`, `expression_is_true`, etc.). Hand-rolled
+   SF SQL is what bites at migration time.
+4. **No `STREAMS` / `TASKS` (SF CDC).** Restructure CDC as a Kafka MV or
+   an incremental dbt model with a watermark column. Portable to CH from
+   day one.
+5. **Use Iceberg as the SF table format (`table_format='iceberg'`).** When
+   a customer migrates to CH-only, CH reads the same Iceberg files via
+   the `iceberg()` table function — the data doesn't move. The migration
+   becomes "stop writing from SF, start writing from CH" rather than a
+   data-copy exercise.
+
+When a model genuinely needs an SF-only feature (rare), document the
+reason in a comment and add the gated CH alternative path. The
+`/dbt-ai-review` skill flags un-gated SF-specific constructs as a finding.
 
 ## Layering (apply per domain)
 
