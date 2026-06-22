@@ -38,6 +38,7 @@ datapai_snowflake:
       retry_on_database_errors: False # default: false
       retry_all: False  # default: false
       reuse_connections: False # default: false
+
 datapai:
   target: dev-local
   outputs:
@@ -85,4 +86,26 @@ datapai:
     # Enable logging for dbt-rpc
     dbt_rpc: debug  # Set the log level to debug for dbt-rpc.
 
-
+# ────────────────────────────────────────────────────────────────────────────
+# ClickHouse profile — CFD realtime models (lake schema in datapai_openlit_clickhouse)
+# Same file as datapai_snowflake / datapai (Redshift) — separate top-level
+# block per adapter. Invoke per-model with --profile datapai_clickhouse.
+# ────────────────────────────────────────────────────────────────────────────
+datapai_clickhouse:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      driver: http
+      host: "{{ env_var('CLICKHOUSE_HOST', '127.0.0.1') }}"
+      port: "{{ env_var('CLICKHOUSE_HTTP_PORT', '8123') | as_number }}"
+      user: default
+      password: "{{ env_var('OPENLIT_CLICKHOUSE_PASSWORD', 'datapai') }}"
+      schema: cfd
+      secure: false
+      connect_timeout: 10
+      send_receive_timeout: 60
+      sync_request_timeout: 10
+      check_exchange: true
+      use_lw_deletes: false
+      cluster_mode: false
