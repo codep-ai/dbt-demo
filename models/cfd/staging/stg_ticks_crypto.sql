@@ -13,7 +13,7 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 
 with raw as (
-    select * from {{ source('cfd_lake', 'fct_tick_crypto') }}
+    select * from {{ source('cfd_lake', 'src_tick_crypto') }}
 ),
 
 final as (

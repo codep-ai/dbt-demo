@@ -1,176 +1,623 @@
 version: 2
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CFD sources — TWO physical surfaces, ONE logical contract.
+# CFD raw layer (src_tick_*) — Snowflake-side external Iceberg references
+# over the Kafka-Connect-written Apache Iceberg tables on AWS S3.
 #
-# 1. cfd_lake  — Iceberg tables in AWS S3 (written by Kafka Connect's Iceberg
-#                sink). Read by dbt-snowflake via Open Catalog external volume
-#                (production write target; Iceberg producer).
-#                Schema in Snowflake: CFD_LAKE
+# Source of truth: s3://datapai-cfd-lake/lake/fct_tick_*/  (parquet data
+# files + Avro manifests + metadata.json snapshots).
 #
-# 2. cfd_realtime — CH-native ReplacingMergeTree tables fed by Kafka engine +
-#                   MV inside datapai_openlit_clickhouse. Read by
-#                   dbt-clickhouse for sub-second realtime marts.
-#                   Schema in CH: realtime
+# Snowflake registers each S3 Iceberg table as an external Iceberg table
+# in DATAPAI.CFD_LAKE via EXTERNAL VOLUME `CFD_LAKE_VOL` + CATALOG
+# INTEGRATION `CFD_OBJ_CAT` (type = OBJECT_STORE). dbt then exposes these
+# as `source(cfd_lake, src_tick_<asset_class>)`. Staging (`stg_*`)
+# normalises the raw VARCHAR ts_utc to TIMESTAMP_NTZ(6) and emits a
+# synthetic ingested_at; marts (`fct_*`, `mart_*`) materialise as
+# Snowflake-managed Iceberg back into the same S3 bucket.
 #
-# Same logical contract (symbol, ts_utc, bid, ask, mid, spread_pips, session,
-# source, asset_class, ingested_at) — both consumed via {{ source(...) }}
-# but dbt-snowflake and dbt-clickhouse each resolve to their own physical
-# tier. Source name is the only thing that differs.
+# Naming convention (dbt best practice):
+#   raw (source)   → src_tick_<asset_class>     ← THIS LAYER
+#   staging        → stg_ticks_<asset_class>
+#   intermediate   → int_*
+#   facts          → fct_*
+#   marts          → mart_*
 # ─────────────────────────────────────────────────────────────────────────────
 
 sources:
-  # ── CFD lake (Snowflake via Open Catalog) ──────────────────────────────────
   - name: cfd_lake
-    schema: CFD_LAKE
     database: DATAPAI
+    schema: CFD_LAKE
     description: |
-      Iceberg lake in AWS S3 (s3://datapai-cfd-lake/lake/). The Kafka
-      Connect Iceberg sink writes parquet + manifests every 5-minute
-      commit cycle, partitioned by asset_class via the Iceberg sink
-      route-field config. The same Iceberg files are queryable from
-      ClickHouse (Iceberg REST), Snowflake (Open Catalog), Athena
-      (Glue Data Catalog), and any other Iceberg-aware engine.
+      The CFD raw-tick lake — Apache Iceberg tables on AWS S3 written by the
+      Kafka Connect Iceberg sink every 5 minutes. One table per asset class
+      (fx, crypto, index, commodity). The same Iceberg files are queryable
+      from Snowflake (this entry, via OBJECT_STORE catalog integration),
+      ClickHouse (via the `iceberg()` table function), Amazon Athena (via
+      Glue Data Catalog), and any other Iceberg-aware engine — no data
+      copies between engines.
     meta:
       datapai:
-        owner_team:     "platform"
-        owner_email:    "zhaodongn@hotmail.com"
-        loaded_by:      "kafka-connect-iceberg-sink"
-        landing_zone:   "s3://datapai-cfd-lake/lake/"
-        catalog:        "tabulario/iceberg-rest (dev) | Snowflake Open Catalog (prod)"
+        owner_team:        platform
+        owner_email:       zhaodongn@hotmail.com
+        loaded_by:         kafka-connect-iceberg-sink
+        landing_zone:      s3://datapai-cfd-lake/lake/
+        external_volume:   CFD_LAKE_VOL
+        catalog_integration: CFD_OBJ_CAT
+        catalog_type:      OBJECT_STORE
+        producer_services: [cfd-ref-producer@fx, cfd-ref-producer@crypto, cfd-ref-producer@index, cfd-ref-producer@commodity]
+        commit_interval_ms: 300000
         sla_freshness_mins: 5
+        data_classification: market_data
+        retention_policy:  iceberg snapshots perpetual; data parquet 90d hot then S3 IA
+        regulatory_scope:  AFSL personal advice (s761G), ASIC RG-264 best-execution
     freshness:
-      warn_after: { count: 10, period: minute }
+      warn_after:  { count: 10, period: minute }
       error_after: { count: 30, period: minute }
     loaded_at_field: ingested_at
+
     tables:
 
-      - name: fct_tick_fx
+      # ───────────────────────────────────────────────────────────────────────
+      # FX — foreign exchange spot ticks
+      # ───────────────────────────────────────────────────────────────────────
+      - name: src_tick_fx
+        identifier: SRC_TICK_FX
         description: |
-          FX spot tick stream — EURUSD / USDJPY / GBPUSD / AUDUSD / XAUUSD.
-          One row per simulated quote with bid, ask, mid, spread in pips,
-          trading session (ASIA / LONDON / NY / OVERLAP_LDN_NY), and
-          ingestion timestamp. Schema version 2 added asset_class column
-          on 2026-06-22.
+          FX spot tick stream — EURUSD, USDJPY, GBPUSD, AUDUSD, XAUUSD. One
+          row per simulated quote with bid, ask, mid, spread (in pips),
+          trading session (ASIA / LONDON / NY / OVERLAP_LDN_NY), and the
+          schema-evolution version stamped by the Kafka Connect sink. Gold
+          (XAUUSD) lives in the FX topic by industry convention even though
+          its underlying is a commodity.
         meta:
           datapai:
+            asset_class:        fx
+            kafka_topic:        ticks.fx
+            kafka_partitions:   3
+            kafka_offset_reset: earliest
+            primary_key:        [symbol, ts_utc]
+            row_volume_per_day: ~200000
             business_purpose: |
-              Foundational FX market data for the AI Trade Council (CFD/FX
-              vertical), BI dashboards (carry, spread, session distribution),
-              and the dbt-derived AFSL-defensible reporting marts.
+              Foundational FX market data for the AI Trade Council (multi-
+              persona debate orchestration produces a direction/conviction
+              verdict that the AFSL `dim_ai_control` engine post-screens),
+              BI dashboards (carry, spread, session distribution), and the
+              ASIC RG-264 best-execution reporting marts.
             technical_provenance: |
-              Producer: cfd-ref-producer@fx.service. Kafka topic ticks.fx,
-              3 partitions. Kafka Connect Iceberg sink writes here on
-              5-minute commit interval. ReplacingMergeTree dedup key
-              (symbol, ts_utc).
+              Producer: cfd-ref-producer@fx.service (systemd) → Redpanda
+              `ticks.fx` (3 partitions) → Kafka Connect Iceberg sink (5-min
+              commit interval) → s3://datapai-cfd-lake/lake/fct_tick_fx/.
+              Replay-safe via consumer group `cg-control-iceberg-sink`.
             operational_notes: |
-              Producer cadence — 5-minute populate for first 30 minutes
-              after start, then 30-minute steady-state. SLA freshness
-              warn=10min, error=30min.
+              5-minute populate cadence for first 24 cycles (2h) on producer
+              startup, then 30-minute steady state. Freshness SLA: warn at
+              10 min lag, error at 30 min lag.
+            asset_class_regs:
+              - jurisdiction: AU
+                rules: [AFSL s761G, ASIC RG264.LV (leverage warning)]
+              - jurisdiction: SG
+                rules: [MAS FSG-N16]
+        loaded_at_field: ingested_at
         columns:
+          - name: schema_version
+            data_type: bigint
+            description: |
+              Internal Iceberg schema-evolution version stamped by the Kafka
+              Connect sink (`iceberg.tables.evolve-schema-enabled=true`).
+              Starts at 1 and increments on every breaking upstream change.
+              Use for backfill compatibility checks, not for analytics.
+            meta:
+              datapai:
+                business_definition: Schema evolution counter (technical)
+                ai_access:           NONE
+            tests: [not_null]
+
           - name: symbol
-            description: "FX pair (e.g. EURUSD)"
-            tests: [not_null]
+            data_type: varchar
+            description: |
+              Tradable instrument identifier as two concatenated ISO-4217
+              currency codes (e.g. EURUSD = euro against US dollar). Six
+              uppercase letters; XAUUSD = gold ounce vs USD, included in
+              FX by industry convention.
+            meta:
+              datapai:
+                business_definition: Currency pair traded
+                format:              ISO-4217 pair, 6 uppercase chars
+                example_values:      [EURUSD, USDJPY, GBPUSD, AUDUSD, XAUUSD]
+                ai_access:           READ
+                pii:                 false
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [EURUSD, USDJPY, GBPUSD, AUDUSD, XAUUSD]
+              - dbt_expectations.expect_column_value_lengths_to_equal:
+                  value: 6
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: "^[A-Z]{6}$"
+
           - name: ts_utc
-            description: "Tick wall-clock time (UTC) at the moment of quote"
-            tests: [not_null]
+            data_type: varchar
+            description: |
+              Wall-clock quote-emission time, recorded as ISO-8601 string in
+              UTC. Staging casts to TIMESTAMP_NTZ(6) — Iceberg supports
+              microsecond precision only, not nanosecond.
+            meta:
+              datapai:
+                business_definition: Quote emission time (UTC)
+                format:              ISO-8601 parseable as TIMESTAMP_NTZ(6)
+                timezone:            UTC
+                ai_access:           READ
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+
           - name: bid
-            description: "Bid price"
+            data_type: double
+            description: |
+              Best bid price — the highest price a buyer will pay for the
+              base currency, quoted in the counter currency. Always > 0
+              and always ≤ ask. EURUSD bid = 1.0834 means one euro buys
+              1.0834 USD on the bid side.
+            meta:
+              datapai:
+                business_definition: Best bid price in counter currency
+                units:               counter currency per 1 unit of base
+                always_positive:     true
+                ai_access:           READ
+                example_values:      [1.0834, 1.2541, 0.6573]
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+
           - name: ask
-            description: "Ask price"
+            data_type: double
+            description: |
+              Best ask price — the lowest price a seller will accept for the
+              base currency, quoted in the counter currency. Always > 0 and
+              always ≥ bid. Spread = ask − bid drives the spread-quality
+              mart used by the ASIC RG-264 best-execution monitor.
+            meta:
+              datapai:
+                business_definition: Best ask price in counter currency
+                units:               counter currency per 1 unit of base
+                always_positive:     true
+                ai_access:           READ
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+
           - name: mid
-            description: "Mid price = (bid + ask) / 2"
+            data_type: double
+            description: |
+              Mid price = (bid + ask) / 2. The canonical reference price
+              used for unrealised PnL, mark-to-market, and the TA indicator
+              feed (RSI, MACD, KDJ, moving averages) into the AI Trade
+              Council debate.
+            meta:
+              datapai:
+                business_definition: Reference mid price = (bid + ask)/2
+                units:               counter currency per 1 unit of base
+                ai_access:           READ
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+
           - name: spread_pips
-            description: "Bid-ask spread expressed in pips"
+            data_type: double
+            description: |
+              Bid-ask spread expressed in pips. For 5-decimal FX pairs
+              (EURUSD, GBPUSD, AUDUSD, NZDUSD) 1 pip = 0.0001. For JPY
+              pairs 1 pip = 0.01. The ASIC RG-264 best-execution mart
+              (`mart_spread_by_asset_hourly`) aggregates this hourly to
+              detect spread-quality regressions vs venue benchmarks.
+            meta:
+              datapai:
+                business_definition: Bid-ask spread in pips
+                units:               pips (0.0001 non-JPY, 0.01 JPY pairs)
+                regulatory_use:      ASIC RG-264 best-execution reporting
+                ai_access:           READ
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  max_value: 100
+
           - name: session
-            description: "Trading session at ts_utc: ASIA / LONDON / NY / OVERLAP_LDN_NY"
+            data_type: varchar
+            description: |
+              Trading session in force at ts_utc — ASIA / LONDON / NY /
+              OVERLAP_LDN_NY. Derived from the producer wall clock,
+              informational only; not used for liquidity gating. The
+              Iceberg lake is partitioned by asset_class, NOT by session.
+            meta:
+              datapai:
+                business_definition: Trading session at ts_utc
+                ai_access:           READ
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [ASIA, LONDON, NY, OVERLAP_LDN_NY]
+
           - name: source
-            description: "Tick provider — 'datapai_sim' for the synthetic stream"
+            data_type: varchar
+            description: |
+              Tick provider identifier. `datapai_sim` = synthetic reference
+              stream that powers the live demo (cfd.datap.ai/demo).
+              Production deployments will show provider names like `lmax`,
+              `oanda`, `cmc`, `ig`.
+            meta:
+              datapai:
+                business_definition: Upstream tick provider
+                ai_access:           READ
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [datapai_sim]
+
           - name: asset_class
-            description: "'fx' — used by the Iceberg sink to route into this table"
-          - name: ingested_at
-            description: "Kafka Connect / Iceberg sink ingestion timestamp"
-            tests: [not_null]
+            data_type: varchar
+            description: |
+              Instrument family — always `fx` in this table. The Kafka
+              Connect Iceberg sink reads this field via
+              `iceberg.tables.route-field=asset_class` to route each record
+              into the correct per-asset-class Iceberg table.
+            meta:
+              datapai:
+                business_definition: Asset class family identifier
+                ai_access:           READ
+                routing_key:         true
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [fx]
 
-      - name: fct_tick_crypto
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns: [symbol, ts_utc]
+
+      # ───────────────────────────────────────────────────────────────────────
+      # Crypto — 24/7 cryptocurrency spot ticks
+      # ───────────────────────────────────────────────────────────────────────
+      - name: src_tick_crypto
+        identifier: SRC_TICK_CRYPTO
         description: |
-          Cryptocurrency tick stream — BTCUSD / ETHUSD / XRPUSD / SOLUSD /
-          ADAUSD. Crypto trades 24/7 so the session column carries
-          exchange-region semantics (GLOBAL/ASIA/LONDON/NY) rather than
-          FX-style trading sessions.
+          Cryptocurrency tick stream — BTCUSD, ETHUSD, XRPUSD, SOLUSD,
+          ADAUSD (top-5-by-market-cap quoted vs USD). Crypto trades 24/7
+          so the `session` column carries exchange-region semantics
+          (GLOBAL / ASIA / LONDON / NY) rather than FX trading sessions.
+          Spreads are wider than FX (mean ~1.2 pips vs FX 0.8) reflecting
+          crypto venue economics.
         meta:
           datapai:
+            asset_class:        crypto
+            kafka_topic:        ticks.crypto
+            kafka_partitions:   3
+            primary_key:        [symbol, ts_utc]
+            row_volume_per_day: ~200000
             business_purpose: |
-              Crypto market coverage for crypto-AFSL prospects (CoinSpot,
-              Independent Reserve, Swyftx). Same Council orchestration as
-              FX but with crypto-tuned personas (volatility-aware risk
-              officer, on-chain analyst). Supports BI dashboards for
-              spread comparison vs CEX benchmarks.
+              Crypto market coverage for crypto-AFSL retail prospects
+              (CoinSpot, Independent Reserve, Swyftx). Same AI Council
+              orchestration as FX but with crypto-tuned personas
+              (volatility-aware risk officer, on-chain-aware fundamental
+              persona). Powers spread-vs-CEX-benchmark BI dashboards.
             technical_provenance: |
-              Producer: cfd-ref-producer@crypto.service. Kafka topic
-              ticks.crypto, 3 partitions. Asset class 'crypto' routes
-              into this Iceberg table via iceberg.table.lake.fct_tick_
-              crypto.route-regex config.
+              Producer: cfd-ref-producer@crypto.service → Redpanda
+              `ticks.crypto` (3 partitions) → Iceberg sink route-regex
+              `crypto` → s3://datapai-cfd-lake/lake/fct_tick_crypto/.
             operational_notes: |
-              Top-5-by-market-cap symbols only. Wider spread (1.2 pip mean)
-              than FX (0.8) reflecting crypto reality. Session field is
-              exchange region, NOT trading session.
+              Crypto trades 24/7 — no overnight close. Wider spreads, more
+              volatile mid prices. `session` repurposed as exchange region.
+        loaded_at_field: ingested_at
         columns:
+          - name: schema_version
+            data_type: bigint
+            description: Schema evolution version stamped by the Iceberg sink.
+            tests: [not_null]
           - name: symbol
-            description: "Crypto pair vs USD (e.g. BTCUSD)"
-            tests: [not_null]
+            data_type: varchar
+            description: |
+              Crypto pair vs USD (e.g. BTCUSD). Top-5-by-market-cap only at
+              launch; cardinality grows as the universe expands.
+            meta:
+              datapai:
+                business_definition: Crypto instrument identifier
+                format:              <BASE>USD, uppercase, 6–7 chars
+                example_values:      [BTCUSD, ETHUSD, XRPUSD, SOLUSD, ADAUSD]
+                ai_access:           READ
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [BTCUSD, ETHUSD, XRPUSD, SOLUSD, ADAUSD]
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: "^[A-Z]{3,4}USD$"
           - name: ts_utc
-            tests: [not_null]
-          - name: ingested_at
-            tests: [not_null]
+            data_type: varchar
+            description: Quote emission time (UTC), ISO-8601 string parseable as TIMESTAMP_NTZ(6).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+          - name: bid
+            data_type: double
+            description: |
+              Best bid in USD. Crypto bids span six orders of magnitude
+              (BTC > $50k, ADA < $1) so range tests are loose.
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+          - name: ask
+            data_type: double
+            description: Best ask in USD. Always > 0 and ≥ bid.
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+          - name: mid
+            data_type: double
+            description: Reference mid price = (bid + ask)/2.
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+          - name: spread_pips
+            data_type: double
+            description: |
+              Bid-ask spread in pips. Crypto pip = 4th decimal of USD
+              price (e.g. BTC at 50,000.0000). Mean ~1.2 pips vs FX 0.8.
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  max_value: 1000
+          - name: session
+            data_type: varchar
+            description: |
+              Exchange region in force at ts_utc — GLOBAL / ASIA / LONDON /
+              NY. Semantics differ from FX where session = trading window.
+              Crypto trades 24/7, so this column flags the dominant
+              regional book.
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [GLOBAL, ASIA, LONDON, NY]
+          - name: source
+            data_type: varchar
+            description: Tick provider — `datapai_sim` for the synthetic stream.
+            tests: [not_null, accepted_values: {values: [datapai_sim]}]
+          - name: asset_class
+            data_type: varchar
+            description: Always `crypto`. Iceberg-sink routing key.
+            tests: [not_null, accepted_values: {values: [crypto]}]
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns: [symbol, ts_utc]
 
-      - name: fct_tick_index
+      # ───────────────────────────────────────────────────────────────────────
+      # Equity indices
+      # ───────────────────────────────────────────────────────────────────────
+      - name: src_tick_index
+        identifier: SRC_TICK_INDEX
         description: |
-          Equity index tick stream — SPX500 / US30 / NAS100 / UK100 / GER40.
-          Mid prices reflect CFD-style continuous quotes (not exchange
-          official prices).
+          Equity-index CFD tick stream — SPX500 (S&P 500), US30 (Dow Jones
+          Industrial), NAS100 (Nasdaq-100), UK100 (FTSE 100), GER40 (DAX).
+          Mid prices are CFD continuous quotes, NOT the exchange-official
+          settlement print. Used by institutional CFD prospects (TMGM,
+          ACY, Pepperstone) for index-rotation strategy + cross-asset
+          correlation dashboards.
         meta:
           datapai:
+            asset_class:        index
+            kafka_topic:        ticks.index
+            kafka_partitions:   3
+            primary_key:        [symbol, ts_utc]
+            row_volume_per_day: ~200000
             business_purpose: |
-              Index coverage for institutional CFD prospects (TMGM, ACY,
-              Pepperstone). Powers the index-rotation strategy in the AI
-              Trade Council and the cross-asset correlation dashboards.
+              Index CFD coverage for institutional prospects. Powers the
+              index-rotation strategy in the AI Trade Council (Bull, Bear,
+              Risk, PM personas reason over RSI/MACD/KDJ on each index)
+              plus the cross-asset correlation dashboards.
             technical_provenance: |
-              Producer: cfd-ref-producer@index.service. Kafka topic
-              ticks.index, 3 partitions.
+              Producer: cfd-ref-producer@index.service → Redpanda
+              `ticks.index` (3 partitions) → Iceberg sink route-regex
+              `index` → s3://datapai-cfd-lake/lake/fct_tick_index/.
             operational_notes: |
-              Tick size varies per index (SPX500/NAS100 = 0.25, US30 = 1.0,
-              UK100/GER40 = 0.5). Standard FX-style session breakdown.
+              Tick size varies per index: SPX500/NAS100 = 0.25; US30 = 1.0;
+              UK100/GER40 = 0.5. Standard FX-style session breakdown.
+        loaded_at_field: ingested_at
         columns:
+          - name: schema_version
+            data_type: bigint
+            description: Schema evolution version.
+            tests: [not_null]
           - name: symbol
-            description: "Index symbol (SPX500 / US30 / NAS100 / UK100 / GER40)"
-            tests: [not_null]
+            data_type: varchar
+            description: |
+              Index symbol — SPX500 / US30 / NAS100 / UK100 / GER40.
+              5–6 uppercase chars. NOT the exchange-vendor symbol (e.g.
+              ^GSPC) — DATAP.AI normalises to the broker-display name.
+            meta:
+              datapai:
+                business_definition: Index instrument identifier
+                example_values:      [SPX500, US30, NAS100, UK100, GER40]
+                ai_access:           READ
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [SPX500, US30, NAS100, UK100, GER40]
           - name: ts_utc
-            tests: [not_null]
-          - name: ingested_at
-            tests: [not_null]
+            data_type: varchar
+            description: Quote emission time (UTC).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+          - name: bid
+            data_type: double
+            description: Best bid (index points).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+          - name: ask
+            data_type: double
+            description: Best ask (index points).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+          - name: mid
+            data_type: double
+            description: Reference mid price = (bid + ask)/2 (index points).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+          - name: spread_pips
+            data_type: double
+            description: |
+              Bid-ask spread in pips (index pip = 1 index point at integer
+              precision, 0.1 at one-decimal precision).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  max_value: 1000
+          - name: session
+            data_type: varchar
+            description: Trading session — ASIA / LONDON / NY / OVERLAP_LDN_NY.
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [ASIA, LONDON, NY, OVERLAP_LDN_NY]
+          - name: source
+            data_type: varchar
+            description: Tick provider.
+            tests: [not_null, accepted_values: {values: [datapai_sim]}]
+          - name: asset_class
+            data_type: varchar
+            description: Always `index`.
+            tests: [not_null, accepted_values: {values: [index]}]
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns: [symbol, ts_utc]
 
-      - name: fct_tick_commodity
+      # ───────────────────────────────────────────────────────────────────────
+      # Energy + commodity CFDs (excluding gold which lives in FX)
+      # ───────────────────────────────────────────────────────────────────────
+      - name: src_tick_commodity
+        identifier: SRC_TICK_COMMODITY
         description: |
-          Commodity tick stream — WTI crude, Brent crude, natural gas.
-          Gold lives in the FX topic (XAUUSD) per industry convention.
+          Energy + commodity CFD tick stream — WTI crude (WTIUSD), Brent
+          crude (BRENTUSD), natural gas (NATGAS). Gold (XAUUSD) lives in
+          the FX topic per industry convention. Three symbols at launch;
+          additions (silver, copper, agricultural) gated on prospect demand.
         meta:
           datapai:
+            asset_class:        commodity
+            kafka_topic:        ticks.commodity
+            kafka_partitions:   3
+            primary_key:        [symbol, ts_utc]
+            row_volume_per_day: ~200000
             business_purpose: |
-              Energy + ag commodity coverage for the energy-trading sub
-              vertical and for commodity-aware diversification analytics
+              Energy + ag commodity coverage for the energy-trading
+              sub-vertical and commodity-aware diversification analytics
               in the AI Trade Council.
             technical_provenance: |
-              Producer: cfd-ref-producer@commodity.service. Kafka topic
-              ticks.commodity, 3 partitions.
+              Producer: cfd-ref-producer@commodity.service → Redpanda
+              `ticks.commodity` (3 partitions) → Iceberg sink route-regex
+              `commodity` → s3://datapai-cfd-lake/lake/fct_tick_commodity/.
             operational_notes: |
-              Three symbols only at launch. WTIUSD / BRENTUSD price in
-              USD per barrel; NATGAS prices in USD per MMBtu.
+              WTIUSD / BRENTUSD price in USD per barrel. NATGAS price in
+              USD per MMBtu (Henry Hub equivalent).
+        loaded_at_field: ingested_at
         columns:
+          - name: schema_version
+            data_type: bigint
+            description: Schema evolution version.
+            tests: [not_null]
           - name: symbol
-            description: "Commodity symbol (WTIUSD / BRENTUSD / NATGAS)"
-            tests: [not_null]
+            data_type: varchar
+            description: |
+              Commodity symbol — WTIUSD / BRENTUSD / NATGAS. Crude oils are
+              quoted USD/barrel; natural gas USD/MMBtu.
+            meta:
+              datapai:
+                business_definition: Commodity instrument identifier
+                example_values:      [WTIUSD, BRENTUSD, NATGAS]
+                ai_access:           READ
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [WTIUSD, BRENTUSD, NATGAS]
           - name: ts_utc
-            tests: [not_null]
-          - name: ingested_at
-            tests: [not_null]
+            data_type: varchar
+            description: Quote emission time (UTC).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+          - name: bid
+            data_type: double
+            description: |
+              Best bid (USD per unit — barrel for crude, MMBtu for natgas).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+          - name: ask
+            data_type: double
+            description: Best ask (USD per unit).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+          - name: mid
+            data_type: double
+            description: Reference mid price = (bid + ask)/2 (USD per unit).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  strictly: true
+          - name: spread_pips
+            data_type: double
+            description: Bid-ask spread (pip = 4th decimal of USD price).
+            tests:
+              - not_null
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  max_value: 1000
+          - name: session
+            data_type: varchar
+            description: Trading session — ASIA / LONDON / NY / OVERLAP_LDN_NY.
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [ASIA, LONDON, NY, OVERLAP_LDN_NY]
+          - name: source
+            data_type: varchar
+            description: Tick provider.
+            tests: [not_null, accepted_values: {values: [datapai_sim]}]
+          - name: asset_class
+            data_type: varchar
+            description: Always `commodity`.
+            tests: [not_null, accepted_values: {values: [commodity]}]
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns: [symbol, ts_utc]
