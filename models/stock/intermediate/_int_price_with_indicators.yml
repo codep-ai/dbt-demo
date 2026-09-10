@@ -1,12 +1,14 @@
 version: 2
 models:
 - name: int_price_with_indicators
-  description: Price grain with technical indicators and OBV.
+  description: 'Technical indicators, grain: ticker, exchange, trade_date.'
   config:
     tags:
     - intermediate
     - stock_ai
   tests:
+  - dbt_utils.equal_rowcount:
+      compare_model: ref('stg_prices')
   - dbt_utils.unique_combination_of_columns:
       combination_of_columns:
       - ticker
@@ -14,30 +16,99 @@ models:
       - trade_date
   columns:
   - name: ticker
-    description: Stock ticker symbol.
+    description: Ticker symbol.
+    meta:
+      lineage:
+      - stg_prices.ticker
+      sensitivity: PUBLIC
   - name: exchange
-    description: Exchange code.
+    description: Exchange name.
+    meta:
+      lineage:
+      - stg_prices.exchange
+      sensitivity: PUBLIC
   - name: trade_date
     description: Date of trade.
-  - name: close
-    description: Closing price in local currency.
+    meta:
+      lineage:
+      - stg_prices.trade_date
+      sensitivity: PUBLIC
   - name: close_usd
-    description: Closing price converted to USD using FX rates.
-  - name: volume
-    description: Trading volume.
+    description: Closing price converted to USD.
+    meta:
+      lineage:
+      - stg_exchange_ref.currency_code
+      - stg_fx_rates.rate
+      - stg_prices.trade_date
+      - stg_prices.close
+      sensitivity: PUBLIC
   - name: sma_5
-    description: Simple Moving Average over 5 days.
-  - name: sma_200
-    description: Simple Moving Average over 200 days.
-  - name: volatility_20d
-    description: Annualized 20-day volatility based on log returns.
+    description: 5-day simple moving average of close price.
+    meta:
+      lineage:
+      - stg_prices.trade_date
+      - stg_prices.exchange
+      - stg_prices.ticker
+      - stg_prices.close
+      sensitivity: PUBLIC
   - name: rsi_14
-    description: Relative Strength Index over 14 days.
-  - name: obv
-    description: On-Balance Volume.
+    description: 14-day Relative Strength Index.
+    meta:
+      lineage:
+      - stg_prices.trade_date
+      - stg_prices.close
+      - stg_prices.trade_date
+      - stg_prices.ticker
+      - stg_prices.exchange
+      - stg_prices.exchange
+      - stg_prices.ticker
+      sensitivity: PUBLIC
+  - name: macd_line
+    description: MACD Line (12-day SMA - 26-day SMA).
+    meta:
+      lineage:
+      - stg_prices.trade_date
+      - stg_prices.exchange
+      - stg_prices.ticker
+      - stg_prices.close
+      sensitivity: PUBLIC
   - name: obv_trend
-    description: Trend of OBV over the last 10 days (UP, DOWN, FLAT).
+    description: Trend of On-Balance Volume over 10 days (UP, DOWN, FLAT).
+    meta:
+      lineage:
+      - stg_prices.ticker
+      - stg_prices.trade_date
+      - stg_prices.exchange
+      - stg_prices.close
+      - stg_prices.trade_date
+      - stg_prices.ticker
+      - stg_prices.exchange
+      - stg_prices.volume
+      - stg_prices.close
+      sensitivity: PUBLIC
+  - name: volatility_20d
+    description: 20-day annualized volatility based on log returns.
+    meta:
+      lineage:
+      - stg_prices.close
+      - stg_prices.trade_date
+      - stg_prices.ticker
+      - stg_prices.exchange
+      - stg_prices.ticker
+      - stg_prices.trade_date
+      - stg_prices.close
+      - stg_prices.exchange
+      sensitivity: PUBLIC
   - name: pivot_pp
     description: Pivot Point (Typical Price) from previous period.
-  - name: kdj_k
-    description: K-line of the KDJ indicator (3-day SMA of raw stochastic).
+    meta:
+      lineage:
+      - stg_prices.high
+      - stg_prices.ticker
+      - stg_prices.trade_date
+      - stg_prices.close
+      - stg_prices.low
+      - stg_prices.exchange
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

@@ -1,7 +1,7 @@
 version: 2
 models:
 - name: stg_exchange_ref
-  description: One row per exchange with currency metadata.
+  description: 'Exchange metadata, grain: exchange.'
   config:
     tags:
     - staging
@@ -11,11 +11,21 @@ models:
     description: The unique identifier for the exchange.
     tests:
     - unique
+    meta:
+      lineage:
+      - source:exchange_ref.exchange
+      sensitivity: PUBLIC
   - name: currency_code
     description: The ISO currency code used by the exchange.
-  - name: currency_symbol
-    description: The symbol associated with the currency.
-  - name: currency_name_en
-    description: The English name of the currency.
+    meta:
+      lineage:
+      - source:exchange_ref.currency_code
+      sensitivity: PUBLIC
   - name: country
     description: The country where the exchange is located.
+    meta:
+      lineage:
+      - source:exchange_ref.country
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

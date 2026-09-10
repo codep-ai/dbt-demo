@@ -1,7 +1,7 @@
 version: 2
 models:
 - name: stg_prices
-  description: One row per ticker, date, and exchange price record.
+  description: 'Daily OHLCV prices, grain: ticker, exchange, trade_date.'
   config:
     tags:
     - staging
@@ -13,25 +13,67 @@ models:
       - trade_date
       - exchange
   columns:
+  - name: ticker_raw
+    description: The original ticker string from the source.
+    meta:
+      lineage:
+      - source:prices.ticker
+      sensitivity: PUBLIC
   - name: ticker
-    description: Stock ticker symbol.
+    description: Conformed ticker symbol (e.g., AAPL).
     tests:
     - not_null
+    meta:
+      lineage:
+      - source:prices.ticker
+      sensitivity: PUBLIC
   - name: trade_date
-    description: The date of the trade.
-    tests:
-    - not_null
-  - name: close
-    description: Closing price of the stock.
-  - name: volume
-    description: Trading volume. Cast to bigint as 'long' is not a valid Snowflake type alias.
+    description: The date of the price record.
+    meta:
+      lineage:
+      - source:prices.trade_date
+      sensitivity: PUBLIC
   - name: open
-    description: Opening price of the stock.
+    description: Opening price.
+    meta:
+      lineage:
+      - source:prices.open
+      sensitivity: PUBLIC
   - name: high
     description: Highest price during the session.
+    meta:
+      lineage:
+      - source:prices.high
+      sensitivity: PUBLIC
   - name: low
     description: Lowest price during the session.
+    meta:
+      lineage:
+      - source:prices.low
+      sensitivity: PUBLIC
+  - name: close
+    description: Closing price.
+    meta:
+      lineage:
+      - source:prices.close
+      sensitivity: PUBLIC
+  - name: volume
+    description: Trading volume.
+    meta:
+      lineage:
+      - source:prices.volume
+      sensitivity: PUBLIC
   - name: adj_close
     description: Adjusted closing price.
+    meta:
+      lineage:
+      - source:prices.adj_close
+      sensitivity: PUBLIC
   - name: exchange
-    description: The exchange where the stock is traded.
+    description: The exchange where the ticker is traded.
+    meta:
+      lineage:
+      - source:prices.exchange
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

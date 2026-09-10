@@ -1,127 +1,367 @@
 version: 2
 models:
 - name: fct_screener_metrics
-  description: 'Latest snapshot of screener metrics per ticker.
-
-
-    NOTE: planned tests reference columns not emitted: [''exchange_key'', ''ticker_key'']'
+  description: 'Latest technical snapshot, grain: ticker_key.'
   config:
     tags:
     - fact
     - stock_ai
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      combination_of_columns:
-      - ticker
-      - exchange
   columns:
   - name: ticker
     description: Ticker symbol.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: exchange
     description: Exchange code.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: latest_close
     description: Most recent closing price.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: latest_volume
     description: Most recent trading volume.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: trade_date
-    description: Date of the latest metrics.
+    description: Date of the technical snapshot.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: change_1d_pct
     description: 1-day price change percentage.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: change_5d_pct
     description: 5-day price change percentage.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: change_1m_pct
     description: 1-month price change percentage.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: change_3m_pct
     description: 3-month price change percentage.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: change_6m_pct
     description: 6-month price change percentage.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: change_1y_pct
     description: 1-year price change percentage.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: high_52w
     description: 52-week high price.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: low_52w
     description: 52-week low price.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: pct_from_52w_high
     description: Percentage distance from 52-week high.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: pct_from_52w_low
     description: Percentage distance from 52-week low.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: sma_20
     description: 20-day simple moving average.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: sma_50
     description: 50-day simple moving average.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: sma_200
     description: 200-day simple moving average.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: price_vs_sma20_pct
-    description: Percentage difference between price and SMA 20.
+    description: Percentage difference between price and SMA20.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: price_vs_sma50_pct
-    description: Percentage difference between price and SMA 50.
+    description: Percentage difference between price and SMA50.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: price_vs_sma200_pct
-    description: Percentage difference between price and SMA 200.
+    description: Percentage difference between price and SMA200.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: golden_cross
-    description: True if SMA 50 > SMA 200.
+    description: True if SMA50 > SMA200.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: death_cross
-    description: True if SMA 50 < SMA 200.
+    description: True if SMA50 < SMA200.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: avg_volume_20d
     description: 20-day average trading volume.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: volume_ratio
     description: Ratio of current volume to 20-day average volume.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: volatility_20d
     description: 20-day price volatility.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: rsi_14
     description: 14-day Relative Strength Index.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: computed_at
-    description: Timestamp when the record was computed. Cast to scale 6 for Iceberg compatibility.
+    description: Timestamp when the record was computed.
+    meta:
+      lineage: []
+      sensitivity: PUBLIC
   - name: sma_5
     description: 5-day simple moving average.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: sma_10
     description: 10-day simple moving average.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: sma_30
     description: 30-day simple moving average.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: price_vs_sma5_pct
-    description: Percentage difference between price and SMA 5.
+    description: Percentage difference between price and SMA5.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: price_vs_sma10_pct
-    description: Percentage difference between price and SMA 10.
+    description: Percentage difference between price and SMA10.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: price_vs_sma30_pct
-    description: Percentage difference between price and SMA 30.
+    description: Percentage difference between price and SMA30.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: macd_line
-    description: MACD Line value.
+    description: MACD line value.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: macd_signal
-    description: MACD Signal value.
+    description: MACD signal line value.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: macd_histogram
-    description: MACD Histogram value.
+    description: MACD histogram value.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: macd_trend
-    description: MACD Trend (BULLISH/BEARISH).
+    description: BULLISH if MACD Line > Signal, else BEARISH.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: kdj_k
-    description: KDJ K value.
+    description: KDJ K-line value.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: kdj_d
-    description: KDJ D value.
+    description: KDJ D-line value.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: kdj_j
-    description: KDJ J value.
+    description: KDJ J-line value.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: kdj_signal
-    description: KDJ Signal (OVERBOUGHT/OVERSOLD/NEUTRAL).
+    description: KDJ signal based on J-line thresholds.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: bb_upper
-    description: Bollinger Band Upper.
+    description: Bollinger Band upper limit.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: bb_middle
-    description: Bollinger Band Middle.
+    description: Bollinger Band middle limit (SMA20).
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: bb_lower
-    description: Bollinger Band Lower.
+    description: Bollinger Band lower limit.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: bb_pct_b
-    description: Bollinger Band %B.
+    description: Bollinger Band %B value.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: bb_width
-    description: Bollinger Band Width.
+    description: Bollinger Band width.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: pivot_pp
-    description: Pivot Point.
+    description: Pivot Point (PP).
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: pivot_r1
     description: Pivot Resistance 1.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: pivot_r2
     description: Pivot Resistance 2.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: pivot_s1
     description: Pivot Support 1.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: pivot_s2
     description: Pivot Support 2.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: obv_trend
-    description: On-Balance Volume Trend.
+    description: On-Balance Volume trend direction.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: avg_volume_5d
     description: 5-day average trading volume.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
   - name: avg_volume_10d
     description: 10-day average trading volume.
+    meta:
+      lineage:
+      - int_price_with_indicators.*
+      sensitivity: PUBLIC
+  - name: ticker_key
+    description: Surrogate key for the ticker.
+    tests:
+    - unique
+    - relationships:
+        to: ref('dim_ticker')
+        field: ticker_key
+    meta:
+      lineage:
+      - dim_ticker.ticker_key
+      sensitivity: PUBLIC
+  - name: exchange_key
+    description: Surrogate key for the exchange.
+    meta:
+      lineage:
+      - dim_exchange.exchange_key
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

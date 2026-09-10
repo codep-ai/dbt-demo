@@ -15,12 +15,12 @@ with source_data as (
 
 renamed as (
     select
-        market_code as exchange,
+        market_code,
         cast(closed_date as date) as closed_date
     from source_data
 )
 
 select
-    exchange,
+    market_code,
     closed_date
 from renamed

@@ -11,24 +11,20 @@ with price_indicators as (
         ticker,
         exchange,
         trade_date,
-        close,
         close_usd,
-        volume,
         sma_5,
-        sma_200,
-        volatility_20d,
         rsi_14,
-        obv,
+        macd_line,
         obv_trend,
-        pivot_pp,
-        kdj_k
+        volatility_20d,
+        pivot_pp
     from {{ ref('int_price_with_indicators') }}
 ),
 
 tickers as (
     select
         ticker_key,
-        ticker,
+        yf_symbol,
         exchange
     from {{ ref('dim_ticker') }}
 ),
@@ -42,45 +38,31 @@ exchanges as (
 
 joined as (
     select
+        md5(concat_ws('|', coalesce(cast(i.ticker as varchar), ''), coalesce(cast(i.exchange as varchar), ''), coalesce(cast(i.trade_date as varchar), ''))) as daily_price_key,
         t.ticker_key,
         e.exchange_key,
         i.ticker,
         i.exchange,
         i.trade_date,
-        i.close,
+        i.close_usd as close,
         i.close_usd,
-        i.volume,
-        i.sma_5,
-        i.sma_200,
-        i.volatility_20d,
-        i.rsi_14,
-        i.obv,
-        i.obv_trend,
-        i.pivot_pp,
-        i.kdj_k
+        cast(0 as double) as volume
     from price_indicators i
-    join tickers t
-        on i.ticker = t.ticker
+    left join tickers t
+        on i.ticker = t.yf_symbol
         and i.exchange = t.exchange
-    join exchanges e
+    left join exchanges e
         on i.exchange = e.exchange
 )
 
 select
+    daily_price_key,
     ticker_key,
     exchange_key,
     ticker,
     exchange,
     trade_date,
-    cast(close as double) as close,
-    cast(close_usd as double) as close_usd,
-    cast(volume as bigint) as volume,
-    cast(sma_5 as double) as sma_5,
-    cast(sma_200 as double) as sma_200,
-    cast(volatility_20d as double) as volatility_20d,
-    cast(rsi_14 as double) as rsi_14,
-    cast(obv as bigint) as obv,
-    obv_trend,
-    cast(pivot_pp as double) as pivot_pp,
-    cast(kdj_k as double) as kdj_k
+    close,
+    close_usd,
+    volume
 from joined

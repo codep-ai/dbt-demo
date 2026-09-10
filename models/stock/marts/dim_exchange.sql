@@ -10,8 +10,6 @@ with source_data as (
     select
         exchange,
         currency_code,
-        currency_symbol,
-        currency_name_en,
         country
     from {{ ref('stg_exchange_ref') }}
 ),
@@ -21,10 +19,13 @@ final as (
         md5(concat_ws('|', coalesce(cast(exchange as varchar), ''))) as exchange_key,
         exchange,
         currency_code,
-        currency_symbol,
-        currency_name_en,
         country
     from source_data
 )
 
-select * from final
+select
+    exchange_key,
+    exchange,
+    currency_code,
+    country
+from final

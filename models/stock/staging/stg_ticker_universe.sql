@@ -8,27 +8,25 @@
 
 with source_data as (
     select
-        ticker,
-        exchange,
         yf_symbol,
+        ticker as ticker_local,
+        exchange,
         company_name,
         sector,
         is_active,
-        asset_type,
-        region
+        asset_type
     from {{ source('src_stock', 'ticker_universe') }}
 ),
 
 final as (
     select
-        ticker,
-        exchange,
-        yf_symbol,
-        company_name,
-        sector,
-        is_active,
-        asset_type,
-        region
+        cast(yf_symbol as varchar) as yf_symbol,
+        cast(ticker_local as varchar) as ticker_local,
+        cast(exchange as varchar) as exchange,
+        cast(company_name as varchar) as company_name,
+        cast(sector as varchar) as sector,
+        cast(is_active as boolean) as is_active,
+        cast(asset_type as varchar) as asset_type
     from source_data
 )
 

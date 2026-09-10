@@ -6,53 +6,59 @@
     tags            = ["dimension", "stock_ai"]
 ) }}
 
-with date_range as (
+with recursive date_range as (
     select 
-        min(trade_date) as start_date,
-        max(trade_date) as end_date
+        min(trade_date) as min_date,
+        max(trade_date) as max_date
     from {{ ref('stg_prices') }}
 ),
 
-spine as (
-    select 
-        dateadd(day, seq4(), start_date) as date_day
-    from date_range, 
-    table(generator(rowcount => 10000))
-    where dateadd(day, seq4(), start_date) <= (select end_date from date_range)
+date_spine as (
+    select min_date as date_day
+    from date_range
+    union all
+    select dateadd(day, 1, date_day)
+    from date_spine
+    join date_range on date_spine.date_day < date_range.max_date
 ),
 
 exchanges as (
-    select distinct 
-        exchange 
+    select distinct exchange
     from {{ ref('stg_prices') }}
 ),
 
-calendar_base as (
+base_grid as (
     select 
-        s.date_day,
+        d.date_day,
         e.exchange
-    from spine s
+    from date_spine d
     cross join exchanges e
 ),
 
-joined as (
+closed_dates as (
     select 
-        cb.date_day,
-        cb.exchange,
+        exchange,
+        closed_date
+    from {{ ref('stg_closed_dates') }}
+),
+
+final as (
+    select
+        b.date_day,
+        b.exchange,
         case 
-            when c.closed_date is null 
-                 and dayname(cb.date_day) not in ('Sat', 'Sun') 
-            then true 
-            else false 
+            when dayname(b.date_day) in ('Sat', 'Sun') then false
+            when c.closed_date is not null then false
+            else true
         end as is_trading_day
-    from calendar_base cb
-    left join {{ ref('stg_closed_dates') }} c 
-        on cb.date_day = c.closed_date 
-        and cb.exchange = c.market_code
+    from base_grid b
+    left join closed_dates c 
+        on b.date_day = c.closed_date 
+        and b.exchange = c.exchange
 )
 
-select 
-    date_day,
-    exchange,
-    is_trading_day
-from joined
+select
+    cast(date_day as date) as date_day,
+    cast(exchange as varchar) as exchange,
+    cast(is_trading_day as boolean) as is_trading_day
+from final

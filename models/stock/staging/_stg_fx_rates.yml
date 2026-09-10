@@ -1,7 +1,7 @@
 version: 2
 models:
 - name: stg_fx_rates
-  description: Daily FX rates vs USD.
+  description: 'Daily USD FX rates, grain: quote_currency, trade_date.'
   config:
     tags:
     - staging
@@ -12,11 +12,36 @@ models:
       - quote_currency
       - trade_date
   columns:
+  - name: fx_rate_id
+    description: Surrogate key for the FX rate record.
+    meta:
+      lineage:
+      - source:fx_rates_daily.trade_date
+      - source:fx_rates_daily.quote_currency
+      sensitivity: PUBLIC
   - name: base_currency
-    description: The base currency for the exchange rate, typically USD.
+    description: The base currency, filtered to USD per spec.
+    meta:
+      lineage:
+      - source:fx_rates_daily.base_currency
+      sensitivity: PUBLIC
   - name: quote_currency
     description: The currency being quoted against the base currency.
+    meta:
+      lineage:
+      - source:fx_rates_daily.quote_currency
+      sensitivity: PUBLIC
+  - name: trade_date
+    description: The date of the exchange rate, cast to Iceberg-compatible timestamp.
+    meta:
+      lineage:
+      - source:fx_rates_daily.trade_date
+      sensitivity: PUBLIC
   - name: rate
     description: The exchange rate value.
-  - name: trade_date
-    description: The date the exchange rate was recorded, cast from text.
+    meta:
+      lineage:
+      - source:fx_rates_daily.rate
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

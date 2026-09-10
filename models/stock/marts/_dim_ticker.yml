@@ -1,29 +1,62 @@
 version: 2
 models:
 - name: dim_ticker
-  description: Ticker dimension, SCD type 1.
+  description: 'Ticker dimension, grain: ticker_key.'
   config:
     tags:
     - dimension
     - stock_ai
   columns:
   - name: ticker_key
-    description: 'Primary key: MD5 hash of ticker and exchange.'
+    description: Surrogate key for the ticker, generated from yf_symbol and exchange.
     tests:
     - unique
-  - name: ticker
-    description: The stock ticker symbol.
-  - name: exchange
-    description: The stock exchange name.
+    meta:
+      lineage:
+      - stg_ticker_universe.exchange
+      - stg_ticker_universe.yf_symbol
+      sensitivity: PUBLIC
   - name: yf_symbol
-    description: Yahoo Finance symbol.
+    description: The Yahoo Finance symbol used as the primary join key.
+    meta:
+      lineage:
+      - stg_ticker_universe.yf_symbol
+      sensitivity: PUBLIC
+  - name: ticker_local
+    description: The local ticker symbol.
+    meta:
+      lineage:
+      - stg_ticker_universe.ticker_local
+      sensitivity: PUBLIC
+  - name: exchange
+    description: The exchange where the ticker is listed.
+    meta:
+      lineage:
+      - stg_ticker_universe.exchange
+      sensitivity: PUBLIC
   - name: company_name
-    description: Name of the company.
+    description: The name of the company.
+    meta:
+      lineage:
+      - stg_ticker_universe.company_name
+      sensitivity: PUBLIC
   - name: sector
-    description: Industry sector.
+    description: The industry sector of the company.
+    meta:
+      lineage:
+      - stg_ticker_universe.sector
+      sensitivity: PUBLIC
   - name: is_active
     description: Flag indicating if the ticker is currently active.
+    meta:
+      lineage:
+      - stg_ticker_universe.is_active
+      sensitivity: PUBLIC
   - name: asset_type
-    description: Type of asset (e.g., Equity, ETF).
-  - name: region
-    description: Geographic region of the exchange.
+    description: The type of asset (e.g., equity, etf).
+    meta:
+      lineage:
+      - stg_ticker_universe.asset_type
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

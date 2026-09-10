@@ -1,23 +1,37 @@
 version: 2
 models:
 - name: dim_exchange
-  description: Exchange dimension, SCD type 1.
+  description: 'Exchange dimension, grain: exchange_key.'
   config:
     tags:
     - dimension
     - stock_ai
   columns:
   - name: exchange_key
-    description: Surrogate key based on the exchange name.
+    description: Surrogate key for the exchange, generated from the exchange name.
     tests:
     - unique
+    meta:
+      lineage:
+      - stg_exchange_ref.exchange
+      sensitivity: PUBLIC
   - name: exchange
     description: The name of the exchange.
+    meta:
+      lineage:
+      - stg_exchange_ref.exchange
+      sensitivity: PUBLIC
   - name: currency_code
-    description: The ISO currency code used by the exchange.
-  - name: currency_symbol
-    description: The symbol of the currency.
-  - name: currency_name_en
-    description: The English name of the currency.
+    description: The currency code used by the exchange.
+    meta:
+      lineage:
+      - stg_exchange_ref.currency_code
+      sensitivity: PUBLIC
   - name: country
     description: The country where the exchange is located.
+    meta:
+      lineage:
+      - stg_exchange_ref.country
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

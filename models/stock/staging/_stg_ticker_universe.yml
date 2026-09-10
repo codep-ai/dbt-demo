@@ -1,7 +1,7 @@
 version: 2
 models:
 - name: stg_ticker_universe
-  description: One row per ticker-exchange pair.
+  description: 'Ticker master, grain: yf_symbol, exchange.'
   config:
     tags:
     - staging
@@ -9,24 +9,50 @@ models:
   tests:
   - dbt_utils.unique_combination_of_columns:
       combination_of_columns:
-      - ticker
+      - yf_symbol
       - exchange
   columns:
-  - name: ticker
-    description: The unique ticker symbol for the asset.
-    tests:
-    - not_null
+  - name: yf_symbol
+    description: The Yahoo Finance symbol used as the primary identifier for joins.
+    meta:
+      lineage:
+      - source:ticker_universe.yf_symbol
+      sensitivity: PUBLIC
+  - name: ticker_local
+    description: The local ticker symbol as provided in the source.
+    meta:
+      lineage:
+      - source:ticker_universe.ticker
+      sensitivity: PUBLIC
   - name: exchange
     description: The exchange where the ticker is listed.
-  - name: yf_symbol
-    description: The Yahoo Finance symbol mapping.
+    meta:
+      lineage:
+      - source:ticker_universe.exchange
+      sensitivity: PUBLIC
   - name: company_name
-    description: The legal name of the company.
+    description: The name of the company.
+    meta:
+      lineage:
+      - source:ticker_universe.company_name
+      sensitivity: PUBLIC
   - name: sector
-    description: The industry sector classification.
+    description: The industry sector of the company.
+    meta:
+      lineage:
+      - source:ticker_universe.sector
+      sensitivity: PUBLIC
   - name: is_active
     description: Flag indicating if the ticker is currently active.
+    meta:
+      lineage:
+      - source:ticker_universe.is_active
+      sensitivity: PUBLIC
   - name: asset_type
-    description: The type of asset (e.g., stock, etf).
-  - name: region
-    description: The geographic region of the exchange.
+    description: The type of asset (e.g., equity, etf).
+    meta:
+      lineage:
+      - source:ticker_universe.asset_type
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

@@ -1,7 +1,7 @@
 version: 2
 models:
 - name: stg_closed_dates
-  description: Market holiday dates per exchange.
+  description: 'Market holidays, grain: exchange, closed_date.'
   config:
     tags:
     - staging
@@ -9,14 +9,22 @@ models:
   tests:
   - dbt_utils.unique_combination_of_columns:
       combination_of_columns:
-      - market_code
+      - exchange
       - closed_date
   columns:
-  - name: market_code
-    description: The unique identifier for the stock exchange market.
+  - name: exchange
+    description: The market code or exchange identifier.
+    meta:
+      lineage:
+      - source:stock_market_closed_dates.market_code
+      sensitivity: PUBLIC
   - name: closed_date
-    description: The date on which the market was closed.
+    description: The date the market was closed.
     tests:
     - not_null
-  - name: reason
-    description: The reason for the market closure (e.g., holiday name).
+    meta:
+      lineage:
+      - source:stock_market_closed_dates.closed_date
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

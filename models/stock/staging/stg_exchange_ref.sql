@@ -10,16 +10,20 @@ with source_data as (
     select
         exchange,
         currency_code,
-        currency_symbol,
-        currency_name_en,
         country
     from {{ source('src_stock', 'exchange_ref') }}
+),
+
+final as (
+    select
+        cast(exchange as varchar) as exchange,
+        cast(currency_code as varchar) as currency_code,
+        cast(country as varchar) as country
+    from source_data
 )
 
 select
     exchange,
     currency_code,
-    currency_symbol,
-    currency_name_en,
     country
-from source_data
+from final

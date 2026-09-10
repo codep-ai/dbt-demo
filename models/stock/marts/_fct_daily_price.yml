@@ -1,52 +1,78 @@
 version: 2
 models:
 - name: fct_daily_price
-  description: Daily price fact with local and USD values.
+  description: 'Daily price fact, grain: ticker, exchange, trade_date.'
   config:
     tags:
     - fact
     - stock_ai
   tests:
+  - dbt_utils.equal_rowcount:
+      compare_model: ref('int_price_with_indicators')
   - dbt_utils.unique_combination_of_columns:
       combination_of_columns:
       - ticker
       - exchange
       - trade_date
   columns:
+  - name: daily_price_key
+    description: Primary key for the daily price fact table.
+    meta:
+      lineage:
+      - int_price_with_indicators.trade_date
+      - int_price_with_indicators.exchange
+      - int_price_with_indicators.ticker
+      sensitivity: PUBLIC
   - name: ticker_key
-    description: Surrogate key for the ticker.
+    description: Foreign key to dim_ticker.
     tests:
-    - not_null
     - relationships:
         to: ref('dim_ticker')
         field: ticker_key
+    meta:
+      lineage:
+      - dim_ticker.ticker_key
+      sensitivity: PUBLIC
   - name: exchange_key
-    description: Surrogate key for the exchange.
+    description: Foreign key to dim_exchange.
+    meta:
+      lineage:
+      - dim_exchange.exchange_key
+      sensitivity: PUBLIC
   - name: ticker
-    description: Stock ticker symbol.
+    description: The ticker symbol.
+    meta:
+      lineage:
+      - int_price_with_indicators.ticker
+      sensitivity: PUBLIC
   - name: exchange
-    description: Exchange code.
+    description: The exchange code.
+    meta:
+      lineage:
+      - int_price_with_indicators.exchange
+      sensitivity: PUBLIC
   - name: trade_date
     description: The date of the trade.
+    meta:
+      lineage:
+      - int_price_with_indicators.trade_date
+      sensitivity: PUBLIC
   - name: close
-    description: Closing price in local currency.
+    description: The closing price (mapped from close_usd).
+    meta:
+      lineage:
+      - int_price_with_indicators.close_usd
+      sensitivity: PUBLIC
   - name: close_usd
-    description: Closing price in USD.
+    description: The closing price in USD.
+    meta:
+      lineage:
+      - int_price_with_indicators.close_usd
+      sensitivity: PUBLIC
   - name: volume
-    description: Trading volume.
-  - name: sma_5
-    description: 5-day simple moving average.
-  - name: sma_200
-    description: 200-day simple moving average.
-  - name: volatility_20d
-    description: 20-day price volatility.
-  - name: rsi_14
-    description: 14-day Relative Strength Index.
-  - name: obv
-    description: On-Balance Volume.
-  - name: obv_trend
-    description: Trend direction of OBV.
-  - name: pivot_pp
-    description: Pivot point price level.
-  - name: kdj_k
-    description: K-line value from KDJ indicator.
+    description: Trading volume. Defaulted to 0 as it is missing from upstream indicators.
+    meta:
+      lineage: []
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

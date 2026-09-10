@@ -6,31 +6,29 @@
     tags            = ["dimension", "stock_ai"]
 ) }}
 
-with source_data as (
+with ticker_source as (
     select
-        ticker,
-        exchange,
         yf_symbol,
+        ticker_local,
+        exchange,
         company_name,
         sector,
         is_active,
-        asset_type,
-        region
+        asset_type
     from {{ ref('stg_ticker_universe') }}
 ),
 
 final as (
     select
-        md5(concat_ws('|', coalesce(cast(ticker as varchar), ''), coalesce(cast(exchange as varchar), ''))) as ticker_key,
-        ticker,
-        exchange,
+        md5(concat_ws('|', coalesce(cast(yf_symbol as varchar), ''), coalesce(cast(exchange as varchar), ''))) as ticker_key,
         yf_symbol,
+        ticker_local,
+        exchange,
         company_name,
         sector,
         is_active,
-        asset_type,
-        region
-    from source_data
+        asset_type
+    from ticker_source
 )
 
 select * from final
