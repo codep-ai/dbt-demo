@@ -1,25 +1,37 @@
 version: 2
 models:
-  - name: plan
+- name: plan
+  meta:
+    required_attributes:
+      is_admin: 'true'
+    column_lineage_dialect: snowflake
+  columns:
+  - name: id
     meta:
-      required_attributes:
-        is_admin: 'true'
-    columns:
-      - name: id
-      - name: plan_name
-      - name: metadata
-        meta:
-          additional_dimensions:
-            created_by:
-              type: string
-              sql: ${plan.metadata}->>'created_by'
-            created_by_first_name:
-              type: string
-              sql: SPLIT_PART(${created_by}, ' ', 1)
-            created_by_last_name:
-              type: string
-              sql: SPLIT_PART(${created_by}, ' ', 2)
-          metrics:
-            creator_count:
-              type: count
-              sql: ${created_by}
+      lineage:
+      - raw_plan.id
+      sensitivity: PUBLIC
+  - name: plan_name
+    meta:
+      lineage:
+      - raw_plan.plan_name
+      sensitivity: PUBLIC
+  - name: metadata
+    meta:
+      additional_dimensions:
+        created_by:
+          type: string
+          sql: ${plan.metadata}->>'created_by'
+        created_by_first_name:
+          type: string
+          sql: SPLIT_PART(${created_by}, ' ', 1)
+        created_by_last_name:
+          type: string
+          sql: SPLIT_PART(${created_by}, ' ', 2)
+      metrics:
+        creator_count:
+          type: count
+          sql: ${created_by}
+      lineage:
+      - raw_plan.metadata
+      sensitivity: PUBLIC

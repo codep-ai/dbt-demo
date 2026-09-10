@@ -1,15 +1,27 @@
 version: 2
-
 models:
-  - name: stg_media_type
-    description: "Contains list of media types"
-    columns:
-      - name: media_type_id
-        description: "Media type identifier key"
-        tests:
-          - not_null
-          - unique
-      - name: media_type_name
-        description: "Name of the media type"
-        tests:
-          - not_null
+- name: stg_media_type
+  description: Contains list of media types
+  columns:
+  - name: media_type_id
+    description: Media type identifier key
+    tests:
+    - not_null
+    - unique
+    meta:
+      lineage:
+      - mediatype.media_type_id
+      sensitivity: PUBLIC
+  - name: media_type_name
+    description: Name of the media type
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - mediatype.name
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+    datapai:
+      ai_access_level: restricted
+      ai_enabled: true

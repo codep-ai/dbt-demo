@@ -1,13 +1,26 @@
 version: 2
 models:
-  - name: membership
+- name: membership
+  meta:
+    required_attributes:
+      is_admin: 'true'
+    joins:
+    - join: plan
+      sql_on: ${membership.plan_id} = ${plan.id}
+    column_lineage_dialect: snowflake
+  columns:
+  - name: id
     meta:
-      required_attributes:
-        is_admin: 'true'
-      joins:
-        - join: plan
-          sql_on: ${membership.plan_id} = ${plan.id}
-    columns:
-      - name: id
-      - name: customer_id
-      - name: plan_id
+      lineage:
+      - raw_membership.id
+      sensitivity: PUBLIC
+  - name: customer_id
+    meta:
+      lineage:
+      - raw_membership.customer_id
+      sensitivity: PUBLIC
+  - name: plan_id
+    meta:
+      lineage:
+      - raw_membership.plan_id
+      sensitivity: PUBLIC

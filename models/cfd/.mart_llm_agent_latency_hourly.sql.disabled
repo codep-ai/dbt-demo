@@ -1,0 +1,24 @@
+-- {#  config(materialized='table',
+--           engine='MergeTree()',
+--           order_by='(event_hour, llm_model)') #} --
+-- Mart: hourly LLM-agent latency + token + cost aggregate.
+-- Demonstrates the dbt-clickhouse pattern: source → staging view → mart table
+-- with CH-specific engine config (MergeTree + ORDER BY).
+-- In TMGM deployment this same pattern produces e.g.
+--   mart_fx_tick_5m_ohlc, mart_trade_slippage_by_venue_hourly.
+SELECT
+    event_hour,
+    llm_provider,
+    llm_model,
+    COUNT(*)                                AS span_count,
+    avg(duration_ms)                        AS avg_latency_ms,
+    quantile(0.50)(duration_ms)             AS p50_latency_ms,
+    quantile(0.95)(duration_ms)             AS p95_latency_ms,
+    quantile(0.99)(duration_ms)             AS p99_latency_ms,
+    sum(prompt_tokens)                      AS total_prompt_tokens,
+    sum(completion_tokens)                  AS total_completion_tokens,
+    sum(cost_usd)                           AS total_cost_usd
+FROM stg_otel_spans
+WHERE llm_model != ''
+GROUP BY event_hour, llm_provider, llm_model
+ORDER BY event_hour DESC, total_cost_usd DESC

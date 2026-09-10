@@ -1,57 +1,172 @@
 version: 2
-
 models:
-  - name: stg_employee
-    description: "Contains list of employees"
-    columns:
-      - name: employee_id
-        description: "Employee identifier key"
-        tests:
-          - not_null
-          - unique
-      - name: employee_first_name
-        description: "First name of the employee"
-        tests:
-          - not_null
-      - name: employee_last_name
-        description: "Last name of the employee"
-        tests:
-          - not_null
-      - name: employee_title
-        description: "Title of the employee"
-        tests:
-          - not_null
-      - name: employee_reports_to
-        description: "Direct reports employee identifier key"
-      - name: employee_birth_date
-        description: "Birth date of the Employee"
-        tests:
-          - not_null
-      - name: employee_hire_date
-        description: "Hire date of the employee"
-        tests:
-          - not_null
-      - name: employee_country
-        description: "Country of the customery"
-        tests:
-          - not_null
-      - name: employee_phone
-        description: "Phone number of the customery"
-        tests:
-          - not_null
-      - name: employee_postal_code
-        description: "Postal Code of the customery"
-        tests:
-          - not_null
-      - name: employee_fax
-        description: "Fax address of the customery)"
-        tests:
-          - not_null
-      - name: employee_email
-        description: "Email address of the customery"
-        tests:
-          - not_null
-      - name: employee_address
-        description: "Address of the employee"
-        tests:
-          - not_null
+- name: stg_employee
+  description: Contains list of employees
+  columns:
+  - name: employee_id
+    description: Employee identifier key
+    tests:
+    - not_null
+    - unique
+    meta:
+      lineage:
+      - employee.employee_id
+      sensitivity: PUBLIC
+  - name: employee_first_name
+    description: First name of the employee
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.first_name
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: employee_last_name
+    description: Last name of the employee
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.last_name
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: employee_title
+    description: Title of the employee
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.title
+      sensitivity: PUBLIC
+  - name: employee_reports_to
+    description: Direct reports employee identifier key
+    meta:
+      lineage:
+      - employee.reports_to
+      sensitivity: PUBLIC
+  - name: employee_birth_date
+    description: Birth date of the Employee
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.birth_date
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: employee_hire_date
+    description: Hire date of the employee
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.hire_date
+      sensitivity: PUBLIC
+  - name: employee_country
+    description: Country of the customery
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.country
+      sensitivity: PUBLIC
+  - name: employee_phone
+    description: Phone number of the customery
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.phone
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: employee_postal_code
+    description: Postal Code of the customery
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.postal_code
+      sensitivity: PUBLIC
+  - name: employee_fax
+    description: Fax address of the customery)
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.fax
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: employee_email
+    description: Email address of the customery
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.email
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: employee_address
+    description: Address of the employee
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - employee.address
+      sensitivity: PII_LOW
+      datapai:
+        pii: indirect
+        security_class: internal
+        masking_rule: partial_mask
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  meta:
+    column_lineage_dialect: snowflake
+    datapai:
+      contains_pii: true
+      sensitivity_level: confidential
+      default_answer_mode: masked
+      ai_access_level: restricted
+      ai_enabled: true

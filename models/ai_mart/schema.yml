@@ -1,864 +1,1128 @@
-##############################################################################
-# AI Mart — Schema, Tests, and Lightdash-Friendly Documentation              #
-# Branch: feature/elementary-guardrail-mart  |  Spec: claude_build_spec_v1.4 #
-#                                                                             #
-# Naming convention: dim_ai_* / fct_ai_*  (v1.4 AI warehouse standard)       #
-#                                                                             #
-# Lightdash dashboards served by this mart:                                   #
-#   - AI-certified assets overview                                            #
-#   - Restricted assets and fields                                            #
-#   - Assets blocked by test failures                                         #
-#   - Runtime eligibility by use case                                         #
-#   - Policy catalog coverage and drift                                       #
-#   - Approved vs blocked AI use cases by domain/team                        #
-##############################################################################
-
 version: 2
-
 models:
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # dim_ai_governed_assets
-  # ──────────────────────────────────────────────────────────────────────────
-  - name: dim_ai_governed_assets
-    description: >
-      Conformed dimension of AI-governed dbt assets (models and sources).
-      Combines static AI governance policy from ai_governance.yml seed data
-      with operational Elementary evidence (latest run status, test health).
-
-      Primary source for Lightdash governance dashboards showing which assets
-      are AI-eligible, certified, restricted, or blocked — and why.
-
-      Joins to:
-        fct_ai_asset_quality         — for quality scores and gate details
-        fct_ai_asset_runtime_eligibility — for per-use-case eligibility
-        fct_ai_policy_catalog_versions   — for policy catalog version context
-
-    columns:
-
-      - name: asset_key
-        description: >
-          Stable surrogate key: <domain>.<model_name>.
-          Example: full-jaffle-shop.customers
-        tests:
-          - not_null
-          - unique
-
-      - name: resource_type
-        description: "Always 'model' in this version. Future: 'source' | 'exposure'."
-
-      - name: asset_name
-        description: dbt model name (unqualified)
-        tests:
-          - not_null
-
-      - name: project_name
-        description: "Domain folder: full-jaffle-shop | chinook"
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['full-jaffle-shop', 'chinook']
-
-      - name: unique_id
-        description: dbt unique_id (model.<package>.<name>) — from Elementary when available
-
-      - name: ai_enabled
-        description: "true = model is eligible for AI use per governance policy"
-        tests:
-          - not_null
-
-      - name: certified_for_ai
-        description: "true = model has been reviewed and formally certified for AI"
-
-      - name: ai_access_level
-        description: "Governance access tier: deny | internal | restricted | approved"
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['deny', 'internal', 'restricted', 'approved']
-
-      - name: sensitivity_level
-        description: "Data sensitivity: public | internal | confidential | restricted"
-        tests:
-          - accepted_values:
-              values: ['public', 'internal', 'confidential', 'restricted']
-
-      - name: contains_pii
-        description: "true if the model contains any PII columns"
-        tests:
-          - not_null
-
-      - name: contains_phi
-        description: "true if the model contains PHI columns (hard deny for AI)"
-        tests:
-          - not_null
-
-      - name: default_answer_mode
-        description: "Default AI response mode: full | masked | aggregate_only | deny | metadata_only"
-        tests:
-          - accepted_values:
-              values: ['full', 'masked', 'aggregate_only', 'deny', 'metadata_only']
-
-      - name: risk_tier
-        description: "Risk classification: low | medium | high | critical"
-        tests:
-          - accepted_values:
-              values: ['low', 'medium', 'high', 'critical']
-
-      - name: eligibility_status
-        description: >
-          High-level eligibility status for Lightdash dashboards.
-          Values: certified | approved | internal | restricted |
-                  blocked | blocked_run_failed | blocked_tests_failed
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['certified', 'approved', 'internal', 'restricted',
-                       'blocked', 'blocked_run_failed', 'blocked_tests_failed']
-
-      - name: latest_test_health_status
-        description: "passing | warning | failing | no_tests"
-        tests:
-          - accepted_values:
-              values: ['passing', 'warning', 'failing', 'no_tests']
-
-      - name: is_ai_enabled
-        description: "Lightdash boolean: is this asset enabled for AI?"
-        tests:
-          - not_null
-
-      - name: is_certified_for_ai
-        description: "Lightdash boolean: is this asset formally certified?"
-        tests:
-          - not_null
-
-      - name: is_pii_model
-        description: "Lightdash boolean: does this model contain PII?"
-        tests:
-          - not_null
-
-      - name: is_phi_model
-        description: "Lightdash boolean: does this model contain PHI?"
-        tests:
-          - not_null
-
-      - name: is_aggregate_only
-        description: "Lightdash boolean: is this model aggregate-only for AI output?"
-        tests:
-          - not_null
-
-      - name: is_hard_deny
-        description: "Lightdash boolean: is this model hard-denied for all AI use?"
-        tests:
-          - not_null
-
-      - name: computed_at
-        description: Timestamp this row was computed
-        tests:
-          - not_null
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # dim_ai_governed_fields
-  # ──────────────────────────────────────────────────────────────────────────
-  - name: dim_ai_governed_fields
-    description: >
-      Conformed dimension of AI-governed columns with field-level policy
-      and exposure settings.
-
-      Combines column-level policy from ai_governance.yml seed data with
-      Elementary column structural metadata (data type, description).
-
-      The effective_field_policy field is the resolved AI decision for this
-      column, taking into account parent model policy propagation.
-
-      Joins to dim_ai_governed_assets via asset_key.
-
-    columns:
-
-      - name: field_key
-        description: >
-          Stable surrogate key: <domain>.<model_name>.<column_name>.
-          Example: full-jaffle-shop.customers.first_name
-        tests:
-          - not_null
-          - unique
-
-      - name: asset_key
-        description: Parent model key — FK to dim_ai_governed_assets.asset_key
-        tests:
-          - not_null
-
-      - name: asset_name
-        description: Parent model name
-        tests:
-          - not_null
-
-      - name: column_name
-        description: Column name
-        tests:
-          - not_null
-
-      - name: ai_exposed
-        description: "true = column is visible in AI context"
-        tests:
-          - not_null
-
-      - name: ai_selectable
-        description: "true = AI may SELECT this column"
-        tests:
-          - not_null
-
-      - name: pii
-        description: "PII classification: none | direct | indirect | quasi_identifier"
-        tests:
-          - accepted_values:
-              values: ['none', 'direct', 'indirect', 'quasi_identifier']
-
-      - name: masking_rule
-        description: "Masking applied to this field: none | redact | partial_mask | hash | tokenise"
-        tests:
-          - accepted_values:
-              values: ['none', 'redact', 'partial_mask', 'hash', 'tokenise']
-
-      - name: answer_mode
-        description: "Field-level AI answer mode: full | masked | aggregate_only | deny | metadata_only"
-        tests:
-          - accepted_values:
-              values: ['full', 'masked', 'aggregate_only', 'deny', 'metadata_only']
-
-      - name: effective_field_policy
-        description: >
-          Resolved field-level policy after applying parent model policy
-          and PII/PHI propagation rules.
-          This is the value used by the runtime policy compiler.
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['full', 'masked', 'aggregate_only', 'deny', 'metadata_only']
-
-      - name: join_sensitivity
-        description: "low | quasi_join_risk | pii_join_risk | phi_join_risk"
-        tests:
-          - accepted_values:
-              values: ['low', 'quasi_join_risk', 'pii_join_risk', 'phi_join_risk']
-
-      - name: is_ai_exposed
-        description: "Lightdash boolean: is column in AI context?"
-        tests:
-          - not_null
-
-      - name: is_pii
-        description: "Lightdash boolean: is this column PII?"
-        tests:
-          - not_null
-
-      - name: is_phi
-        description: "Lightdash boolean: is this column PHI?"
-        tests:
-          - not_null
-
-      - name: requires_masking
-        description: "Lightdash boolean: does this column require masking?"
-        tests:
-          - not_null
-
-      - name: is_hard_deny
-        description: "Lightdash boolean: is this column hard-denied?"
-        tests:
-          - not_null
-
-      - name: can_appear_in_output
-        description: "Lightdash boolean: safe to include in AI response?"
-        tests:
-          - not_null
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # fct_ai_asset_quality
-  # ──────────────────────────────────────────────────────────────────────────
-  - name: fct_ai_asset_quality
-    description: >
-      Operational quality evidence for AI-governed assets.
-      Aggregates Elementary test results, run results, and freshness signals
-      per asset.  Drives quality-gated eligibility decisions.
-
-      Quality gate rules:
-        - Critical tests fail     → should_block_ai_use = true,  quality_gate_status = 'tests_failed'
-        - Latest run failed       → should_block_ai_use = true,  quality_gate_status = 'run_failed'
-        - Warnings only           → should_warn_ai_use  = true,  quality_gate_status = 'warning'
-        - Freshness stale         → should_warn_ai_use  = true,  quality_gate_status = 'freshness_error'
-        - No tests defined        → quality_gate_status = 'no_tests' (neutral)
-        - Policy blocked          → quality_gate_status = 'policy_blocked'
-        - All passing             → quality_gate_status = 'pass'
-
-    columns:
-
-      - name: asset_key
-        description: FK to dim_ai_governed_assets.asset_key
-        tests:
-          - not_null
-          - unique
-
-      - name: quality_gate_status
-        description: "pass | warning | tests_failed | run_failed | freshness_error | no_tests | policy_blocked"
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['pass', 'warning', 'tests_failed', 'run_failed',
-                       'freshness_error', 'no_tests', 'policy_blocked', 'unknown']
-
-      - name: latest_quality_score
-        description: "Quality score 0-100: 100=healthy, 75=warnings, 25=failures, 0=blocked"
-        tests:
-          - not_null
-
-      - name: should_block_ai_use
-        description: "true = quality gate failed — block AI use for this asset"
-        tests:
-          - not_null
-
-      - name: should_warn_ai_use
-        description: "true = soft quality warning — allow AI use with caution flag"
-        tests:
-          - not_null
-
-      - name: failing_tests_count
-        description: Number of failing dbt tests for this asset in the latest invocation
-        tests:
-          - not_null
-
-      - name: computed_at
-        description: Timestamp this row was computed
-        tests:
-          - not_null
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # fct_ai_policy_catalog_versions
-  # ──────────────────────────────────────────────────────────────────────────
-  - name: fct_ai_policy_catalog_versions
-    description: >
-      Version / audit snapshot of the compiled AI guardrail policy catalog.
-      One row per dbt invocation (or 'seed-v1' in demo mode).
-
-      Provides:
-        - Policy catalog version string (used by WarehousePolicyCompiler)
-        - Asset and field counts for this snapshot
-        - Coverage percentages (certified, quality-healthy, output-safe)
-        - Invocation metadata for traceability
-
-      Useful for Lightdash: "Policy catalog drift over time",
-      "Coverage metrics by run".
-
-    columns:
-
-      - name: policy_catalog_version
-        description: >
-          Stable version string for this policy catalog snapshot.
-          Equals the Elementary invocation_id in production,
-          or 'seed-v1' in demo mode.
-        tests:
-          - not_null
-
-      - name: generated_at
-        description: Timestamp this snapshot was generated
-        tests:
-          - not_null
-
-      - name: assets_total
-        description: Total number of dbt models with AI governance metadata
-        tests:
-          - not_null
-
-      - name: ai_certified_assets_count
-        description: Count of AI-certified models
-        tests:
-          - not_null
-
-      - name: pct_assets_certified
-        description: "Percentage of AI-enabled assets that are certified (0-100)"
-
-      - name: pct_fields_output_safe
-        description: "Percentage of all governed fields safe for AI output (0-100)"
-
-      - name: pct_assets_quality_healthy
-        description: "Percentage of AI-enabled assets passing quality gate (0-100)"
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # fct_ai_asset_runtime_eligibility
-  # ──────────────────────────────────────────────────────────────────────────
-  - name: fct_ai_asset_runtime_eligibility
-    description: >
-      Precomputed runtime eligibility per (asset × AI use case).
-      This is the PRIMARY mart consumed by the Datap.ai runtime policy
-      compiler (WarehousePolicyCompiler).
-
-      Combines static governance policy (dim_ai_governed_assets) with
-      operational quality signals (fct_ai_asset_quality) to produce a
-      per-use-case eligibility decision.
-
-      Decisions:
-        eligible              — approved for this use case
-        eligible_certified    — approved, with formal certification
-        eligible_internal     — approved for internal teams only
-        eligible_restricted   — approved but workspace-restricted
-        eligible_with_warning — approved but quality degraded
-        blocked               — hard blocked (policy or quality)
-
-      Used by runtime to decide: can we use this model for this use case,
-      and if so, what answer mode and masking applies?
-
-    columns:
-
-      - name: asset_key
-        description: FK to dim_ai_governed_assets.asset_key
-        tests:
-          - not_null
-
-      - name: ai_use_case
-        description: >
-          AI use case this eligibility applies to.
-          Values: text2sql | rag_retrieval | summarization | export |
-                  explanation | bi_metric_explanation | field_explanation |
-                  dbt_model_explanation | document_extraction | tool_action |
-                  airbyte_trigger | narrative_insight | semantic_search |
-                  data_profiling | model_comparison | dashboard_explanation
-        tests:
-          - not_null
-
-      - name: runtime_eligibility_status
-        description: >
-          Eligibility verdict for this asset + use case combination.
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['eligible', 'eligible_certified', 'eligible_internal',
-                       'eligible_restricted', 'eligible_with_warning', 'blocked']
-
-      - name: runtime_answer_mode
-        description: "Effective answer mode: full | masked | aggregate_only | deny | metadata_only"
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['full', 'masked', 'aggregate_only', 'deny', 'metadata_only']
-
-      - name: runtime_block_flag
-        description: "true = hard block applies — do not use this asset for this use case"
-        tests:
-          - not_null
-
-      - name: runtime_warning_flag
-        description: "true = soft warning — use with caution flag"
-        tests:
-          - not_null
-
-      - name: runtime_masking_required
-        description: "true = masking must be applied before AI output"
-        tests:
-          - not_null
-
-      - name: runtime_approval_required
-        description: "true = explicit workspace/tenant approval required before use"
-        tests:
-          - not_null
-
-      - name: is_eligible
-        description: "Lightdash boolean: is this asset eligible for this use case?"
-        tests:
-          - not_null
-
-      - name: is_policy_blocked
-        description: "Lightdash boolean: blocked by governance policy?"
-        tests:
-          - not_null
-
-      - name: is_quality_blocked
-        description: "Lightdash boolean: blocked by quality gate?"
-        tests:
-          - not_null
-
-      - name: computed_at
-        description: Timestamp this eligibility was computed
-        tests:
-          - not_null
-
-      - name: runtime_reason_summary
-        description: Human-readable explanation of the eligibility decision
-        tests:
-          - not_null
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # dim_ai_control — compliance-framework control catalog (multi-jurisdiction)
-  # ──────────────────────────────────────────────────────────────────────────
-  - name: dim_ai_control
-    description: >
-      Conformed control dimension for AI governance frameworks. One row per
-      (framework_code, control_id) across AU 6 Practices, NIST AI RMF 1.0,
-      UK 5 Principles, ISO/IEC 42001:2023 Annex A, Colorado AI Act, FINRA
-      24-09, FCA DP5/22. Framework + jurisdiction attributes are denormalized
-      onto each row — no separate dim_ai_framework or dim_ai_jurisdiction
-      (hierarchy-as-columns pattern). `obligation_family` is the
-      cross-framework pivot that maps e.g. "Accountability" obligations
-      across all 7 frameworks without a bridge table.
-
-      Source:  ai_controls_seed (seed).
-      Updated: weekly via TinyFish auto-refresh (Phase 2.2) with PR review.
-    columns:
-      - name: control_sk
-        description: >
-          MD5 surrogate key over (framework_code, control_id). Used by
-          dim_ai_agent.primary_control_sk to resolve which control an AI
-          agent is bound to.
-        tests: [unique, not_null]
-      - name: framework_code
-        description: >
-          Stable framework identifier, e.g. `AU_6_2025`, `NIST_AI_RMF_10`,
-          `ISO_42001_2023`. When a framework publishes a new version, a new
-          framework_code is created (not a mutation).
-        tests: [not_null]
-      - name: framework_name
-        description: Human-readable framework name.
-      - name: framework_publisher
-        description: Issuing body (e.g. "Australian Government DISR", "NIST", "ISO/IEC").
-      - name: jurisdiction_code
-        description: >
-          Full scope — country and sub-national. Values: `AU`, `US`, `US-CO`,
-          `US-FIN`, `UK`, `UK-FIN`, `INT`. Used for sector-specific regulator
-          queries.
-        tests: [not_null]
-      - name: country_code
-        description: >
-          Country-level code denormalised from jurisdiction_code. Values:
-          `AU`, `US`, `UK`, `INT`. Simpler for country-scoped queries
-          ("which frameworks apply in the US?") without `LIKE 'US%'`.
-        tests: [not_null]
-      - name: effective_from
-        description: Framework version effective date (ISO 8601).
-      - name: is_mandatory
-        description: >
-          `true` for enacted law / regulator mandate (CO AI Act, FINRA 24-09,
-          FCA DP5/22); `false` for voluntary guidance (AU 6, NIST AI RMF,
-          UK 5 Principles, ISO 42001).
-      - name: source_url
-        description: Canonical source URL for citation trail in evidence PDFs.
-      - name: control_id
-        description: >
-          Framework-native control identifier (e.g. `P1` for AU, `GOVERN-3`
-          for NIST, `A.3` for ISO, `§6-1-1702` for Colorado). Unique within
-          its framework_code.
-        tests: [not_null]
-      - name: control_name
-        description: Short human-readable control title from the source document.
-      - name: control_description
-        description: One-sentence description of the control obligation.
-      - name: control_category
-        description: Framework-native grouping verbatim from source (e.g. "Govern", "Accountability", "Supervision").
-      - name: obligation_family
-        description: >
-          Normalised cross-framework obligation family — the key column for
-          multi-jurisdiction governance queries. Filter `WHERE obligation_family
-          = 'accountability'` to see how every framework expresses the same
-          real-world obligation.
-        tests:
-          - not_null
-          - accepted_values:
-              values: [accountability, impact_assessment, risk_management, transparency, testing_monitoring, human_oversight, redress, third_party_supply_chain, data_governance, recordkeeping]
-      - name: mandatory_records
-        description: >
-          Pipe-separated list of artefacts the framework expects organisations
-          to produce as evidence (e.g. `AI governance policy|job descriptions|
-          governance forum minutes`). Consumers parse per warehouse dialect
-          (Snowflake SPLIT, HANA STRING_SPLIT, BigQuery SPLIT) — pipe-separated
-          to stay portable.
-      - name: source_section
-        description: Pointer into source document for audit traceability (e.g. "Practice 1 — Accountability", "AI RMF 1.0 §5.1").
-      - name: retrieved_date
-        description: When this row was last verified against source. Updated by TinyFish auto-refresh.
-      - name: status
-        description: >
-          `complete` — fully authored + verified. `top_level_only` — category
-          captured but subcategories deferred (e.g. NIST subcategories not yet
-          authored). `stub` — placeholder pending source acquisition (e.g.
-          ISO 42001 Annex A, paywalled).
-      - name: notes
-        description: Free-form authoring notes, ambiguity flags, or rework TODOs.
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # stg_ai_chat_messages — staging over S3 Parquet bronze chat archive
-  # ──────────────────────────────────────────────────────────────────────────
-  - name: stg_ai_chat_messages
-    description: >
-      Thin staging view over the `ai_chat_history.ext_chat_history` external
-      table, which itself reads the Phase 1.13 chat_history Parquet archive
-      at `s3://codepais3/stock/raw/chat_history/year=YYYY/month=MM/day=DD/*`.
-      No redaction at this layer — `content` is still present. Downstream
-      `fct_ai_chat_message` applies SHA-256 hashing + drops raw content.
-
-      Vertical is hardcoded to `stock` in this staging because only the
-      stock-be archival pipeline is currently wired; health + trade will
-      union in via their own external tables when their Phase 1.13 pipelines
-      activate.
-    columns:
-      - name: message_id
-        description: Per-message PK from framework_db.datapai.chat_messages.
-        tests: [not_null]
-      - name: session_id
-        description: FK to chat_sessions; groups messages into conversation sessions.
-        tests: [not_null]
-      - name: session_user_id
-        description: End-user identifier (framework_db.users.id).
-      - name: ticker
-        description: Stock ticker context (stock vertical only — null otherwise).
-      - name: exchange
-        description: Stock exchange context (stock vertical only — null otherwise).
-      - name: session_title
-        description: Human-readable session label (LLM-generated at first message).
-      - name: session_created_at
-        description: When the session was opened (TIMESTAMP_TZ).
-      - name: role
-        description: >
-          Speaker role in the conversation. Values: `user`, `assistant`,
-          `system`. Each AI response (assistant) is paired with a user
-          prompt (user) at a 1:1 ratio.
-      - name: content
-        description: >
-          Full message text — user prompt or AI response. **PII-bearing**.
-          Present in this staging layer only; downstream fct_ai_chat_message
-          replaces with content_sha256. Raw content stays in S3 bronze
-          (Object Lock, 7y retention).
-      - name: model_used
-        description: Foundation-model identifier (e.g. `gemini-2.5-flash`). Maps to dim_ai_agent.llm_name.
-      - name: context_sources
-        description: >
-          JSON-encoded list of context sources used for the response (RAG
-          retrievals, tool calls, TinyFish scans, user_context). Useful for
-          reconstructing the prompt composition at audit time.
-      - name: event_at
-        description: When the message was sent (original `created_at` from Postgres).
-      - name: archived_at
-        description: When the row was written to S3 Parquet bronze (archival run timestamp).
-      - name: archive_run_id
-        description: Identifier of the archival DAG/script run — groups rows archived together, useful for replaying or diagnosing issues.
-      - name: dt_year
-        description: Year partition extracted from S3 path `year=YYYY`. Prune by this for fast date-range queries.
-      - name: dt_month
-        description: Month partition extracted from S3 path `month=MM`.
-      - name: dt_day
-        description: Day partition extracted from S3 path `day=DD`.
-      - name: vertical
-        description: Product vertical. Currently hardcoded to `stock` (only vertical wired). `health` and `trade` will union in via their own external tables.
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # fct_ai_chat_message — per-LLM-turn fact for AI governance audit evidence
-  # ──────────────────────────────────────────────────────────────────────────
-  - name: fct_ai_chat_message
-    description: >
-      Per-LLM-turn fact table. Grain = one chat message (user prompt or AI
-      response). This is the primary audit-evidence backbone for AI
-      governance — when an auditor asks "show me every LLM call subject to
-      AU Practice 1 between dates X and Y", it's answered from this fact
-      joined to dim_ai_agent → dim_ai_control.
-
-      PII POSTURE (audit-grade)
-      ─────────────────────────
-      `content` is NOT stored in this fact. Only `content_sha256` + `content_length`.
-      The raw text lives in the S3 Object Lock bronze (7y retention, Phase
-      1.13). Auditor proves existence via SHA-256 match; raw text retrievable
-      from S3 if subpoenaed. No PII surface duplicated into the warehouse.
-
-      JOIN PATH
-      ─────────
-      fct_ai_chat_message (via model_name → dim_ai_agent.llm_name*)
-        → dim_ai_agent (operational registry)
-        → dim_ai_control (via primary_control_sk)
-        → framework + obligation_family for evidence-PDF rollups
-
-      * Join is loose today because chat_messages source captures `model_used`
-        but not the agent identifier. Phase 2.2 TODO: enrich chat_messages
-        write-path to log agent_name alongside model_used.
-    columns:
-      - name: message_sk
-        description: MD5 surrogate key over (session_id, message_id). Guaranteed unique.
-        tests: [unique, not_null]
-      - name: message_id
-        description: Business key from chat_messages source.
-        tests: [not_null]
-      - name: session_id
-        description: Session identifier — groups messages into conversations.
-      - name: user_id
-        description: End-user identifier (renamed from session_user_id for fact-table conformance).
-      - name: vertical
-        description: Product vertical (`stock` / `health` / `trade`). Partition key for large-scale customer deployments.
-        tests:
-          - not_null
-          - accepted_values:
-              values: [stock, health, trade]
-      - name: ticker
-        description: Stock ticker context (stock vertical only; null for health/trade).
-      - name: exchange
-        description: Stock exchange context (stock vertical only; null for health/trade).
-      - name: role
-        description: Speaker role — `user`, `assistant`, or `system`.
-        tests:
-          - not_null
-          - accepted_values:
-              values: [user, assistant, system]
-      - name: model_name
-        description: >
-          Foundation-model identifier used for this message (e.g.
-          `gemini-2.5-flash`). Joins to dim_ai_agent.llm_name (loose today —
-          see JOIN PATH note in table description).
-      - name: content_sha256
-        description: >
-          SHA-256 hash of the raw message content. Audit-grade proof that the
-          message content matches what's in S3 bronze without duplicating PII
-          into the warehouse.
-      - name: content_length
-        description: Character count of the raw message. Lightweight size measure without exposing content.
-      - name: context_sources
-        description: JSON-encoded list of context sources (RAG / tools / TinyFish / user context) used to build the prompt.
-      - name: event_at
-        description: When the message was actually sent (event time, not archival time).
-        tests: [not_null]
-      - name: session_created_at
-        description: When the enclosing session was opened.
-      - name: archived_at
-        description: When the row landed in S3 bronze.
-      - name: archive_run_id
-        description: Archival-DAG run identifier — batches rows archived together.
-      - name: dt_year
-        description: Year partition from S3 path.
-      - name: dt_month
-        description: Month partition from S3 path.
-      - name: dt_day
-        description: Day partition from S3 path.
-      - name: fct_built_at
-        description: When this fact row was materialized by dbt (lineage / freshness signal).
-
-  # ──────────────────────────────────────────────────────────────────────────
-  # dim_ai_agent — conformed AI agent catalog (hierarchy-as-columns)
-  # ──────────────────────────────────────────────────────────────────────────
-  - name: dim_ai_agent
-    description: >
-      Conformed AI agent dimension — one row per deployed agent, which is
-      the finest governable unit at DATAP.AI. "AI system" in ISO 42001 sense
-      (e.g. "Stock Debate Agent") is a GROUPING of agents (bull / bear /
-      moderator / fundamental / technical / chart-vision) — represented here
-      as the `system_name` column, not a separate dim.
-
-      HIERARCHY AS COLUMNS (Kimball-native, no mini-dims)
-      ────────────────────────────────────────────────────
-      Agent level (agent_name, agent_role, agent_framework, agent_purpose)
-      System level (system_name, domain)
-      Vendor level (vendor_name, vendor_type, vendor_jurisdiction)
-      LLM level (llm_name, llm_capability_tier, llm_context_window)
-      Governance (owner_user_id, risk_tier, approval_status, primary_control_sk)
-      Lifecycle (deployed_at, decommissioned_at, is_active)
-
-      Group by any level via a single `GROUP BY` column; no joins to
-      vendor/llm/role sub-dims needed.
-
-      Source:  ai_agents_seed (hand-curated operational registry).
-      Updated: when a new agent is deployed, re-approved, or decommissioned.
-    columns:
-      - name: agent_sk
-        description: MD5 surrogate key over agent_key. Primary join key for fact tables.
-        tests: [unique, not_null]
-      - name: agent_key
-        description: >
-          Unique business key (format `<domain>.<system>.<role>`, e.g.
-          `stock.debate.bull`). Used for agent-level filter/groupings when the
-          surrogate key isn't convenient.
-        tests: [unique, not_null]
-      - name: agent_name
-        description: >
-          Agent binary or class name (e.g. `stock-debate-bull`,
-          `health-signals-cross-validation`). Matches the string logged by
-          platform-be's agent runtime.
-        tests: [unique, not_null]
-      - name: agent_role
-        description: >
-          Agent's role in its parent system — e.g. `bull`, `bear`, `moderator`,
-          `fundamental`, `technical`, `chart-vision`, `retriever`, `summariser`,
-          `screener`, `investigator`, `phi-detector`.
-      - name: agent_framework
-        description: >
-          Agent-runtime framework — `agno`, `langchain`, `raw-llm`, or `custom`
-          (DATAP.AI's own framework on top of BaseAgent).
-      - name: agent_purpose
-        description: Short human-readable statement of what this agent does.
-      - name: system_name
-        description: >
-          Parent system grouping — multiple agents share one system name (e.g.
-          "Stock Debate Agent" covers 6 agent rows). Use `GROUP BY system_name`
-          for system-level rollups. This IS what ISO 42001 calls an "AI system"
-          but we keep the grain at agent for honest accounting.
-      - name: domain
-        description: >
-          Product vertical / platform layer. Values: `stock`, `health`,
-          `trade`, `platform` (platform-be cross-vertical capabilities like
-          RAG, text2sql, dbt-guardrail).
-        tests:
-          - not_null
-          - accepted_values:
-              values: [stock, health, trade, platform]
-      - name: vendor_name
-        description: LLM provider — `google`, `openai`, `anthropic`, `self-hosted`.
-      - name: vendor_type
-        description: Commercial posture — `commercial`, `open-source`, `self-hosted`.
-      - name: vendor_jurisdiction
-        description: >
-          Where the vendor processes data. Relevant for data-residency
-          governance (EU AI Act cross-border transfers, HIPAA BAA requirements,
-          Australian Privacy Act APP 8).
-      - name: llm_name
-        description: >
-          Foundation model name (e.g. `gemini-2.5-flash`, `claude-sonnet-4-6`,
-          `gpt-4`). Joined from fct_ai_chat_message.model_name to answer
-          "which agents are powered by Gemini?"
-      - name: llm_capability_tier
-        description: >
-          Informal tier — `frontier` (top reasoning), `mid` (balanced),
-          `small` (cheap / bulk / edge). Drives cost + quality tradeoffs.
-      - name: llm_context_window
-        description: Model's input context window in tokens (e.g. 1,000,000 for Gemini Flash, 200,000 for Claude Sonnet).
-      - name: owner_user_id
-        description: Accountable person (email / user identifier). **The human on the hook per AU Practice 1 / NIST GOVERN-2 / FCA SMCR / ISO 42001 A.3.**
-      - name: owner_role_key
-        description: Accountable person's role (e.g. `cto`, `team-lead`, `data-governance-lead`).
-      - name: risk_tier
-        description: >
-          Agent's risk classification — `low` / `medium` / `high`. Drives
-          review cadence + required oversight controls. Mirrors ISO 42001
-          A.5 impact assessment outcome and NIST AI RMF MAP-2 risk tier.
-        tests:
-          - not_null
-          - accepted_values:
-              values: [low, medium, high]
-      - name: approval_status
-        description: >
-          Governance state — `approved` (production-ready, in use),
-          `pending` (under review), `deprecated` (decommission pending or
-          done). Only `approved` agents should produce user-facing output.
-        tests:
-          - not_null
-          - accepted_values:
-              values: [approved, pending, deprecated]
-      - name: primary_control_framework
-        description: Framework_code of the agent's primary governance binding (e.g. `AU_6_2025`). Joins to dim_ai_control.framework_code.
-      - name: primary_control_id
-        description: Control_id of the agent's primary governance binding (e.g. `P1`). Joins to dim_ai_control.control_id.
-      - name: primary_control_sk
-        description: >
-          MD5 surrogate key over (primary_control_framework, primary_control_id).
-          Matches dim_ai_control.control_sk — enables direct join
-          `dim_ai_agent a JOIN dim_ai_control c ON a.primary_control_sk = c.control_sk`.
-      - name: deployed_at
-        description: Date the agent was first deployed to production.
-      - name: decommissioned_at
-        description: Date the agent was retired (nullable — null means still active).
-      - name: is_active
-        description: >
-          Derived — `true` when decommissioned_at is null. Use
-          `WHERE is_active = true` to filter for currently-live agents
-          without NULL-handling boilerplate.
-      - name: notes
-        description: Free-form authoring notes, caveats, or links to design docs.
+- name: dim_ai_governed_assets
+  description: "Conformed dimension of AI-governed dbt assets (models and sources). Combines static AI governance policy from\
+    \ ai_governance.yml seed data with operational Elementary evidence (latest run status, test health).\nPrimary source for\
+    \ Lightdash governance dashboards showing which assets are AI-eligible, certified, restricted, or blocked — and why.\n\
+    Joins to:\n  fct_ai_asset_quality         — for quality scores and gate details\n  fct_ai_asset_runtime_eligibility —\
+    \ for per-use-case eligibility\n  fct_ai_policy_catalog_versions   — for policy catalog version context\n"
+  columns:
+  - name: asset_key
+    description: 'Stable surrogate key: <domain>.<model_name>. Example: full-jaffle-shop.customers
+
+      '
+    tests:
+    - not_null
+    - unique
+  - name: resource_type
+    description: 'Always ''model'' in this version. Future: ''source'' | ''exposure''.'
+  - name: asset_name
+    description: dbt model name (unqualified)
+    tests:
+    - not_null
+  - name: project_name
+    description: 'Domain folder: full-jaffle-shop | chinook'
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - full-jaffle-shop
+        - chinook
+  - name: unique_id
+    description: dbt unique_id (model.<package>.<name>) — from Elementary when available
+  - name: ai_enabled
+    description: true = model is eligible for AI use per governance policy
+    tests:
+    - not_null
+  - name: certified_for_ai
+    description: true = model has been reviewed and formally certified for AI
+  - name: ai_access_level
+    description: 'Governance access tier: deny | internal | restricted | approved'
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - deny
+        - internal
+        - restricted
+        - approved
+  - name: sensitivity_level
+    description: 'Data sensitivity: public | internal | confidential | restricted'
+    tests:
+    - accepted_values:
+        values:
+        - public
+        - internal
+        - confidential
+        - restricted
+  - name: contains_pii
+    description: true if the model contains any PII columns
+    tests:
+    - not_null
+  - name: contains_phi
+    description: true if the model contains PHI columns (hard deny for AI)
+    tests:
+    - not_null
+  - name: default_answer_mode
+    description: 'Default AI response mode: full | masked | aggregate_only | deny | metadata_only'
+    tests:
+    - accepted_values:
+        values:
+        - full
+        - masked
+        - aggregate_only
+        - deny
+        - metadata_only
+  - name: risk_tier
+    description: 'Risk classification: low | medium | high | critical'
+    tests:
+    - accepted_values:
+        values:
+        - low
+        - medium
+        - high
+        - critical
+  - name: eligibility_status
+    description: "High-level eligibility status for Lightdash dashboards. Values: certified | approved | internal | restricted\
+      \ |\n        blocked | blocked_run_failed | blocked_tests_failed\n"
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - certified
+        - approved
+        - internal
+        - restricted
+        - blocked
+        - blocked_run_failed
+        - blocked_tests_failed
+  - name: latest_test_health_status
+    description: passing | warning | failing | no_tests
+    tests:
+    - accepted_values:
+        values:
+        - passing
+        - warning
+        - failing
+        - no_tests
+  - name: is_ai_enabled
+    description: 'Lightdash boolean: is this asset enabled for AI?'
+    tests:
+    - not_null
+  - name: is_certified_for_ai
+    description: 'Lightdash boolean: is this asset formally certified?'
+    tests:
+    - not_null
+  - name: is_pii_model
+    description: 'Lightdash boolean: does this model contain PII?'
+    tests:
+    - not_null
+  - name: is_phi_model
+    description: 'Lightdash boolean: does this model contain PHI?'
+    tests:
+    - not_null
+  - name: is_aggregate_only
+    description: 'Lightdash boolean: is this model aggregate-only for AI output?'
+    tests:
+    - not_null
+  - name: is_hard_deny
+    description: 'Lightdash boolean: is this model hard-denied for all AI use?'
+    tests:
+    - not_null
+  - name: computed_at
+    description: Timestamp this row was computed
+    tests:
+    - not_null
+- name: dim_ai_governed_fields
+  description: 'Conformed dimension of AI-governed columns with field-level policy and exposure settings.
+
+    Combines column-level policy from ai_governance.yml seed data with Elementary column structural metadata (data type, description).
+
+    The effective_field_policy field is the resolved AI decision for this column, taking into account parent model policy
+    propagation.
+
+    Joins to dim_ai_governed_assets via asset_key.
+
+    '
+  columns:
+  - name: field_key
+    description: 'Stable surrogate key: <domain>.<model_name>.<column_name>. Example: full-jaffle-shop.customers.first_name
+
+      '
+    tests:
+    - not_null
+    - unique
+  - name: asset_key
+    description: Parent model key — FK to dim_ai_governed_assets.asset_key
+    tests:
+    - not_null
+  - name: asset_name
+    description: Parent model name
+    tests:
+    - not_null
+  - name: column_name
+    description: Column name
+    tests:
+    - not_null
+  - name: ai_exposed
+    description: true = column is visible in AI context
+    tests:
+    - not_null
+  - name: ai_selectable
+    description: true = AI may SELECT this column
+    tests:
+    - not_null
+  - name: pii
+    description: 'PII classification: none | direct | indirect | quasi_identifier'
+    tests:
+    - accepted_values:
+        values:
+        - none
+        - direct
+        - indirect
+        - quasi_identifier
+  - name: masking_rule
+    description: 'Masking applied to this field: none | redact | partial_mask | hash | tokenise'
+    tests:
+    - accepted_values:
+        values:
+        - none
+        - redact
+        - partial_mask
+        - hash
+        - tokenise
+  - name: answer_mode
+    description: 'Field-level AI answer mode: full | masked | aggregate_only | deny | metadata_only'
+    tests:
+    - accepted_values:
+        values:
+        - full
+        - masked
+        - aggregate_only
+        - deny
+        - metadata_only
+  - name: effective_field_policy
+    description: 'Resolved field-level policy after applying parent model policy and PII/PHI propagation rules. This is the
+      value used by the runtime policy compiler.
+
+      '
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - full
+        - masked
+        - aggregate_only
+        - deny
+        - metadata_only
+  - name: join_sensitivity
+    description: low | quasi_join_risk | pii_join_risk | phi_join_risk
+    tests:
+    - accepted_values:
+        values:
+        - low
+        - quasi_join_risk
+        - pii_join_risk
+        - phi_join_risk
+  - name: is_ai_exposed
+    description: 'Lightdash boolean: is column in AI context?'
+    tests:
+    - not_null
+  - name: is_pii
+    description: 'Lightdash boolean: is this column PII?'
+    tests:
+    - not_null
+  - name: is_phi
+    description: 'Lightdash boolean: is this column PHI?'
+    tests:
+    - not_null
+  - name: requires_masking
+    description: 'Lightdash boolean: does this column require masking?'
+    tests:
+    - not_null
+  - name: is_hard_deny
+    description: 'Lightdash boolean: is this column hard-denied?'
+    tests:
+    - not_null
+  - name: can_appear_in_output
+    description: 'Lightdash boolean: safe to include in AI response?'
+    tests:
+    - not_null
+- name: fct_ai_asset_quality
+  description: "Operational quality evidence for AI-governed assets. Aggregates Elementary test results, run results, and\
+    \ freshness signals per asset.  Drives quality-gated eligibility decisions.\nQuality gate rules:\n  - Critical tests fail\
+    \     → should_block_ai_use = true,  quality_gate_status = 'tests_failed'\n  - Latest run failed       → should_block_ai_use\
+    \ = true,  quality_gate_status = 'run_failed'\n  - Warnings only           → should_warn_ai_use  = true,  quality_gate_status\
+    \ = 'warning'\n  - Freshness stale         → should_warn_ai_use  = true,  quality_gate_status = 'freshness_error'\n  -\
+    \ No tests defined        → quality_gate_status = 'no_tests' (neutral)\n  - Policy blocked          → quality_gate_status\
+    \ = 'policy_blocked'\n  - All passing             → quality_gate_status = 'pass'\n"
+  columns:
+  - name: asset_key
+    description: FK to dim_ai_governed_assets.asset_key
+    tests:
+    - not_null
+    - unique
+  - name: quality_gate_status
+    description: pass | warning | tests_failed | run_failed | freshness_error | no_tests | policy_blocked
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - pass
+        - warning
+        - tests_failed
+        - run_failed
+        - freshness_error
+        - no_tests
+        - policy_blocked
+        - unknown
+  - name: latest_quality_score
+    description: 'Quality score 0-100: 100=healthy, 75=warnings, 25=failures, 0=blocked'
+    tests:
+    - not_null
+  - name: should_block_ai_use
+    description: true = quality gate failed — block AI use for this asset
+    tests:
+    - not_null
+  - name: should_warn_ai_use
+    description: true = soft quality warning — allow AI use with caution flag
+    tests:
+    - not_null
+  - name: failing_tests_count
+    description: Number of failing dbt tests for this asset in the latest invocation
+    tests:
+    - not_null
+  - name: computed_at
+    description: Timestamp this row was computed
+    tests:
+    - not_null
+- name: fct_ai_policy_catalog_versions
+  description: "Version / audit snapshot of the compiled AI guardrail policy catalog. One row per dbt invocation (or 'seed-v1'\
+    \ in demo mode).\nProvides:\n  - Policy catalog version string (used by WarehousePolicyCompiler)\n  - Asset and field\
+    \ counts for this snapshot\n  - Coverage percentages (certified, quality-healthy, output-safe)\n  - Invocation metadata\
+    \ for traceability\n\nUseful for Lightdash: \"Policy catalog drift over time\", \"Coverage metrics by run\".\n"
+  columns:
+  - name: policy_catalog_version
+    description: 'Stable version string for this policy catalog snapshot. Equals the Elementary invocation_id in production,
+      or ''seed-v1'' in demo mode.
+
+      '
+    tests:
+    - not_null
+  - name: generated_at
+    description: Timestamp this snapshot was generated
+    tests:
+    - not_null
+  - name: assets_total
+    description: Total number of dbt models with AI governance metadata
+    tests:
+    - not_null
+  - name: ai_certified_assets_count
+    description: Count of AI-certified models
+    tests:
+    - not_null
+  - name: pct_assets_certified
+    description: Percentage of AI-enabled assets that are certified (0-100)
+  - name: pct_fields_output_safe
+    description: Percentage of all governed fields safe for AI output (0-100)
+  - name: pct_assets_quality_healthy
+    description: Percentage of AI-enabled assets passing quality gate (0-100)
+- name: fct_ai_asset_runtime_eligibility
+  description: "Precomputed runtime eligibility per (asset × AI use case). This is the PRIMARY mart consumed by the Datap.ai\
+    \ runtime policy compiler (WarehousePolicyCompiler).\nCombines static governance policy (dim_ai_governed_assets) with\
+    \ operational quality signals (fct_ai_asset_quality) to produce a per-use-case eligibility decision.\nDecisions:\n  eligible\
+    \              — approved for this use case\n  eligible_certified    — approved, with formal certification\n  eligible_internal\
+    \     — approved for internal teams only\n  eligible_restricted   — approved but workspace-restricted\n  eligible_with_warning\
+    \ — approved but quality degraded\n  blocked               — hard blocked (policy or quality)\n\nUsed by runtime to decide:\
+    \ can we use this model for this use case, and if so, what answer mode and masking applies?\n"
+  columns:
+  - name: asset_key
+    description: FK to dim_ai_governed_assets.asset_key
+    tests:
+    - not_null
+  - name: ai_use_case
+    description: "AI use case this eligibility applies to. Values: text2sql | rag_retrieval | summarization | export |\n \
+      \       explanation | bi_metric_explanation | field_explanation |\n        dbt_model_explanation | document_extraction\
+      \ | tool_action |\n        airbyte_trigger | narrative_insight | semantic_search |\n        data_profiling | model_comparison\
+      \ | dashboard_explanation\n"
+    tests:
+    - not_null
+  - name: runtime_eligibility_status
+    description: 'Eligibility verdict for this asset + use case combination.
+
+      '
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - eligible
+        - eligible_certified
+        - eligible_internal
+        - eligible_restricted
+        - eligible_with_warning
+        - blocked
+  - name: runtime_answer_mode
+    description: 'Effective answer mode: full | masked | aggregate_only | deny | metadata_only'
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - full
+        - masked
+        - aggregate_only
+        - deny
+        - metadata_only
+  - name: runtime_block_flag
+    description: true = hard block applies — do not use this asset for this use case
+    tests:
+    - not_null
+  - name: runtime_warning_flag
+    description: true = soft warning — use with caution flag
+    tests:
+    - not_null
+  - name: runtime_masking_required
+    description: true = masking must be applied before AI output
+    tests:
+    - not_null
+  - name: runtime_approval_required
+    description: true = explicit workspace/tenant approval required before use
+    tests:
+    - not_null
+  - name: is_eligible
+    description: 'Lightdash boolean: is this asset eligible for this use case?'
+    tests:
+    - not_null
+  - name: is_policy_blocked
+    description: 'Lightdash boolean: blocked by governance policy?'
+    tests:
+    - not_null
+  - name: is_quality_blocked
+    description: 'Lightdash boolean: blocked by quality gate?'
+    tests:
+    - not_null
+  - name: computed_at
+    description: Timestamp this eligibility was computed
+    tests:
+    - not_null
+  - name: runtime_reason_summary
+    description: Human-readable explanation of the eligibility decision
+    tests:
+    - not_null
+- name: dim_ai_control
+  description: 'Conformed control dimension for AI governance frameworks. One row per (framework_code, control_id) across
+    AU 6 Practices, NIST AI RMF 1.0, UK 5 Principles, ISO/IEC 42001:2023 Annex A, Colorado AI Act, FINRA 24-09, FCA DP5/22.
+    Framework + jurisdiction attributes are denormalized onto each row — no separate dim_ai_framework or dim_ai_jurisdiction
+    (hierarchy-as-columns pattern). `obligation_family` is the cross-framework pivot that maps e.g. "Accountability" obligations
+    across all 7 frameworks without a bridge table.
+
+    Source:  ai_controls_seed (seed). Updated: weekly via TinyFish auto-refresh (Phase 2.2) with PR review.
+
+    '
+  columns:
+  - name: control_sk
+    description: 'MD5 surrogate key over (framework_code, control_id). Used by dim_ai_agent.primary_control_sk to resolve
+      which control an AI agent is bound to.
+
+      '
+    tests:
+    - unique
+    - not_null
+    meta:
+      lineage:
+      - ai_control_snapshot.framework_code
+      - ai_control_snapshot.control_id
+      - ai_control_snapshot.dbt_valid_from
+      sensitivity: PUBLIC
+  - name: framework_code
+    description: 'Stable framework identifier, e.g. `AU_6_2025`, `NIST_AI_RMF_10`, `ISO_42001_2023`. When a framework publishes
+      a new version, a new framework_code is created (not a mutation).
+
+      '
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - ai_control_snapshot.framework_code
+      sensitivity: PUBLIC
+  - name: framework_name
+    description: Human-readable framework name.
+    meta:
+      lineage:
+      - ai_control_snapshot.framework_name
+      sensitivity: PUBLIC
+  - name: framework_publisher
+    description: Issuing body (e.g. "Australian Government DISR", "NIST", "ISO/IEC").
+    meta:
+      lineage:
+      - ai_control_snapshot.framework_publisher
+      sensitivity: PUBLIC
+  - name: jurisdiction_code
+    description: 'Full scope — country and sub-national. Values: `AU`, `US`, `US-CO`, `US-FIN`, `UK`, `UK-FIN`, `INT`. Used
+      for sector-specific regulator queries.
+
+      '
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - ai_control_snapshot.jurisdiction_code
+      sensitivity: PUBLIC
+  - name: country_code
+    description: 'Country-level code denormalised from jurisdiction_code. Values: `AU`, `US`, `UK`, `INT`. Simpler for country-scoped
+      queries ("which frameworks apply in the US?") without `LIKE ''US%''`.
+
+      '
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - ai_control_snapshot.country_code
+      sensitivity: PUBLIC
+  - name: effective_from
+    description: Framework version effective date (ISO 8601).
+    meta:
+      lineage:
+      - ai_control_snapshot.effective_from
+      sensitivity: PUBLIC
+  - name: is_mandatory
+    description: '`true` for enacted law / regulator mandate (CO AI Act, FINRA 24-09, FCA DP5/22); `false` for voluntary guidance
+      (AU 6, NIST AI RMF, UK 5 Principles, ISO 42001).
+
+      '
+    meta:
+      lineage:
+      - ai_control_snapshot.is_mandatory
+      sensitivity: PUBLIC
+  - name: source_url
+    description: Canonical source URL for citation trail in evidence PDFs.
+    meta:
+      lineage:
+      - ai_control_snapshot.source_url
+      sensitivity: PUBLIC
+  - name: control_id
+    description: 'Framework-native control identifier (e.g. `P1` for AU, `GOVERN-3` for NIST, `A.3` for ISO, `§6-1-1702` for
+      Colorado). Unique within its framework_code.
+
+      '
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - ai_control_snapshot.control_id
+      sensitivity: PUBLIC
+  - name: control_name
+    description: Short human-readable control title from the source document.
+    meta:
+      lineage:
+      - ai_control_snapshot.control_name
+      sensitivity: PUBLIC
+  - name: control_description
+    description: One-sentence description of the control obligation.
+    meta:
+      lineage:
+      - ai_control_snapshot.control_description
+      sensitivity: PUBLIC
+  - name: control_category
+    description: Framework-native grouping verbatim from source (e.g. "Govern", "Accountability", "Supervision").
+    meta:
+      lineage:
+      - ai_control_snapshot.control_category
+      sensitivity: PUBLIC
+  - name: obligation_family
+    description: 'Normalised cross-framework obligation family — the key column for multi-jurisdiction governance queries.
+      Filter `WHERE obligation_family = ''accountability''` to see how every framework expresses the same real-world obligation.
+
+      '
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - accountability
+        - impact_assessment
+        - risk_management
+        - transparency
+        - testing_monitoring
+        - human_oversight
+        - redress
+        - third_party_supply_chain
+        - data_governance
+        - recordkeeping
+    meta:
+      lineage:
+      - ai_control_snapshot.obligation_family
+      sensitivity: PUBLIC
+  - name: mandatory_records
+    description: 'Pipe-separated list of artefacts the framework expects organisations to produce as evidence (e.g. `AI governance
+      policy|job descriptions| governance forum minutes`). Consumers parse per warehouse dialect (Snowflake SPLIT, HANA STRING_SPLIT,
+      BigQuery SPLIT) — pipe-separated to stay portable.
+
+      '
+    meta:
+      lineage:
+      - ai_control_snapshot.mandatory_records
+      sensitivity: PUBLIC
+  - name: source_section
+    description: Pointer into source document for audit traceability (e.g. "Practice 1 — Accountability", "AI RMF 1.0 §5.1").
+    meta:
+      lineage:
+      - ai_control_snapshot.source_section
+      sensitivity: PUBLIC
+  - name: retrieved_date
+    description: When this row was last verified against source. Updated by TinyFish auto-refresh.
+    meta:
+      lineage:
+      - ai_control_snapshot.retrieved_date
+      sensitivity: PUBLIC
+  - name: status
+    description: '`complete` — fully authored + verified. `top_level_only` — category captured but subcategories deferred
+      (e.g. NIST subcategories not yet authored). `stub` — placeholder pending source acquisition (e.g. ISO 42001 Annex A,
+      paywalled).
+
+      '
+    meta:
+      lineage:
+      - ai_control_snapshot.status
+      sensitivity: PUBLIC
+  - name: notes
+    description: Free-form authoring notes, ambiguity flags, or rework TODOs.
+    meta:
+      lineage:
+      - ai_control_snapshot.notes
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+- name: stg_ai_chat_messages
+  description: 'Thin staging view over the `ai_chat_history.ext_chat_history` external table, which itself reads the Phase
+    1.13 chat_history Parquet archive at `s3://codepais3/stock/raw/chat_history/year=YYYY/month=MM/day=DD/*`. No redaction
+    at this layer — `content` is still present. Downstream `fct_ai_chat_message` applies SHA-256 hashing + drops raw content.
+
+    Vertical is hardcoded to `stock` in this staging because only the stock-be archival pipeline is currently wired; health
+    + trade will union in via their own external tables when their Phase 1.13 pipelines activate.
+
+    '
+  columns:
+  - name: message_id
+    description: Per-message PK from framework_db.datapai.chat_messages.
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - source:ext_chat_history.message_id
+      sensitivity: PUBLIC
+  - name: session_id
+    description: FK to chat_sessions; groups messages into conversation sessions.
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - source:ext_chat_history.session_id
+      sensitivity: PUBLIC
+  - name: session_user_id
+    description: End-user identifier (framework_db.users.id).
+    meta:
+      lineage:
+      - source:ext_chat_history.session_user_id
+      sensitivity: PUBLIC
+  - name: ticker
+    description: Stock ticker context (stock vertical only — null otherwise).
+    meta:
+      lineage:
+      - source:ext_chat_history.ticker
+      sensitivity: PUBLIC
+  - name: exchange
+    description: Stock exchange context (stock vertical only — null otherwise).
+    meta:
+      lineage:
+      - source:ext_chat_history.exchange
+      sensitivity: PUBLIC
+  - name: session_title
+    description: Human-readable session label (LLM-generated at first message).
+    meta:
+      lineage:
+      - source:ext_chat_history.session_title
+      sensitivity: PUBLIC
+  - name: session_created_at
+    description: When the session was opened (TIMESTAMP_TZ).
+    meta:
+      lineage:
+      - source:ext_chat_history.session_created_at
+      sensitivity: PUBLIC
+  - name: role
+    description: 'Speaker role in the conversation. Values: `user`, `assistant`, `system`. Each AI response (assistant) is
+      paired with a user prompt (user) at a 1:1 ratio.
+
+      '
+    meta:
+      lineage:
+      - source:ext_chat_history.role
+      sensitivity: PUBLIC
+  - name: content
+    description: 'Full message text — user prompt or AI response. **PII-bearing**. Present in this staging layer only; downstream
+      fct_ai_chat_message replaces with content_sha256. Raw content stays in S3 bronze (Object Lock, 7y retention).
+
+      '
+    meta:
+      lineage:
+      - source:ext_chat_history.content
+      sensitivity: PUBLIC
+  - name: model_used
+    description: Foundation-model identifier (e.g. `gemini-2.5-flash`). Maps to dim_ai_agent.llm_name.
+    meta:
+      lineage:
+      - source:ext_chat_history.model_used
+      sensitivity: PUBLIC
+  - name: context_sources
+    description: 'JSON-encoded list of context sources used for the response (RAG retrievals, tool calls, TinyFish scans,
+      user_context). Useful for reconstructing the prompt composition at audit time.
+
+      '
+    meta:
+      lineage:
+      - source:ext_chat_history.context_sources
+      sensitivity: PUBLIC
+  - name: event_at
+    description: When the message was sent (original `created_at` from Postgres).
+    meta:
+      lineage:
+      - source:ext_chat_history.created_at
+      sensitivity: PUBLIC
+  - name: archived_at
+    description: When the row was written to S3 Parquet bronze (archival run timestamp).
+    meta:
+      lineage:
+      - source:ext_chat_history.archived_at
+      sensitivity: PUBLIC
+  - name: archive_run_id
+    description: Identifier of the archival DAG/script run — groups rows archived together, useful for replaying or diagnosing
+      issues.
+    meta:
+      lineage:
+      - source:ext_chat_history.archive_run_id
+      sensitivity: PUBLIC
+  - name: dt_year
+    description: Year partition extracted from S3 path `year=YYYY`. Prune by this for fast date-range queries.
+    meta:
+      lineage:
+      - source:ext_chat_history.dt_year
+      sensitivity: PUBLIC
+  - name: dt_month
+    description: Month partition extracted from S3 path `month=MM`.
+    meta:
+      lineage:
+      - source:ext_chat_history.dt_month
+      sensitivity: PUBLIC
+  - name: dt_day
+    description: Day partition extracted from S3 path `day=DD`.
+    meta:
+      lineage:
+      - source:ext_chat_history.dt_day
+      sensitivity: PUBLIC
+  - name: vertical
+    description: Product vertical. Currently hardcoded to `stock` (only vertical wired). `health` and `trade` will union in
+      via their own external tables.
+    meta:
+      lineage: []
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+- name: fct_ai_chat_message
+  description: "Per-LLM-turn fact table. Grain = one chat message (user prompt or AI response). This is the primary audit-evidence\
+    \ backbone for AI governance — when an auditor asks \"show me every LLM call subject to AU Practice 1 between dates X\
+    \ and Y\", it's answered from this fact joined to dim_ai_agent → dim_ai_control.\nPII POSTURE (audit-grade) ─────────────────────────\
+    \ `content` is NOT stored in this fact. Only `content_sha256` + `content_length`. The raw text lives in the S3 Object\
+    \ Lock bronze (7y retention, Phase 1.13). Auditor proves existence via SHA-256 match; raw text retrievable from S3 if\
+    \ subpoenaed. No PII surface duplicated into the warehouse.\nJOIN PATH ───────── fct_ai_chat_message (via model_name →\
+    \ dim_ai_agent.llm_name*)\n  → dim_ai_agent (operational registry)\n  → dim_ai_control (via primary_control_sk)\n  → framework\
+    \ + obligation_family for evidence-PDF rollups\n\n* Join is loose today because chat_messages source captures `model_used`\n\
+    \  but not the agent identifier. Phase 2.2 TODO: enrich chat_messages\n  write-path to log agent_name alongside model_used.\n"
+  columns:
+  - name: message_sk
+    description: MD5 surrogate key over (session_id, message_id). Guaranteed unique.
+    tests:
+    - unique
+    - not_null
+    meta:
+      lineage:
+      - stg_ai_chat_messages.session_id
+      - stg_ai_chat_messages.message_id
+      sensitivity: PUBLIC
+  - name: message_id
+    description: Business key from chat_messages source.
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - stg_ai_chat_messages.message_id
+      sensitivity: PUBLIC
+  - name: session_id
+    description: Session identifier — groups messages into conversations.
+    meta:
+      lineage:
+      - stg_ai_chat_messages.session_id
+      sensitivity: PUBLIC
+  - name: user_id
+    description: End-user identifier (renamed from session_user_id for fact-table conformance).
+    meta:
+      lineage:
+      - stg_ai_chat_messages.session_user_id
+      sensitivity: PUBLIC
+  - name: vertical
+    description: Product vertical (`stock` / `health` / `trade`). Partition key for large-scale customer deployments.
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - stock
+        - health
+        - trade
+    meta:
+      lineage:
+      - stg_ai_chat_messages.vertical
+      sensitivity: PUBLIC
+  - name: ticker
+    description: Stock ticker context (stock vertical only; null for health/trade).
+    meta:
+      lineage:
+      - stg_ai_chat_messages.ticker
+      sensitivity: PUBLIC
+  - name: exchange
+    description: Stock exchange context (stock vertical only; null for health/trade).
+    meta:
+      lineage:
+      - stg_ai_chat_messages.exchange
+      sensitivity: PUBLIC
+  - name: role
+    description: Speaker role — `user`, `assistant`, or `system`.
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - user
+        - assistant
+        - system
+    meta:
+      lineage:
+      - stg_ai_chat_messages.role
+      sensitivity: PUBLIC
+  - name: model_name
+    description: 'Foundation-model identifier used for this message (e.g. `gemini-2.5-flash`). Joins to dim_ai_agent.llm_name
+      (loose today — see JOIN PATH note in table description).
+
+      '
+    meta:
+      lineage:
+      - stg_ai_chat_messages.model_used
+      sensitivity: PUBLIC
+  - name: content_sha256
+    description: 'SHA-256 hash of the raw message content. Audit-grade proof that the message content matches what''s in S3
+      bronze without duplicating PII into the warehouse.
+
+      '
+    meta:
+      lineage:
+      - stg_ai_chat_messages.content
+      sensitivity: PUBLIC
+  - name: content_length
+    description: Character count of the raw message. Lightweight size measure without exposing content.
+    meta:
+      lineage:
+      - stg_ai_chat_messages.content
+      sensitivity: PUBLIC
+  - name: context_sources
+    description: JSON-encoded list of context sources (RAG / tools / TinyFish / user context) used to build the prompt.
+    meta:
+      lineage:
+      - stg_ai_chat_messages.context_sources
+      sensitivity: PUBLIC
+  - name: event_at
+    description: When the message was actually sent (event time, not archival time).
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - stg_ai_chat_messages.event_at
+      sensitivity: PUBLIC
+  - name: session_created_at
+    description: When the enclosing session was opened.
+    meta:
+      lineage:
+      - stg_ai_chat_messages.session_created_at
+      sensitivity: PUBLIC
+  - name: archived_at
+    description: When the row landed in S3 bronze.
+    meta:
+      lineage:
+      - stg_ai_chat_messages.archived_at
+      sensitivity: PUBLIC
+  - name: archive_run_id
+    description: Archival-DAG run identifier — batches rows archived together.
+    meta:
+      lineage:
+      - stg_ai_chat_messages.archive_run_id
+      sensitivity: PUBLIC
+  - name: dt_year
+    description: Year partition from S3 path.
+    meta:
+      lineage:
+      - stg_ai_chat_messages.dt_year
+      sensitivity: PUBLIC
+  - name: dt_month
+    description: Month partition from S3 path.
+    meta:
+      lineage:
+      - stg_ai_chat_messages.dt_month
+      sensitivity: PUBLIC
+  - name: dt_day
+    description: Day partition from S3 path.
+    meta:
+      lineage:
+      - stg_ai_chat_messages.dt_day
+      sensitivity: PUBLIC
+  - name: fct_built_at
+    description: When this fact row was materialized by dbt (lineage / freshness signal).
+    meta:
+      lineage: []
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+- name: dim_ai_agent
+  description: 'Conformed AI agent dimension — one row per deployed agent, which is the finest governable unit at DATAP.AI.
+    "AI system" in ISO 42001 sense (e.g. "Stock Debate Agent") is a GROUPING of agents (bull / bear / moderator / fundamental
+    / technical / chart-vision) — represented here as the `system_name` column, not a separate dim.
+
+    HIERARCHY AS COLUMNS (Kimball-native, no mini-dims) ──────────────────────────────────────────────────── Agent level (agent_name,
+    agent_role, agent_framework, agent_purpose) System level (system_name, domain) Vendor level (vendor_name, vendor_type,
+    vendor_jurisdiction) LLM level (llm_name, llm_capability_tier, llm_context_window) Governance (owner_user_id, risk_tier,
+    approval_status, primary_control_sk) Lifecycle (deployed_at, decommissioned_at, is_active)
+
+    Group by any level via a single `GROUP BY` column; no joins to vendor/llm/role sub-dims needed.
+
+    Source:  ai_agents_seed (hand-curated operational registry). Updated: when a new agent is deployed, re-approved, or decommissioned.
+
+    '
+  columns:
+  - name: agent_sk
+    description: MD5 surrogate key over agent_key. Primary join key for fact tables.
+    tests:
+    - unique
+    - not_null
+    meta:
+      lineage:
+      - ai_agents_seed.agent_key
+      sensitivity: PUBLIC
+  - name: agent_key
+    description: 'Unique business key (format `<domain>.<system>.<role>`, e.g. `stock.debate.bull`). Used for agent-level
+      filter/groupings when the surrogate key isn''t convenient.
+
+      '
+    tests:
+    - unique
+    - not_null
+    meta:
+      lineage:
+      - ai_agents_seed.agent_key
+      sensitivity: PUBLIC
+  - name: agent_name
+    description: 'Agent binary or class name (e.g. `stock-debate-bull`, `health-signals-cross-validation`). Matches the string
+      logged by platform-be''s agent runtime.
+
+      '
+    tests:
+    - unique
+    - not_null
+    meta:
+      lineage:
+      - ai_agents_seed.agent_name
+      sensitivity: PUBLIC
+  - name: agent_role
+    description: 'Agent''s role in its parent system — e.g. `bull`, `bear`, `moderator`, `fundamental`, `technical`, `chart-vision`,
+      `retriever`, `summariser`, `screener`, `investigator`, `phi-detector`.
+
+      '
+    meta:
+      lineage:
+      - ai_agents_seed.agent_role
+      sensitivity: PUBLIC
+  - name: agent_framework
+    description: 'Agent-runtime framework — `agno`, `langchain`, `raw-llm`, or `custom` (DATAP.AI''s own framework on top
+      of BaseAgent).
+
+      '
+    meta:
+      lineage:
+      - ai_agents_seed.agent_framework
+      sensitivity: PUBLIC
+  - name: agent_purpose
+    description: Short human-readable statement of what this agent does.
+    meta:
+      lineage:
+      - ai_agents_seed.agent_purpose
+      sensitivity: PUBLIC
+  - name: system_name
+    description: 'Parent system grouping — multiple agents share one system name (e.g. "Stock Debate Agent" covers 6 agent
+      rows). Use `GROUP BY system_name` for system-level rollups. This IS what ISO 42001 calls an "AI system" but we keep
+      the grain at agent for honest accounting.
+
+      '
+    meta:
+      lineage:
+      - ai_agents_seed.system_name
+      sensitivity: PUBLIC
+  - name: domain
+    description: 'Product vertical / platform layer. Values: `stock`, `health`, `trade`, `platform` (platform-be cross-vertical
+      capabilities like RAG, text2sql, dbt-guardrail).
+
+      '
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - stock
+        - health
+        - trade
+        - platform
+    meta:
+      lineage:
+      - ai_agents_seed.domain
+      sensitivity: PUBLIC
+  - name: vendor_name
+    description: LLM provider — `google`, `openai`, `anthropic`, `self-hosted`.
+    meta:
+      lineage:
+      - ai_agents_seed.vendor_name
+      sensitivity: PUBLIC
+  - name: vendor_type
+    description: Commercial posture — `commercial`, `open-source`, `self-hosted`.
+    meta:
+      lineage:
+      - ai_agents_seed.vendor_type
+      sensitivity: PUBLIC
+  - name: vendor_jurisdiction
+    description: 'Where the vendor processes data. Relevant for data-residency governance (EU AI Act cross-border transfers,
+      HIPAA BAA requirements, Australian Privacy Act APP 8).
+
+      '
+    meta:
+      lineage:
+      - ai_agents_seed.vendor_jurisdiction
+      sensitivity: PUBLIC
+  - name: llm_name
+    description: 'Foundation model name (e.g. `gemini-2.5-flash`, `claude-sonnet-4-6`, `gpt-4`). Joined from fct_ai_chat_message.model_name
+      to answer "which agents are powered by Gemini?"
+
+      '
+    meta:
+      lineage:
+      - ai_agents_seed.llm_name
+      sensitivity: PUBLIC
+  - name: llm_capability_tier
+    description: 'Informal tier — `frontier` (top reasoning), `mid` (balanced), `small` (cheap / bulk / edge). Drives cost
+      + quality tradeoffs.
+
+      '
+    meta:
+      lineage:
+      - ai_agents_seed.llm_capability_tier
+      sensitivity: PUBLIC
+  - name: llm_context_window
+    description: Model's input context window in tokens (e.g. 1,000,000 for Gemini Flash, 200,000 for Claude Sonnet).
+    meta:
+      lineage:
+      - ai_agents_seed.llm_context_window
+      sensitivity: PUBLIC
+  - name: owner_user_id
+    description: Accountable person (email / user identifier). **The human on the hook per AU Practice 1 / NIST GOVERN-2 /
+      FCA SMCR / ISO 42001 A.3.**
+    meta:
+      lineage:
+      - ai_agents_seed.owner_user_id
+      sensitivity: PUBLIC
+  - name: owner_role_key
+    description: Accountable person's role (e.g. `cto`, `team-lead`, `data-governance-lead`).
+    meta:
+      lineage:
+      - ai_agents_seed.owner_role_key
+      sensitivity: PUBLIC
+  - name: risk_tier
+    description: 'Agent''s risk classification — `low` / `medium` / `high`. Drives review cadence + required oversight controls.
+      Mirrors ISO 42001 A.5 impact assessment outcome and NIST AI RMF MAP-2 risk tier.
+
+      '
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - low
+        - medium
+        - high
+    meta:
+      lineage:
+      - ai_agents_seed.risk_tier
+      sensitivity: PUBLIC
+  - name: approval_status
+    description: 'Governance state — `approved` (production-ready, in use), `pending` (under review), `deprecated` (decommission
+      pending or done). Only `approved` agents should produce user-facing output.
+
+      '
+    tests:
+    - not_null
+    - accepted_values:
+        values:
+        - approved
+        - pending
+        - deprecated
+    meta:
+      lineage:
+      - ai_agents_seed.approval_status
+      sensitivity: PUBLIC
+  - name: primary_control_framework
+    description: Framework_code of the agent's primary governance binding (e.g. `AU_6_2025`). Joins to dim_ai_control.framework_code.
+    meta:
+      lineage:
+      - ai_agents_seed.primary_control_framework
+      sensitivity: PUBLIC
+  - name: primary_control_id
+    description: Control_id of the agent's primary governance binding (e.g. `P1`). Joins to dim_ai_control.control_id.
+    meta:
+      lineage:
+      - ai_agents_seed.primary_control_id
+      sensitivity: PUBLIC
+  - name: primary_control_sk
+    description: 'MD5 surrogate key over (primary_control_framework, primary_control_id). Matches dim_ai_control.control_sk
+      — enables direct join `dim_ai_agent a JOIN dim_ai_control c ON a.primary_control_sk = c.control_sk`.
+
+      '
+    meta:
+      lineage:
+      - ai_agents_seed.primary_control_id
+      - ai_agents_seed.primary_control_framework
+      sensitivity: PUBLIC
+  - name: deployed_at
+    description: Date the agent was first deployed to production.
+    meta:
+      lineage:
+      - ai_agents_seed.deployed_at
+      sensitivity: PUBLIC
+  - name: decommissioned_at
+    description: Date the agent was retired (nullable — null means still active).
+    meta:
+      lineage:
+      - ai_agents_seed.decommissioned_at
+      sensitivity: PUBLIC
+  - name: is_active
+    description: 'Derived — `true` when decommissioned_at is null. Use `WHERE is_active = true` to filter for currently-live
+      agents without NULL-handling boilerplate.
+
+      '
+    meta:
+      lineage:
+      - ai_agents_seed.decommissioned_at
+      sensitivity: PUBLIC
+  - name: notes
+    description: Free-form authoring notes, caveats, or links to design docs.
+    meta:
+      lineage:
+      - ai_agents_seed.notes
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

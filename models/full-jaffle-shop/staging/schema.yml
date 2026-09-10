@@ -1,56 +1,130 @@
 version: 2
 models:
-  - name: stg_customers
-    columns:
-      - name: customer_id
-        tests:
-          - unique
-          - not_null
-        description: ""
-      - name: first_name
-        description: ""
-      - name: last_name
-        description: ""
-      - name: created
-        description: ""
-  - name: stg_orders
-    columns:
-      - name: order_id
-        tests:
-          - unique
-          - not_null
-        description: ""
-      - name: status
-        tests:
-          - accepted_values:
-              values:
-                - placed
-                - shipped
-                - completed
-                - return_pending
-                - returned
-        description: ""
-      - name: customer_id
-        description: ""
-      - name: order_date
-        description: ""
-  - name: stg_payments
-    columns:
-      - name: payment_id
-        tests:
-          - unique
-          - not_null
-        description: ""
-      - name: payment_method
-        tests:
-          - accepted_values:
-              values:
-                - credit_card
-                - coupon
-                - bank_transfer
-                - gift_card
-        description: ""
-      - name: order_id
-        description: ""
-      - name: amount
-        description: ""
+- name: stg_customers
+  columns:
+  - name: customer_id
+    tests:
+    - unique
+    - not_null
+    description: ''
+    meta:
+      lineage:
+      - raw_customers.id
+      sensitivity: PUBLIC
+  - name: first_name
+    description: ''
+    meta:
+      lineage:
+      - raw_customers.first_name
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: last_name
+    description: ''
+    meta:
+      lineage:
+      - raw_customers.last_name
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: created
+    description: ''
+    meta:
+      lineage:
+      - raw_customers.created
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+    datapai:
+      contains_pii: true
+      sensitivity_level: confidential
+      default_answer_mode: masked
+- name: stg_orders
+  columns:
+  - name: order_id
+    tests:
+    - unique
+    - not_null
+    description: ''
+    meta:
+      lineage:
+      - raw_orders.id
+      sensitivity: PUBLIC
+  - name: status
+    tests:
+    - accepted_values:
+        values:
+        - placed
+        - shipped
+        - completed
+        - return_pending
+        - returned
+    description: ''
+    meta:
+      lineage:
+      - raw_orders.status
+      sensitivity: PUBLIC
+  - name: customer_id
+    description: ''
+    meta:
+      lineage:
+      - raw_orders.user_id
+      sensitivity: PUBLIC
+  - name: order_date
+    description: ''
+    meta:
+      lineage:
+      - raw_orders.order_date
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+- name: stg_payments
+  columns:
+  - name: payment_id
+    tests:
+    - unique
+    - not_null
+    description: ''
+    meta:
+      lineage:
+      - raw_payments.id
+      sensitivity: PUBLIC
+  - name: payment_method
+    tests:
+    - accepted_values:
+        values:
+        - credit_card
+        - coupon
+        - bank_transfer
+        - gift_card
+    description: ''
+    meta:
+      lineage:
+      - raw_payments.payment_method
+      sensitivity: PUBLIC
+  - name: order_id
+    description: ''
+    meta:
+      lineage:
+      - raw_payments.order_id
+      sensitivity: PUBLIC
+  - name: amount
+    description: ''
+    meta:
+      lineage:
+      - raw_payments.amount
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake

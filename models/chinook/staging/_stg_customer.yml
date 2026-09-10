@@ -1,50 +1,172 @@
-
 version: 2
-
 models:
-  - name: stg_customer
-    description: "Contains list of customers"
-    columns:
-      - name: customer_id
-        description: "Customer identifier key"
-        tests:
-          - not_null
-          - unique
-      - name: customer_first_name
-        description: "First name of the customer"
-        tests:
-          - not_null
-      - name: customer_last_name
-        description: "Last name of the customer"
-        tests:
-          - not_null
-      - name: customer_company
-        description: "Company name of the customer"
-      - name: customer_address
-        description: "Address of the customer"
-        tests:
-          - not_null
-      - name: customer_city
-        description: "City of the customer"
-        tests:
-          - not_null
-      - name: customer_state
-        description: "State of the customer"
-      - name: customer_country
-        description: "Country of the customer"
-        tests:
-          - not_null
-      - name: customer_phone
-        description: "Phone number of the customer"
-      - name: customer_postal_code
-        description: "Postal Code of the customer"
-      - name: customer_fax
-        description: "Fax address of the customer)"
-      - name: customer_email
-        description: "Email address of the customer"
-        tests:
-          - not_null
-      - name: employee_id
-        description: "Employee key identifier"
-        tests:
-          - not_null
+- name: stg_customer
+  description: Contains list of customers
+  columns:
+  - name: customer_id
+    description: Customer identifier key
+    tests:
+    - not_null
+    - unique
+    meta:
+      lineage:
+      - customer.customer_id
+      sensitivity: PUBLIC
+  - name: customer_first_name
+    description: First name of the customer
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - customer.first_name
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: customer_last_name
+    description: Last name of the customer
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - customer.last_name
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: customer_company
+    description: Company name of the customer
+    meta:
+      lineage:
+      - customer.company
+      sensitivity: PUBLIC
+  - name: customer_address
+    description: Address of the customer
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - customer.address
+      sensitivity: PII_LOW
+      datapai:
+        pii: indirect
+        security_class: internal
+        masking_rule: partial_mask
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: customer_city
+    description: City of the customer
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - customer.city
+      sensitivity: PII_LOW
+      datapai:
+        pii: indirect
+        security_class: internal
+        masking_rule: partial_mask
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: customer_state
+    description: State of the customer
+    meta:
+      lineage:
+      - customer.state
+      sensitivity: PII_LOW
+      datapai:
+        pii: indirect
+        security_class: internal
+        masking_rule: partial_mask
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: customer_country
+    description: Country of the customer
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - customer.country
+      sensitivity: PUBLIC
+  - name: customer_phone
+    description: Phone number of the customer
+    meta:
+      lineage:
+      - customer.phone
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: customer_postal_code
+    description: Postal Code of the customer
+    meta:
+      lineage:
+      - customer.postal_code
+      sensitivity: PUBLIC
+  - name: customer_fax
+    description: Fax address of the customer)
+    meta:
+      lineage:
+      - customer.fax
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: customer_email
+    description: Email address of the customer
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - customer.email
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: employee_id
+    description: Employee key identifier
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - customer.support_rep_id
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+    datapai:
+      contains_pii: true
+      sensitivity_level: confidential
+      default_answer_mode: masked
+      ai_access_level: restricted
+      ai_enabled: true

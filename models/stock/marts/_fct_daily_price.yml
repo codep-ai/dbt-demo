@@ -19,9 +19,9 @@ models:
     description: Primary key for the daily price fact table.
     meta:
       lineage:
-      - int_price_with_indicators.trade_date
       - int_price_with_indicators.exchange
       - int_price_with_indicators.ticker
+      - int_price_with_indicators.trade_date
       sensitivity: PUBLIC
   - name: ticker_key
     description: Foreign key to dim_ticker.

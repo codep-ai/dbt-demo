@@ -1,0 +1,56 @@
+-- models/marts/fct_account_pnl_daily.sql
+-- ─────────────────────────────────────────────────────────────────────────────
+-- dbt-snowflake materialises into a Snowflake-managed Iceberg table.
+-- Files land in S3 (customer's bucket via EXTERNAL VOLUME).
+-- Catalog metadata published to Snowflake Open Catalog (Polaris REST).
+-- Both Snowflake AND ClickHouse can read this same physical data.
+--
+-- dbt-snowflake ≥ 1.9 supports table_format='iceberg' as a first-class config.
+-- ─────────────────────────────────────────────────────────────────────────────
+{{ config(
+    materialized          = 'table',
+    table_format          = 'iceberg',
+    external_volume       = 'customer_iceberg_volume',
+    catalog               = 'SNOWFLAKE_OPEN_CATALOG',
+    base_location         = 'batch_marts/fct_account_pnl_daily/',
+    catalog_table_name    = 'fct_account_pnl_daily',
+    target_lag            = '1 hour',
+    refresh_mode          = 'AUTO',
+    cluster_by            = ['ds', 'account_id'],
+    meta = {
+        'metrics': {
+            'realised_pnl_total': 'sum(realised_pnl)',
+            'equity_close_avg':   'avg(equity_close)'
+        },
+        'datapai': {
+            'sensitivity':         'PII_LITE',
+            'ai_access_level':     'READ',
+            'jurisdictions':       ['AU','SG','NZ'],
+            'governance_owner':    'compliance',
+            'lineage_iceberg_uri': 's3://customer-iceberg-prod/batch_marts/fct_account_pnl_daily/'
+        }
+    }
+) }}
+
+WITH positions AS (
+    SELECT * FROM {{ ref('stg_positions_eod') }}
+),
+fills AS (
+    SELECT * FROM {{ ref('stg_trade_fills') }}
+),
+accounts AS (
+    SELECT * FROM {{ ref('stg_accounts') }}
+)
+
+SELECT
+    a.account_id,
+    p.ds,
+    SUM(f.pnl_realised)                                 AS realised_pnl,
+    SUM(p.unrealised_pnl)                               AS unrealised_pnl,
+    MAX(p.equity_close)                                 AS equity_close,
+    MAX(p.margin_used)                                  AS margin_used,
+    a.base_ccy                                          AS ccy
+FROM accounts a
+LEFT JOIN positions p USING (account_id)
+LEFT JOIN fills     f USING (account_id, ds)
+GROUP BY a.account_id, p.ds, a.base_ccy

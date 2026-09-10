@@ -1,14 +1,26 @@
 version: 2
-
 models:
-  - name: stg_playlist_track
-    description: "Contains list of media types"
-    columns:
-      - name: playlist_id
-        description: "Playlist identifier key"
-        tests:
-          - not_null
-      - name: track_id
-        description: "Track identifier key"
-        tests:
-          - not_null
+- name: stg_playlist_track
+  description: Contains list of media types
+  columns:
+  - name: playlist_id
+    description: Playlist identifier key
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - playlisttrack.playlist_id
+      sensitivity: PUBLIC
+  - name: track_id
+    description: Track identifier key
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - playlisttrack.track_id
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+    datapai:
+      ai_access_level: restricted
+      ai_enabled: true

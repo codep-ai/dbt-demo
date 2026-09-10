@@ -1,0 +1,21 @@
+-- {{ config(materialized='view') }}
+-- Staging: flatten OpenLIT GenAI OTEL spans into analytics-shaped rows.
+-- In a real TMGM deployment this would point at their Kafka-engine-fed
+-- ClickHouse table for trade events; here we use the live openlit telemetry.
+SELECT
+    TraceId                                                          AS trace_id,
+    SpanId                                                           AS span_id,
+    ParentSpanId                                                     AS parent_span_id,
+    ServiceName                                                      AS service_name,
+    SpanName                                                         AS span_name,
+    SpanKind                                                         AS span_kind,
+    Timestamp                                                        AS ts,
+    Duration / 1000000.0                                             AS duration_ms,
+    SpanAttributes['gen_ai.system']                                  AS llm_provider,
+    SpanAttributes['gen_ai.request.model']                           AS llm_model,
+    toUInt32OrZero(SpanAttributes['gen_ai.usage.prompt_tokens'])     AS prompt_tokens,
+    toUInt32OrZero(SpanAttributes['gen_ai.usage.completion_tokens']) AS completion_tokens,
+    toFloat64OrZero(SpanAttributes['gen_ai.usage.cost'])             AS cost_usd,
+    toDate(Timestamp)                                                AS event_date,
+    toStartOfHour(Timestamp)                                         AS event_hour
+FROM default.otel_traces

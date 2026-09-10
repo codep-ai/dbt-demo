@@ -1,42 +1,81 @@
-
 version: 2
-
 models:
-  - name: stg_track
-    description: "Contains list of tracks"
-    columns:
-      - name: track_id
-        description: "Track identifier key"
-        tests:
-          - not_null
-          - unique
-      - name: track_name
-        description: "Name of the track"
-        tests:
-          - not_null
-      - name: album_id
-        description: "Album identifier key"
-        tests:
-          - not_null
-      - name: media_type_id
-        description: "Media type identifier key"
-        tests:
-          - not_null
-      - name: genre_id
-        description: "Genre identifier key"
-        tests:
-          - not_null
-      - name: track_composer_name
-        description: "Name of the composer"
-      - name: track_milliseconds
-        description: "Length of the track in milliseconds"
-        tests:
-          - not_null
-      - name: track_bytes
-        description: "Size of the track in bytes"
-        tests:
-          - not_null
-      - name: track_unit_price
-        description: "Price of the track (USD)"
-        tests:
-          - not_null
+- name: stg_track
+  description: Contains list of tracks
+  columns:
+  - name: track_id
+    description: Track identifier key
+    tests:
+    - not_null
+    - unique
+    meta:
+      lineage:
+      - track.track_id
+      sensitivity: PUBLIC
+  - name: track_name
+    description: Name of the track
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - track.name
+      sensitivity: PUBLIC
+  - name: album_id
+    description: Album identifier key
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - track.album_id
+      sensitivity: PUBLIC
+  - name: media_type_id
+    description: Media type identifier key
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - track.media_type_id
+      sensitivity: PUBLIC
+  - name: genre_id
+    description: Genre identifier key
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - track.genre_id
+      sensitivity: PUBLIC
+  - name: track_composer_name
+    description: Name of the composer
+    meta:
+      lineage:
+      - track.composer
+      sensitivity: PUBLIC
+  - name: track_milliseconds
+    description: Length of the track in milliseconds
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - track.milliseconds
+      sensitivity: PUBLIC
+  - name: track_bytes
+    description: Size of the track in bytes
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - track.bytes
+      sensitivity: PUBLIC
+  - name: track_unit_price
+    description: Price of the track (USD)
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - track.unit_price
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+    datapai:
+      ai_access_level: restricted
+      ai_enabled: true

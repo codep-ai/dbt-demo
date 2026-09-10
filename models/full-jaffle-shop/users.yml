@@ -1,14 +1,51 @@
 version: 2
 models:
-  - name: users
-    meta: 
-      sql_filter: 'customer_id = ${ld.attr.customer_id}'
-    columns:
-      - name: customer_id
-        description: This is a unique identifier for a customer
-      - name: first_name
-        description: Customer's first name. PII.
-      - name: last_name
-        description: Customer's last name. PII.
-      - name: created
-        description: Timestamp (UTC) when customer was created
+- name: users
+  meta:
+    sql_filter: customer_id = ${ld.attr.customer_id}
+    column_lineage_dialect: snowflake
+    datapai:
+      contains_pii: true
+      sensitivity_level: confidential
+      default_answer_mode: masked
+  columns:
+  - name: customer_id
+    description: This is a unique identifier for a customer
+    meta:
+      lineage:
+      - stg_customers.customer_id
+      sensitivity: PUBLIC
+  - name: first_name
+    description: Customer's first name. PII.
+    meta:
+      lineage:
+      - stg_customers.first_name
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: last_name
+    description: Customer's last name. PII.
+    meta:
+      lineage:
+      - stg_customers.last_name
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: created
+    description: Timestamp (UTC) when customer was created
+    meta:
+      lineage:
+      - stg_customers.created
+      sensitivity: PUBLIC

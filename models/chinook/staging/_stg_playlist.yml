@@ -1,15 +1,27 @@
 version: 2
-
 models:
-  - name: stg_playlist
-    description: "Contains list of playlists"
-    columns:
-      - name: playlist_id
-        description: "Playlist identifier key"
-        tests:
-          - not_null
-          - unique
-      - name: playlist_name
-        description: "Name of the playlist"
-        tests:
-          - not_null
+- name: stg_playlist
+  description: Contains list of playlists
+  columns:
+  - name: playlist_id
+    description: Playlist identifier key
+    tests:
+    - not_null
+    - unique
+    meta:
+      lineage:
+      - playlist.playlist_id
+      sensitivity: PUBLIC
+  - name: playlist_name
+    description: Name of the playlist
+    tests:
+    - not_null
+    meta:
+      lineage:
+      - playlist.name
+      sensitivity: PUBLIC
+  meta:
+    column_lineage_dialect: snowflake
+    datapai:
+      ai_access_level: restricted
+      ai_enabled: true

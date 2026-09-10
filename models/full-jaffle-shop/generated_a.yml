@@ -1,317 +1,495 @@
 version: 2
 models:
-  - name: generated_a
+- name: generated_a
+  meta:
+    joins:
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_1.primary_key}
+      alias: join_1
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_2.primary_key}
+      alias: join_2
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_3.primary_key}
+      alias: join_3
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_4.primary_key}
+      alias: join_4
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_5.primary_key}
+      alias: join_5
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_6.primary_key}
+      alias: join_6
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_7.primary_key}
+      alias: join_7
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_8.primary_key}
+      alias: join_8
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_9.primary_key}
+      alias: join_9
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_10.primary_key}
+      alias: join_10
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_11.primary_key}
+      alias: join_11
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_12.primary_key}
+      alias: join_12
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_13.primary_key}
+      alias: join_13
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_14.primary_key}
+      alias: join_14
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_15.primary_key}
+      alias: join_15
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_16.primary_key}
+      alias: join_16
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_17.primary_key}
+      alias: join_17
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_18.primary_key}
+      alias: join_18
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_19.primary_key}
+      alias: join_19
+    - join: generated_b
+      sql_on: ${generated_a.foreign_key} = ${join_20.primary_key}
+      alias: join_20
+    column_lineage_dialect: snowflake
+    datapai:
+      contains_pii: true
+      sensitivity_level: confidential
+      default_answer_mode: masked
+  columns:
+  - name: name
+    description: ''
     meta:
-      joins:
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_1.primary_key}
-          alias: join_1
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_2.primary_key}
-          alias: join_2
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_3.primary_key}
-          alias: join_3
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_4.primary_key}
-          alias: join_4
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_5.primary_key}
-          alias: join_5
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_6.primary_key}
-          alias: join_6
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_7.primary_key}
-          alias: join_7
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_8.primary_key}
-          alias: join_8
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_9.primary_key}
-          alias: join_9
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_10.primary_key}
-          alias: join_10
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_11.primary_key}
-          alias: join_11
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_12.primary_key}
-          alias: join_12
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_13.primary_key}
-          alias: join_13
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_14.primary_key}
-          alias: join_14
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_15.primary_key}
-          alias: join_15
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_16.primary_key}
-          alias: join_16
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_17.primary_key}
-          alias: join_17
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_18.primary_key}
-          alias: join_18
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_19.primary_key}
-          alias: join_19
-        - join: generated_b
-          sql_on: ${generated_a.foreign_key} = ${join_20.primary_key}
-          alias: join_20
-
-    columns:
-      - name: name
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: phone
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: email
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: address
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: postalzip
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: region
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: country
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: alphanumeric
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: currency
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: text
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: name1
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: email1
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: phone1
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: address1
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: text1
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: url
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: numberrange1
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange2
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange3
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange4
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange5
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange6
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange7
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: primary_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: foreign_key
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: track1
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: autoincrement2
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange8
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange9
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange10
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange11
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: text2
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date1
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: time
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date2
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date3
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date4
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date5
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date6
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date7
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date8
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: numberrange12
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange13
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: date9
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: date10
-        description: ""
-        meta:
-          dimension:
-            type: string
-      - name: numberrange14
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: numberrange15
-        description: ""
-        meta:
-          dimension:
-            type: number
-      - name: date11
-        description: ""
-        meta:
-          dimension:
-            type: string
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.name
+      sensitivity: PUBLIC
+  - name: phone
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.phone
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: email
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.email
+      sensitivity: PII_MEDIUM
+      datapai:
+        pii: direct
+        security_class: confidential
+        masking_rule: hash
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: address
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.address
+      sensitivity: PII_LOW
+      datapai:
+        pii: indirect
+        security_class: internal
+        masking_rule: partial_mask
+        answer_mode: masked
+        allowed_in_output: true
+        allowed_in_export: false
+        ai_sensitivity_source: datapai-ai-etl column lineage
+  - name: postalzip
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.postalzip
+      sensitivity: PUBLIC
+  - name: region
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.region
+      sensitivity: PUBLIC
+  - name: country
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.country
+      sensitivity: PUBLIC
+  - name: alphanumeric
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.alphanumeric
+      sensitivity: PUBLIC
+  - name: currency
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.currency
+      sensitivity: PUBLIC
+  - name: numberrange
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange
+      sensitivity: PUBLIC
+  - name: text
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.text
+      sensitivity: PUBLIC
+  - name: name1
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.name1
+      sensitivity: PUBLIC
+  - name: email1
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.email1
+      sensitivity: PUBLIC
+  - name: phone1
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.phone1
+      sensitivity: PUBLIC
+  - name: address1
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.address1
+      sensitivity: PUBLIC
+  - name: text1
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.text1
+      sensitivity: PUBLIC
+  - name: url
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.url
+      sensitivity: PUBLIC
+  - name: numberrange1
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange1
+      sensitivity: PUBLIC
+  - name: numberrange2
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange2
+      sensitivity: PUBLIC
+  - name: numberrange3
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange3
+      sensitivity: PUBLIC
+  - name: numberrange4
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange4
+      sensitivity: PUBLIC
+  - name: numberrange5
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange5
+      sensitivity: PUBLIC
+  - name: numberrange6
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange6
+      sensitivity: PUBLIC
+  - name: numberrange7
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange7
+      sensitivity: PUBLIC
+  - name: primary_key
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.primary_key
+      sensitivity: PUBLIC
+  - name: foreign_key
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.foreign_key
+      sensitivity: PUBLIC
+  - name: track1
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.track1
+      sensitivity: PUBLIC
+  - name: autoincrement2
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.autoincrement2
+      sensitivity: PUBLIC
+  - name: numberrange8
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange8
+      sensitivity: PUBLIC
+  - name: numberrange9
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange9
+      sensitivity: PUBLIC
+  - name: numberrange10
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange10
+      sensitivity: PUBLIC
+  - name: numberrange11
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange11
+      sensitivity: PUBLIC
+  - name: text2
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.text2
+      sensitivity: PUBLIC
+  - name: date
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date
+      sensitivity: PUBLIC
+  - name: date1
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date1
+      sensitivity: PUBLIC
+  - name: time
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.time
+      sensitivity: PUBLIC
+  - name: date2
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date2
+      sensitivity: PUBLIC
+  - name: date3
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date3
+      sensitivity: PUBLIC
+  - name: date4
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date4
+      sensitivity: PUBLIC
+  - name: date5
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date5
+      sensitivity: PUBLIC
+  - name: date6
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date6
+      sensitivity: PUBLIC
+  - name: date7
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date7
+      sensitivity: PUBLIC
+  - name: date8
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date8
+      sensitivity: PUBLIC
+  - name: numberrange12
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange12
+      sensitivity: PUBLIC
+  - name: numberrange13
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange13
+      sensitivity: PUBLIC
+  - name: date9
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date9
+      sensitivity: PUBLIC
+  - name: date10
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date10
+      sensitivity: PUBLIC
+  - name: numberrange14
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange14
+      sensitivity: PUBLIC
+  - name: numberrange15
+    description: ''
+    meta:
+      dimension:
+        type: number
+      lineage:
+      - raw_generated.numberrange15
+      sensitivity: PUBLIC
+  - name: date11
+    description: ''
+    meta:
+      dimension:
+        type: string
+      lineage:
+      - raw_generated.date11
+      sensitivity: PUBLIC
