@@ -25,6 +25,8 @@
   .model rect.box { fill:var(--panel); stroke:var(--line); rx:6; }
   .model text.title { font-weight:600; fill:var(--text); }
   .model text.sub { fill:var(--muted); font-size:11px; }
+  .model text.link:hover { fill:var(--accent); text-decoration:underline; }
+  .model text.doclink { fill:var(--accent); font-size:11px; opacity:.85; } .model text.doclink:hover { text-decoration:underline; opacity:1; }
   .col rect { fill:transparent; }
   .col:hover rect { fill:var(--hover); }
   .col text { fill:var(--text); font-size:12px; }
@@ -53,6 +55,7 @@
   <button id="theme" title="toggle light/dark">☾ dark</button>
   <a href="../index.html" style="color:var(--accent)">← dbt docs</a> <a href="../index.html?g_v=1" style="color:var(--accent)">dbt graph</a>
   <span class="pill" id="stats">loading manifest.json…</span>
+  <span class="pill">click column = trace · double-click = dbt docs · table title / docs ↗ = dbt docs</span>
   <span class="legend"><span style="background:var(--pub)"></span>PUBLIC<span style="background:var(--low)"></span>PII_LOW<span style="background:var(--med)"></span>PII_MEDIUM<span style="background:var(--fin)"></span>FINANCIAL<span style="background:var(--high)"></span>PII_HIGH</span>
   <span class="legend"><span style="background:var(--up)"></span>upstream<span style="background:var(--down)"></span>downstream · dashed = derived</span>
 </header>
@@ -159,15 +162,21 @@
       const x = PAD + i * (W + GAPX), h = HEAD + shown.length * ROW + 8;
       const g = el('g', {class: 'model', transform: `translate(${x},${y})`});
       g.appendChild(el('rect', {class: 'box', width: W, height: h}));
-      const title = el('text', {class: 'title', x: 10, y: 18}, n.name); title.style.cursor = 'pointer'; title.setAttribute('title', 'open in dbt docs');
+      const title = el('text', {class: 'title link', x: 10, y: 18}, n.name); title.style.cursor = 'pointer'; title.setAttribute('title', 'open this model in dbt docs');
       title.addEventListener('click', ev => { ev.stopPropagation(); window.open(docsUrl(n), '_blank'); }); g.appendChild(title);
+      const docs = el('text', {class: 'doclink', x: W - 10, y: 18, 'text-anchor': 'end'}, 'docs ↗'); docs.style.cursor = 'pointer'; docs.setAttribute('title', 'open in dbt docs');
+      docs.addEventListener('click', ev => { ev.stopPropagation(); window.open(docsUrl(n), '_blank'); }); g.appendChild(docs);
+      const gr = el('text', {class: 'doclink', x: W - 58, y: 18, 'text-anchor': 'end'}, 'graph'); gr.style.cursor = 'pointer'; gr.setAttribute('title', 'open in dbt lineage graph');
+      gr.addEventListener('click', ev => { ev.stopPropagation(); window.open(docsUrl(n, true), '_blank'); }); g.appendChild(gr);
       g.appendChild(el('text', {class: 'sub', x: 10, y: 32}, n.kind === 'source' ? 'source' : (n.layer || 'model') + (n.hasMeta ? ' · lineage ✓' : '')));
       shown.forEach((c, j) => { const cy = HEAD + j * ROW; const key = n.key + '.' + c; pos[key] = {x, y: y + cy + ROW / 2, w: W};
         const cg = el('g', {class: 'col', 'data-key': key, transform: `translate(0,${cy})`});
         cg.appendChild(el('rect', {x: 1, y: 0, width: W - 2, height: ROW}));
         cg.appendChild(el('rect', {class: 'sens', x: 4, y: 3, width: 6, height: ROW - 6, fill: sensColor((n.colMeta[c] || {}).sensitivity), rx: 1}));
         cg.appendChild(el('text', {x: 16, y: 13}, c));
-        cg.addEventListener('click', () => select(key)); g.appendChild(cg); });
+        cg.addEventListener('click', () => select(key));
+        cg.addEventListener('dblclick', ev => { ev.stopPropagation(); window.open(docsUrl(n), '_blank'); });
+        cg.setAttribute('title', c + ' — click: trace · double-click: open model in dbt docs'); g.appendChild(cg); });
       svg.appendChild(g); y += h + GAPY; maxH = Math.max(maxH, y); }); });
     svg.setAttribute('width', PAD * 2 + depths.length * (W + GAPX)); svg.setAttribute('height', maxH + PAD);
     const eg = el('g'); svg.insertBefore(eg, svg.firstChild);
