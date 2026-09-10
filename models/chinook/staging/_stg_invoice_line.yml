@@ -47,5 +47,5 @@ models:
   meta:
     column_lineage_dialect: snowflake
     datapai:
-      ai_access_level: restricted
+      ai_access_level: approved
       ai_enabled: true

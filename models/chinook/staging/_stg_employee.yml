@@ -168,5 +168,5 @@ models:
       contains_pii: true
       sensitivity_level: confidential
       default_answer_mode: masked
-      ai_access_level: restricted
+      ai_access_level: approved
       ai_enabled: true
