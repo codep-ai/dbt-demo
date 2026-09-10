@@ -429,9 +429,9 @@ models:
     - not_null
     meta:
       lineage:
+      - ai_control_snapshot.dbt_valid_from
       - ai_control_snapshot.framework_code
       - ai_control_snapshot.control_id
-      - ai_control_snapshot.dbt_valid_from
       sensitivity: PUBLIC
   - name: framework_code
     description: 'Stable framework identifier, e.g. `AU_6_2025`, `NIST_AI_RMF_10`, `ISO_42001_2023`. When a framework publishes
@@ -1094,8 +1094,8 @@ models:
       '
     meta:
       lineage:
-      - ai_agents_seed.primary_control_id
       - ai_agents_seed.primary_control_framework
+      - ai_agents_seed.primary_control_id
       sensitivity: PUBLIC
   - name: deployed_at
     description: Date the agent was first deployed to production.

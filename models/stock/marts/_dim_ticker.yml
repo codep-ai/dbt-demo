@@ -13,8 +13,8 @@ models:
     - unique
     meta:
       lineage:
-      - stg_ticker_universe.exchange
       - stg_ticker_universe.yf_symbol
+      - stg_ticker_universe.exchange
       sensitivity: PUBLIC
   - name: yf_symbol
     description: The Yahoo Finance symbol used as the primary join key.

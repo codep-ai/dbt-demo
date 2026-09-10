@@ -21,9 +21,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: last_name
     description: ''
@@ -35,9 +35,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: created
     description: ''
@@ -50,7 +50,7 @@ models:
     datapai:
       contains_pii: true
       sensitivity_level: confidential
-      default_answer_mode: masked
+      default_answer_mode: full
 - name: stg_orders
   columns:
   - name: order_id

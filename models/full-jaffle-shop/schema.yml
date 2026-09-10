@@ -12,7 +12,7 @@ models:
     datapai:
       contains_pii: true
       sensitivity_level: confidential
-      default_answer_mode: masked
+      default_answer_mode: full
   description: '# Customers
 
 
@@ -50,9 +50,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: last_name
     description: Customer's last name. PII.
@@ -64,9 +64,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: age
     description: Customer's age
@@ -276,8 +276,8 @@ models:
       dimension:
         hidden: true
       lineage:
-      - stg_payments.amount
       - stg_payments.payment_method
+      - stg_payments.amount
       sensitivity: PUBLIC
   - name: coupon_amount
     description: Amount of the order (AUD) paid for by coupon
@@ -287,8 +287,8 @@ models:
       dimension:
         hidden: true
       lineage:
-      - stg_payments.amount
       - stg_payments.payment_method
+      - stg_payments.amount
       sensitivity: PUBLIC
   - name: bank_transfer_amount
     description: Amount of the order (AUD) paid for by bank transfer
@@ -298,8 +298,8 @@ models:
       dimension:
         hidden: true
       lineage:
-      - stg_payments.amount
       - stg_payments.payment_method
+      - stg_payments.amount
       sensitivity: PUBLIC
   - name: gift_card_amount
     description: Amount of the order (AUD) paid for by gift card
@@ -309,8 +309,8 @@ models:
       dimension:
         hidden: true
       lineage:
-      - stg_payments.amount
       - stg_payments.payment_method
+      - stg_payments.amount
       sensitivity: PUBLIC
 - name: payments
   description: This table has information about individual payments

@@ -7,7 +7,7 @@ models:
     datapai:
       contains_pii: true
       sensitivity_level: confidential
-      default_answer_mode: masked
+      default_answer_mode: full
   columns:
   - name: customer_id
     description: This is a unique identifier for a customer
@@ -25,9 +25,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: last_name
     description: Customer's last name. PII.
@@ -39,9 +39,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: created
     description: Timestamp (UTC) when customer was created

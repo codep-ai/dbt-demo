@@ -37,78 +37,78 @@ models:
     description: Closing price converted to USD.
     meta:
       lineage:
-      - stg_prices.close
       - stg_exchange_ref.currency_code
       - stg_fx_rates.rate
       - stg_prices.trade_date
+      - stg_prices.close
       sensitivity: PUBLIC
   - name: sma_5
     description: 5-day simple moving average of close price.
     meta:
       lineage:
-      - stg_prices.ticker
       - stg_prices.trade_date
-      - stg_prices.close
       - stg_prices.exchange
+      - stg_prices.ticker
+      - stg_prices.close
       sensitivity: PUBLIC
   - name: rsi_14
     description: 14-day Relative Strength Index.
     meta:
       lineage:
-      - stg_prices.ticker
-      - stg_prices.trade_date
       - stg_prices.exchange
       - stg_prices.trade_date
+      - stg_prices.exchange
+      - stg_prices.ticker
       - stg_prices.close
-      - stg_prices.exchange
       - stg_prices.ticker
+      - stg_prices.trade_date
       sensitivity: PUBLIC
   - name: macd_line
     description: MACD Line (12-day SMA - 26-day SMA).
     meta:
       lineage:
-      - stg_prices.ticker
       - stg_prices.trade_date
-      - stg_prices.close
       - stg_prices.exchange
+      - stg_prices.ticker
+      - stg_prices.close
       sensitivity: PUBLIC
   - name: obv_trend
     description: Trend of On-Balance Volume over 10 days (UP, DOWN, FLAT).
     meta:
       lineage:
-      - stg_prices.ticker
       - stg_prices.trade_date
-      - stg_prices.close
+      - stg_prices.trade_date
       - stg_prices.exchange
       - stg_prices.ticker
       - stg_prices.close
       - stg_prices.volume
       - stg_prices.exchange
-      - stg_prices.trade_date
+      - stg_prices.ticker
+      - stg_prices.close
       sensitivity: PUBLIC
   - name: volatility_20d
     description: 20-day annualized volatility based on log returns.
     meta:
       lineage:
       - stg_prices.trade_date
-      - stg_prices.close
       - stg_prices.exchange
       - stg_prices.ticker
       - stg_prices.close
-      - stg_prices.ticker
       - stg_prices.exchange
+      - stg_prices.ticker
       - stg_prices.trade_date
+      - stg_prices.close
       sensitivity: PUBLIC
   - name: pivot_pp
     description: Pivot Point (Typical Price) from previous period.
     meta:
       lineage:
-      - stg_prices.close
-      - stg_prices.ticker
+      - stg_prices.low
       - stg_prices.high
       - stg_prices.exchange
-      - stg_prices.low
+      - stg_prices.ticker
       - stg_prices.trade_date
+      - stg_prices.close
       sensitivity: PUBLIC
   meta:
     column_lineage_dialect: snowflake

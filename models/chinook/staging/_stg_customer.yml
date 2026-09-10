@@ -24,9 +24,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: customer_last_name
     description: Last name of the customer
@@ -40,9 +40,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: customer_company
     description: Company name of the customer
@@ -62,9 +62,9 @@ models:
         pii: indirect
         security_class: internal
         masking_rule: partial_mask
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: customer_city
     description: City of the customer
@@ -78,9 +78,9 @@ models:
         pii: indirect
         security_class: internal
         masking_rule: partial_mask
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: customer_state
     description: State of the customer
@@ -92,9 +92,9 @@ models:
         pii: indirect
         security_class: internal
         masking_rule: partial_mask
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: customer_country
     description: Country of the customer
@@ -114,9 +114,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: customer_postal_code
     description: Postal Code of the customer
@@ -134,9 +134,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: customer_email
     description: Email address of the customer
@@ -150,9 +150,9 @@ models:
         pii: direct
         security_class: confidential
         masking_rule: hash
-        answer_mode: masked
+        answer_mode: full
         allowed_in_output: true
-        allowed_in_export: false
+        allowed_in_export: true
         ai_sensitivity_source: datapai-ai-etl column lineage
   - name: employee_id
     description: Employee key identifier
@@ -167,6 +167,6 @@ models:
     datapai:
       contains_pii: true
       sensitivity_level: confidential
-      default_answer_mode: masked
+      default_answer_mode: full
       ai_access_level: approved
       ai_enabled: true
