@@ -27,6 +27,6 @@
            day_of_month,
            day_of_week,
       FROM {{ ref('fct_invoice') }} invoice
- LEFT JOIN {{ ref('dim_date') }} dim_date 
+ LEFT JOIN {{ ref('chinook_dim_date') }} dim_date 
         ON invoice.invoice_date = dim_date.date_key
  LEFT JOIN {{ ref('dim_customer') }} customer USING (customer_id)

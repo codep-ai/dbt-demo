@@ -1,0 +1,127 @@
+version: 2
+models:
+- name: fct_screener_metrics
+  description: 'Latest snapshot of screener metrics per ticker.
+
+
+    NOTE: planned tests reference columns not emitted: [''exchange_key'', ''ticker_key'']'
+  config:
+    tags:
+    - fact
+    - stock_ai
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - ticker
+      - exchange
+  columns:
+  - name: ticker
+    description: Ticker symbol.
+  - name: exchange
+    description: Exchange code.
+  - name: latest_close
+    description: Most recent closing price.
+  - name: latest_volume
+    description: Most recent trading volume.
+  - name: trade_date
+    description: Date of the latest metrics.
+  - name: change_1d_pct
+    description: 1-day price change percentage.
+  - name: change_5d_pct
+    description: 5-day price change percentage.
+  - name: change_1m_pct
+    description: 1-month price change percentage.
+  - name: change_3m_pct
+    description: 3-month price change percentage.
+  - name: change_6m_pct
+    description: 6-month price change percentage.
+  - name: change_1y_pct
+    description: 1-year price change percentage.
+  - name: high_52w
+    description: 52-week high price.
+  - name: low_52w
+    description: 52-week low price.
+  - name: pct_from_52w_high
+    description: Percentage distance from 52-week high.
+  - name: pct_from_52w_low
+    description: Percentage distance from 52-week low.
+  - name: sma_20
+    description: 20-day simple moving average.
+  - name: sma_50
+    description: 50-day simple moving average.
+  - name: sma_200
+    description: 200-day simple moving average.
+  - name: price_vs_sma20_pct
+    description: Percentage difference between price and SMA 20.
+  - name: price_vs_sma50_pct
+    description: Percentage difference between price and SMA 50.
+  - name: price_vs_sma200_pct
+    description: Percentage difference between price and SMA 200.
+  - name: golden_cross
+    description: True if SMA 50 > SMA 200.
+  - name: death_cross
+    description: True if SMA 50 < SMA 200.
+  - name: avg_volume_20d
+    description: 20-day average trading volume.
+  - name: volume_ratio
+    description: Ratio of current volume to 20-day average volume.
+  - name: volatility_20d
+    description: 20-day price volatility.
+  - name: rsi_14
+    description: 14-day Relative Strength Index.
+  - name: computed_at
+    description: Timestamp when the record was computed. Cast to scale 6 for Iceberg compatibility.
+  - name: sma_5
+    description: 5-day simple moving average.
+  - name: sma_10
+    description: 10-day simple moving average.
+  - name: sma_30
+    description: 30-day simple moving average.
+  - name: price_vs_sma5_pct
+    description: Percentage difference between price and SMA 5.
+  - name: price_vs_sma10_pct
+    description: Percentage difference between price and SMA 10.
+  - name: price_vs_sma30_pct
+    description: Percentage difference between price and SMA 30.
+  - name: macd_line
+    description: MACD Line value.
+  - name: macd_signal
+    description: MACD Signal value.
+  - name: macd_histogram
+    description: MACD Histogram value.
+  - name: macd_trend
+    description: MACD Trend (BULLISH/BEARISH).
+  - name: kdj_k
+    description: KDJ K value.
+  - name: kdj_d
+    description: KDJ D value.
+  - name: kdj_j
+    description: KDJ J value.
+  - name: kdj_signal
+    description: KDJ Signal (OVERBOUGHT/OVERSOLD/NEUTRAL).
+  - name: bb_upper
+    description: Bollinger Band Upper.
+  - name: bb_middle
+    description: Bollinger Band Middle.
+  - name: bb_lower
+    description: Bollinger Band Lower.
+  - name: bb_pct_b
+    description: Bollinger Band %B.
+  - name: bb_width
+    description: Bollinger Band Width.
+  - name: pivot_pp
+    description: Pivot Point.
+  - name: pivot_r1
+    description: Pivot Resistance 1.
+  - name: pivot_r2
+    description: Pivot Resistance 2.
+  - name: pivot_s1
+    description: Pivot Support 1.
+  - name: pivot_s2
+    description: Pivot Support 2.
+  - name: obv_trend
+    description: On-Balance Volume Trend.
+  - name: avg_volume_5d
+    description: 5-day average trading volume.
+  - name: avg_volume_10d
+    description: 10-day average trading volume.

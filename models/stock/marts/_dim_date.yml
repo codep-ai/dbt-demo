@@ -1,0 +1,20 @@
+version: 2
+models:
+- name: dim_date
+  description: Trading calendar dimension.
+  config:
+    tags:
+    - dimension
+    - stock_ai
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - date_day
+      - exchange
+  columns:
+  - name: date_day
+    description: The specific calendar date.
+  - name: exchange
+    description: The exchange code associated with the trading day status.
+  - name: is_trading_day
+    description: Indicates if the exchange is open for trading (not a weekend or a recorded closed date).

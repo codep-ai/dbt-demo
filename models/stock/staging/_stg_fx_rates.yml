@@ -1,0 +1,22 @@
+version: 2
+models:
+- name: stg_fx_rates
+  description: Daily FX rates vs USD.
+  config:
+    tags:
+    - staging
+    - stock_ai
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - quote_currency
+      - trade_date
+  columns:
+  - name: base_currency
+    description: The base currency for the exchange rate, typically USD.
+  - name: quote_currency
+    description: The currency being quoted against the base currency.
+  - name: rate
+    description: The exchange rate value.
+  - name: trade_date
+    description: The date the exchange rate was recorded, cast from text.

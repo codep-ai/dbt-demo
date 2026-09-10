@@ -1,0 +1,32 @@
+version: 2
+models:
+- name: stg_ticker_universe
+  description: One row per ticker-exchange pair.
+  config:
+    tags:
+    - staging
+    - stock_ai
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - ticker
+      - exchange
+  columns:
+  - name: ticker
+    description: The unique ticker symbol for the asset.
+    tests:
+    - not_null
+  - name: exchange
+    description: The exchange where the ticker is listed.
+  - name: yf_symbol
+    description: The Yahoo Finance symbol mapping.
+  - name: company_name
+    description: The legal name of the company.
+  - name: sector
+    description: The industry sector classification.
+  - name: is_active
+    description: Flag indicating if the ticker is currently active.
+  - name: asset_type
+    description: The type of asset (e.g., stock, etf).
+  - name: region
+    description: The geographic region of the exchange.

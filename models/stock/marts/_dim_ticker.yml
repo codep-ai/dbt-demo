@@ -1,0 +1,29 @@
+version: 2
+models:
+- name: dim_ticker
+  description: Ticker dimension, SCD type 1.
+  config:
+    tags:
+    - dimension
+    - stock_ai
+  columns:
+  - name: ticker_key
+    description: 'Primary key: MD5 hash of ticker and exchange.'
+    tests:
+    - unique
+  - name: ticker
+    description: The stock ticker symbol.
+  - name: exchange
+    description: The stock exchange name.
+  - name: yf_symbol
+    description: Yahoo Finance symbol.
+  - name: company_name
+    description: Name of the company.
+  - name: sector
+    description: Industry sector.
+  - name: is_active
+    description: Flag indicating if the ticker is currently active.
+  - name: asset_type
+    description: Type of asset (e.g., Equity, ETF).
+  - name: region
+    description: Geographic region of the exchange.

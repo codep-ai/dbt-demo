@@ -1,0 +1,37 @@
+version: 2
+models:
+- name: stg_prices
+  description: One row per ticker, date, and exchange price record.
+  config:
+    tags:
+    - staging
+    - stock_ai
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - ticker
+      - trade_date
+      - exchange
+  columns:
+  - name: ticker
+    description: Stock ticker symbol.
+    tests:
+    - not_null
+  - name: trade_date
+    description: The date of the trade.
+    tests:
+    - not_null
+  - name: close
+    description: Closing price of the stock.
+  - name: volume
+    description: Trading volume. Cast to bigint as 'long' is not a valid Snowflake type alias.
+  - name: open
+    description: Opening price of the stock.
+  - name: high
+    description: Highest price during the session.
+  - name: low
+    description: Lowest price during the session.
+  - name: adj_close
+    description: Adjusted closing price.
+  - name: exchange
+    description: The exchange where the stock is traded.

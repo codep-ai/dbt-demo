@@ -1,0 +1,21 @@
+version: 2
+models:
+- name: stg_exchange_ref
+  description: One row per exchange with currency metadata.
+  config:
+    tags:
+    - staging
+    - stock_ai
+  columns:
+  - name: exchange
+    description: The unique identifier for the exchange.
+    tests:
+    - unique
+  - name: currency_code
+    description: The ISO currency code used by the exchange.
+  - name: currency_symbol
+    description: The symbol associated with the currency.
+  - name: currency_name_en
+    description: The English name of the currency.
+  - name: country
+    description: The country where the exchange is located.

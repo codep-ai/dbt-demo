@@ -1,0 +1,22 @@
+version: 2
+models:
+- name: stg_closed_dates
+  description: Market holiday dates per exchange.
+  config:
+    tags:
+    - staging
+    - stock_ai
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - market_code
+      - closed_date
+  columns:
+  - name: market_code
+    description: The unique identifier for the stock exchange market.
+  - name: closed_date
+    description: The date on which the market was closed.
+    tests:
+    - not_null
+  - name: reason
+    description: The reason for the market closure (e.g., holiday name).

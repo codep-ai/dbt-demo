@@ -1,0 +1,23 @@
+version: 2
+models:
+- name: dim_exchange
+  description: Exchange dimension, SCD type 1.
+  config:
+    tags:
+    - dimension
+    - stock_ai
+  columns:
+  - name: exchange_key
+    description: Surrogate key based on the exchange name.
+    tests:
+    - unique
+  - name: exchange
+    description: The name of the exchange.
+  - name: currency_code
+    description: The ISO currency code used by the exchange.
+  - name: currency_symbol
+    description: The symbol of the currency.
+  - name: currency_name_en
+    description: The English name of the currency.
+  - name: country
+    description: The country where the exchange is located.

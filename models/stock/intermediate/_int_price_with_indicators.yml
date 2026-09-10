@@ -1,0 +1,43 @@
+version: 2
+models:
+- name: int_price_with_indicators
+  description: Price grain with technical indicators and OBV.
+  config:
+    tags:
+    - intermediate
+    - stock_ai
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - ticker
+      - exchange
+      - trade_date
+  columns:
+  - name: ticker
+    description: Stock ticker symbol.
+  - name: exchange
+    description: Exchange code.
+  - name: trade_date
+    description: Date of trade.
+  - name: close
+    description: Closing price in local currency.
+  - name: close_usd
+    description: Closing price converted to USD using FX rates.
+  - name: volume
+    description: Trading volume.
+  - name: sma_5
+    description: Simple Moving Average over 5 days.
+  - name: sma_200
+    description: Simple Moving Average over 200 days.
+  - name: volatility_20d
+    description: Annualized 20-day volatility based on log returns.
+  - name: rsi_14
+    description: Relative Strength Index over 14 days.
+  - name: obv
+    description: On-Balance Volume.
+  - name: obv_trend
+    description: Trend of OBV over the last 10 days (UP, DOWN, FLAT).
+  - name: pivot_pp
+    description: Pivot Point (Typical Price) from previous period.
+  - name: kdj_k
+    description: K-line of the KDJ indicator (3-day SMA of raw stochastic).

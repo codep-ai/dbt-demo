@@ -1,0 +1,52 @@
+version: 2
+sources:
+- name: src_stock
+  schema: STOCK
+  tables:
+  - name: exchange_ref
+    columns:
+    - name: exchange
+    - name: currency_code
+    - name: currency_symbol
+    - name: currency_name_en
+    - name: country
+  - name: fx_rates_daily
+    columns:
+    - name: base_currency
+    - name: quote_currency
+    - name: rate
+    - name: trade_date
+    - name: source
+  - name: prices
+    columns:
+    - name: ticker
+    - name: trade_date
+    - name: close
+    - name: volume
+    - name: open
+    - name: high
+    - name: low
+    - name: adj_close
+    - name: exchange
+    - name: source
+  - name: stock_market_closed_dates
+    columns:
+    - name: market_code
+    - name: closed_date
+    - name: reason
+  - name: ticker_universe
+    columns:
+    - name: ticker
+    - name: exchange
+    - name: yf_symbol
+    - name: company_name
+    - name: sector
+    - name: is_active
+    - name: source
+    - name: added_at
+    - name: updated_at
+    - name: asset_type
+    - name: region
+    - name: is_featured
+    - name: featured_order
+  database: DATAPAI

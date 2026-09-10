@@ -6,6 +6,11 @@ version: "1.0"
 
 require-dbt-version: ">=1.0.7"
 
+# dbt-snowflake >=1.9 requires this flag for table_format=iceberg models (added 2026-09-09, datapai-ai-etl week 2)
+flags:
+  enable_iceberg_materializations: true
+  send_anonymous_usage_stats: false
+
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
