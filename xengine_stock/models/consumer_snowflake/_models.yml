@@ -1,0 +1,26 @@
+version: 2
+models:
+  - name: mart_price_monthly_usd
+    description: Monthly price summary per ticker in USD. Consumer mart built by Snowflake over Athena-produced common tables.
+    columns:
+      - {name: ticker, tests: [not_null]}
+      - {name: exchange, tests: [not_null]}
+      - {name: company_name}
+      - {name: sector}
+      - {name: currency_code, tests: [not_null]}
+      - {name: month_start, tests: [not_null]}
+      - {name: trading_days}
+      - {name: avg_close_usd, tests: [not_null]}
+      - {name: month_end_close_usd}
+      - {name: month_end_close_native}
+      - {name: total_volume}
+  - name: mart_exchange_daily_turnover
+    description: Daily USD turnover per exchange. Consumer mart built by Snowflake over Athena-produced common tables.
+    columns:
+      - {name: exchange, tests: [not_null]}
+      - {name: country}
+      - {name: currency_code}
+      - {name: trade_date, tests: [not_null]}
+      - {name: tickers_traded}
+      - {name: turnover_usd}
+      - {name: total_volume}

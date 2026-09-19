@@ -1,0 +1,18 @@
+version: 2
+sources:
+  - name: stock_common
+    description: >
+      Common stock tables PRODUCED BY ATHENA (dbt target `athena`, Glue database `stock_common`) as Apache Iceberg.
+      In Snowflake they are read-only pointers created by lineage/xengine/snowflake_sync.py — same files, no copy.
+    database: DATAPAI
+    schema: STOCK_COMMON
+    meta: {engine: snowflake, produced_by_engine: athena, physical_format: iceberg, glue_database: stock_common}
+    tables:
+      - name: common_price_daily
+        meta: {physical_identity: "glue:stock_common.common_price_daily"}
+      - name: common_exchange
+        meta: {physical_identity: "glue:stock_common.common_exchange"}
+      - name: common_ticker
+        meta: {physical_identity: "glue:stock_common.common_ticker"}
+      - name: common_fx_daily
+        meta: {physical_identity: "glue:stock_common.common_fx_daily"}

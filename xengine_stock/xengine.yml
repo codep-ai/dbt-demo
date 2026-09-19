@@ -1,0 +1,24 @@
+# Project settings for datapai-platform-be/scripts/xengine.py. All project-specific names live here, none in code.
+region: ap-southeast-2
+snowflake: {profile: datapai_snowflake_svc, target: prod}
+
+# Snowflake-written Iceberg -> Glue pointers, so Athena / Spark can read them (raw inputs of the producer)
+glue_sync:
+  - {database: DATAPAI, schemas: [STOCK], glue_database: stock_raw_xengine}
+
+# Glue Iceberg written by the producer engine -> read-only Snowflake pointers, so the Snowflake consumer can read them.
+# Files must sit under the external volume's base URL. Re-run after every producer build.
+snowflake_sync:
+  - glue_database: stock_common
+    database: DATAPAI
+    schema: STOCK_COMMON
+    external_volume: DATAPAI_S3_VOL
+    catalog_integration: CFD_OBJ_CAT          # generic OBJECT_STORE / ICEBERG integration, despite the name
+    volume_base_url: s3://codepais3/stock/bronze/
+
+# Lineage is computed per engine (its own manifest + catalog, own SQL dialect) and stitched at the shared Iceberg tables.
+# Order = producer first. Add {engine: databricks, dialect: databricks, target_dir: target_databricks} when ready.
+engines:
+  - {engine: athena,    dialect: athena,    target_dir: target_athena}
+  - {engine: snowflake, dialect: snowflake, target_dir: target_snowflake}
+lineage_out: target_snowflake/lineage_xengine.json
