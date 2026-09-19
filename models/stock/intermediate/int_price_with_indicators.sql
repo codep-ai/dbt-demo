@@ -40,7 +40,11 @@ joined as (
     select
         p.*,
         e.currency_code,
-        last_value(fx.rate) ignore nulls over (partition by e.currency_code order by p.trade_date rows between unbounded preceding and current row) as effective_fx_rate
+        -- fix 2026-09-19: USD needs no conversion. It used to be looked up like any other currency, so every US row
+        -- before the FX history starts (2025-03-27) got a NULL close_usd: 5.2M of 7.1M rows.
+        case when e.currency_code = 'USD' then 1.0
+             else last_value(fx.rate) ignore nulls over (partition by e.currency_code order by p.trade_date rows between unbounded preceding and current row)
+        end as effective_fx_rate
     from prices p
     left join exchanges e
         on p.exchange = e.exchange
@@ -87,7 +91,14 @@ select
     cast(ticker as varchar) as ticker,
     cast(exchange as varchar) as exchange,
     cast(trade_date as timestamp_ntz(6)) as trade_date,
+    -- Price columns, unambiguous (fix 2026-09-19): `close` is ALWAYS the exchange's native currency, `currency_code`
+    -- says which, `fx_rate` is the units-per-USD rate applied, `close_usd` = close / fx_rate. Indicators below are
+    -- computed on the NATIVE close, so compare them with `close`, never with `close_usd`.
+    cast(currency_code as varchar) as currency_code,
+    cast(close as double) as close,
+    cast(effective_fx_rate as double) as fx_rate,
     cast(close_usd as double) as close_usd,
+    cast(volume as double) as volume,
     cast(sma_5 as double) as sma_5,
     cast(rsi_14 as double) as rsi_14,
     cast(macd_line as double) as macd_line,

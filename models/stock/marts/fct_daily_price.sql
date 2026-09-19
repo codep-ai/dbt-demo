@@ -11,7 +11,10 @@ with price_indicators as (
         ticker,
         exchange,
         trade_date,
+        currency_code,
+        close,
         close_usd,
+        volume,
         sma_5,
         rsi_14,
         macd_line,
@@ -44,9 +47,12 @@ joined as (
         i.ticker,
         i.exchange,
         i.trade_date,
-        i.close_usd as close,
+        -- fix 2026-09-19: `close` was a copy of close_usd and `volume` a hard-coded 0 (placeholders that satisfied the
+        -- column list and every not-null test). Both now carry the real values from the intermediate model.
+        i.currency_code,
+        i.close,
         i.close_usd,
-        cast(0 as double) as volume
+        i.volume
     from price_indicators i
     left join tickers t
         on i.ticker = t.yf_symbol
@@ -62,6 +68,7 @@ select
     ticker,
     exchange,
     trade_date,
+    currency_code,
     close,
     close_usd,
     volume

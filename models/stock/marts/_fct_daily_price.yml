@@ -57,6 +57,8 @@ models:
       lineage:
       - int_price_with_indicators.trade_date
       sensitivity: PUBLIC
+  - name: currency_code
+    description: Currency the exchange quotes in. `close` is in this currency; `close_usd` is always USD.
   - name: close
     description: The closing price (mapped from close_usd).
     meta:

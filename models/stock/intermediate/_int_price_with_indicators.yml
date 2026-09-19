@@ -33,6 +33,12 @@ models:
       lineage:
       - stg_prices.trade_date
       sensitivity: PUBLIC
+  - name: currency_code
+    description: Currency the exchange quotes in. `close` is in this currency.
+  - name: close
+    description: Close in the exchange's NATIVE currency (see currency_code). Indicators in this model are computed on this column.
+  - name: fx_rate
+    description: Units of currency_code per 1 USD applied on that day (last known rate carried forward; 1.0 for USD).
   - name: close_usd
     description: Closing price converted to USD.
     meta:
@@ -42,6 +48,8 @@ models:
       - stg_prices.trade_date
       - stg_prices.close
       sensitivity: PUBLIC
+  - name: volume
+    description: Shares traded that day.
   - name: sma_5
     description: 5-day simple moving average of close price.
     meta:
