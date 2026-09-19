@@ -1,8 +1,13 @@
 # Cross-engine stock demo: ONE dbt-core project, several engines, ONE copy of the data (Apache Iceberg on S3).
 #   producer  -> built BY Athena  into Glue database `stock_common`  (tag: producer)
 #   consumers -> built BY Snowflake (and later Databricks) on top of those same Iceberg tables (tag: consumer_<engine>)
-# Run a slice per engine:   dbt build --target athena --select tag:producer
-#                           dbt build --target snowflake --select tag:consumer_snowflake
+# Tags are facets — combine them when selecting:
+#   cross_engine_producer_consumer   every node of this pattern (the one long, searchable name)
+#   cross_engine                     the capability
+#   role_producer | role_consumer    what the node does
+#   engine_athena | engine_snowflake | engine_databricks   which engine builds it
+# Run a slice per engine:   dbt build --target athena    --select tag:role_producer,tag:engine_athena
+#                           dbt build --target snowflake --select tag:role_consumer,tag:engine_snowflake
 name: stock_xengine
 version: "1.0.0"
 config-version: 2
@@ -14,22 +19,22 @@ clean-targets: ["target", "dbt_packages"]
 
 tests:
   stock_xengine:
-    +tags: ["producer_consumer_demo"]
+    +tags: ["cross_engine_producer_consumer", "cross_engine"]
 
-# Every model and test in this project carries `producer_consumer_demo`, so the whole data-producer-to-consumer demo
-# can be selected, documented and traced as one unit across engines:   dbt ls --select tag:producer_consumer_demo
+# Every model and test carries the two project-wide tags, so the whole pattern can be selected, documented and traced
+# as one unit across engines:   dbt ls --select tag:cross_engine_producer_consumer
 models:
   stock_xengine:
-    +tags: ["producer_consumer_demo"]
+    +tags: ["cross_engine_producer_consumer", "cross_engine"]
     producer_athena:
       +enabled: "{{ target.type == 'athena' }}"
-      +tags: ["producer", "stock_common", "xengine"]
+      +tags: ["role_producer", "engine_athena", "stock_common"]
       +materialized: table
       +table_type: iceberg
       +format: parquet
       +meta: {engine: athena, role: producer}
     consumer_snowflake:
       +enabled: "{{ target.type == 'snowflake' }}"
-      +tags: ["consumer_snowflake", "xengine"]
+      +tags: ["role_consumer", "engine_snowflake"]
       +materialized: table
       +meta: {engine: snowflake, role: consumer}

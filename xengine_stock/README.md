@@ -5,5 +5,7 @@ Consumers: **Snowflake** (and later **Databricks**) read those same files and bu
 Column lineage is computed per engine and stitched at the shared Iceberg tables (`datapai-platform-be/lineage/xengine`).
 
     export DBT_PROFILES_DIR=/home/ec2-user/.dbt
-    dbt build --target athena    --select tag:producer
-    dbt build --target snowflake --select tag:consumer_snowflake
+    ./xdbt.sh build --target athena    --select tag:role_producer,tag:engine_athena
+    ./xdbt.sh build --target snowflake --select tag:role_consumer,tag:engine_snowflake
+
+Tags are facets: `cross_engine_producer_consumer` (everything), `cross_engine`, `role_producer|role_consumer`, `engine_<name>`.
