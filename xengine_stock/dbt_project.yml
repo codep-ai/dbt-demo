@@ -18,11 +18,13 @@ target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
 # Which Unity Catalog foreign catalog the Databricks consumer reads through (the Snowflake bridge on Azure).
-#   snowflake_datapai_catalog  = query federation: Snowflake runs the query (works today)
-#   snowflake_datapai_iceberg  = catalog federation: Databricks reads the Iceberg files from S3 itself (target state)
+#   snowflake_datapai_iceberg = catalog federation (live since 2026-09-21): Snowflake-MANAGED Iceberg tables are read by Databricks straight
+#   from S3 (provider=iceberg); tables Snowflake only references (Athena/Glue-written stock_common) are served THROUGH Snowflake
+#   (provider=snowflake). Only ONE foreign catalog may mirror the Snowflake database, so the wizard-made snowflake_datapai_catalog was dropped
+#   (recreate script: datapai-platform-be/infra/xengine/databricks_azure_reads_snowflake_iceberg/rollback/).
 # Override per run:  --vars '{dbx_bridge_catalog: snowflake_datapai_iceberg}'
 vars:
-  dbx_bridge_catalog: snowflake_datapai_catalog
+  dbx_bridge_catalog: snowflake_datapai_iceberg
 
 flags:
   enable_iceberg_materializations: true   # dbt-snowflake: consumer marts are Iceberg too (one open format end to end)
