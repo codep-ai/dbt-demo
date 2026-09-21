@@ -15,6 +15,12 @@ snowflake_sync:
     external_volume: DATAPAI_S3_VOL
     catalog_integration: CFD_OBJ_CAT          # generic OBJECT_STORE / ICEBERG integration, despite the name
     volume_base_url: s3://codepais3/stock/bronze/
+    # glue = tables backed by the GLUE catalog integration with AUTO_REFRESH. Tested 2026-09-21: auto-refresh follows a table only while
+    # its Iceberg UUID is stable. These producer models are full-rebuild `table` models (DROP + CREATE = new UUID), so STILL run
+    # snowflake-sync after each producer build; it re-binds. Incremental/merge producers need no sync.
+    # pointer = snapshot pointers via the object-store integration (works with zero account privileges; needs a sync each build).
+    mode: glue
+    glue_catalog_integration: GLUE_STOCK_COMMON
 
 # Lineage is computed per engine (its own manifest + catalog, own SQL dialect) and stitched at the shared Iceberg tables.
 # Order = producer first. Add {engine: databricks, dialect: databricks, target_dir: target_databricks} when ready.
