@@ -17,6 +17,13 @@ test-paths: ["tests"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
+# Which Unity Catalog foreign catalog the Databricks consumer reads through (the Snowflake bridge on Azure).
+#   snowflake_datapai_catalog  = query federation: Snowflake runs the query (works today)
+#   snowflake_datapai_iceberg  = catalog federation: Databricks reads the Iceberg files from S3 itself (target state)
+# Override per run:  --vars '{dbx_bridge_catalog: snowflake_datapai_iceberg}'
+vars:
+  dbx_bridge_catalog: snowflake_datapai_catalog
+
 flags:
   enable_iceberg_materializations: true   # dbt-snowflake: consumer marts are Iceberg too (one open format end to end)
 
