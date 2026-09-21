@@ -23,8 +23,9 @@ snowflake_sync:
     glue_catalog_integration: GLUE_STOCK_COMMON
 
 # Lineage is computed per engine (its own manifest + catalog, own SQL dialect) and stitched at the shared Iceberg tables.
-# Order = producer first. Add {engine: databricks, dialect: databricks, target_dir: target_databricks} when ready.
+# Order = producer first, then consumers.
 engines:
   - {engine: athena,    dialect: athena,    target_dir: target_athena}
   - {engine: snowflake, dialect: snowflake, target_dir: target_snowflake}
+  - {engine: databricks, dialect: databricks, target_dir: target_databricks}   # skipped until its artefacts exist
 lineage_out: target_snowflake/lineage_xengine.json

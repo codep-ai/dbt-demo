@@ -44,6 +44,11 @@ models:
       +external_volume: DATAPAI_S3_VOL
       +base_location_subpath: _xengine_consumer
       +meta: {engine: snowflake, role: consumer}
+    consumer_databricks:
+      +enabled: "{{ target.type == 'databricks' }}"
+      +tags: ["role_consumer", "engine_databricks"]
+      +materialized: table
+      +meta: {engine: databricks, role: consumer}
 
 # Sources are switched per engine too. Otherwise each engine tries to catalogue the OTHER engine's sources
 # ("DataCatalog DATAPAI was not found" on Athena, "Database AWSDATACATALOG does not exist" on Snowflake).
@@ -53,3 +58,5 @@ sources:
       +enabled: "{{ target.type == 'athena' }}"
     consumer_snowflake:
       +enabled: "{{ target.type == 'snowflake' }}"
+    consumer_databricks:
+      +enabled: "{{ target.type == 'databricks' }}"

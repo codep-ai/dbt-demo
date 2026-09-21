@@ -1,0 +1,23 @@
+version: 2
+# Databricks reaches the shared Iceberg tables through ONE Unity Catalog foreign catalog (Snowflake catalog federation), set by
+# var `dbx_bridge_catalog`. On Azure, Glue cannot be mounted, so Snowflake is the catalog bridge: Databricks asks it for the current
+# Iceberg metadata file, then reads the files from S3 itself. On a Databricks-on-AWS workspace, point the var at a Glue foreign catalog.
+# Source NAMES must be unique across the whole project (dbt checks even disabled ones), hence `stock_common_dbx`.
+# `physical_identity` is the engine-independent name the lineage stitcher joins on — identical to what the other engines declare.
+sources:
+  - name: stock_common_dbx          # PRODUCED BY ATHENA — Databricks is the 2nd consumer (Snowflake is the 1st)
+    database: "{{ var('dbx_bridge_catalog', 'snowflake_datapai') }}"
+    schema: stock_common
+    meta: {engine: databricks, produced_by_engine: athena, physical_format: iceberg}
+    tables:
+      - name: common_price_daily
+        meta: {physical_identity: "glue:stock_common.common_price_daily"}
+      - name: common_ticker
+        meta: {physical_identity: "glue:stock_common.common_ticker"}
+  - name: stock_consumer_sf         # PRODUCED BY SNOWFLAKE (Snowflake-managed Iceberg) — read directly from S3 by Databricks
+    database: "{{ var('dbx_bridge_catalog', 'snowflake_datapai') }}"
+    schema: stock_consumer
+    meta: {engine: databricks, produced_by_engine: snowflake, physical_format: iceberg}
+    tables:
+      - name: mart_price_monthly_usd
+        meta: {physical_identity: "snowflake:datapai.stock_consumer.mart_price_monthly_usd"}
