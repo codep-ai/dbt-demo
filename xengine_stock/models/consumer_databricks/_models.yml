@@ -11,11 +11,12 @@ models:
       - {name: close_usd}
       - {name: return_20d}
       - {name: volume_vs_20d_avg}
-  - name: feat_sector_monthly
-    description: Monthly sector aggregates. Built by Databricks on a Snowflake-produced mart (Snowflake-managed Iceberg).
+  - name: feat_exchange_monthly
+    description: Monthly aggregates per exchange and currency. Built by Databricks on a Snowflake-produced mart (Snowflake-managed Iceberg).
     columns:
-      - {name: sector, tests: [not_null]}
+      - {name: exchange, tests: [not_null]}
+      - {name: currency_code, tests: [not_null]}
       - {name: month_start, tests: [not_null]}
       - {name: tickers}
-      - {name: sector_avg_close_usd}
-      - {name: sector_total_volume}
+      - {name: avg_close_usd}
+      - {name: total_volume}
