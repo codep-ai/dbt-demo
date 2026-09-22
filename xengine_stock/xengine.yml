@@ -1,4 +1,5 @@
 # Project settings for datapai-platform-be/scripts/xengine.py. All project-specific names live here, none in code.
+pipeline_id: stock_xengine        # key in datapai.sys_ai_column_lineage / sys_ai_lineage_node
 region: ap-southeast-2
 snowflake: {profile: datapai_snowflake_svc, target: prod}
 
@@ -21,6 +22,10 @@ snowflake_sync:
     # pointer = snapshot pointers via the object-store integration (works with zero account privileges; needs a sync each build).
     mode: glue
     glue_catalog_integration: GLUE_STOCK_COMMON
+
+# Reader grants for the Databricks federation role (a re-created Snowflake pointer table loses its grants).
+reader_grants:
+  - {roles: [DATABRICKS_READER], schemas: [DATAPAI.STOCK_COMMON, DATAPAI.STOCK_CONSUMER]}
 
 # Lineage is computed per engine (its own manifest + catalog, own SQL dialect) and stitched at the shared Iceberg tables.
 # Order = producer first, then consumers.
