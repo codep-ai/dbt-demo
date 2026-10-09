@@ -1,0 +1,1303 @@
+{
+ "engines": [
+  "athena",
+  "snowflake",
+  "databricks"
+ ],
+ "skipped_engines": [],
+ "per_engine": {
+  "athena": {
+   "models": 4,
+   "edges": 29,
+   "unresolved": 0,
+   "degraded_columns": 0
+  },
+  "snowflake": {
+   "models": 2,
+   "edges": 24,
+   "unresolved": 0,
+   "degraded_columns": 0
+  },
+  "databricks": {
+   "models": 2,
+   "edges": 22,
+   "unresolved": 0,
+   "degraded_columns": 0
+  }
+ },
+ "projects": [],
+ "nodes": {
+  "source:prices": {
+   "engine": "athena",
+   "project": null,
+   "role": "source",
+   "identity": null,
+   "relation": "awsdatacatalog.stock_iceberg.prices",
+   "produced_by_engine": null
+  },
+  "source:exchange_ref": {
+   "engine": "athena",
+   "project": null,
+   "role": "source",
+   "identity": null,
+   "relation": "awsdatacatalog.stock_iceberg.exchange_ref",
+   "produced_by_engine": null
+  },
+  "source:fx_rates_daily": {
+   "engine": "athena",
+   "project": null,
+   "role": "source",
+   "identity": null,
+   "relation": "awsdatacatalog.stock_iceberg.fx_rates_daily",
+   "produced_by_engine": null
+  },
+  "source:ticker_universe": {
+   "engine": "athena",
+   "project": null,
+   "role": "source",
+   "identity": null,
+   "relation": "awsdatacatalog.stock_iceberg.ticker_universe",
+   "produced_by_engine": null
+  },
+  "common_fx_daily": {
+   "engine": "athena",
+   "project": null,
+   "role": "producer",
+   "identity": "glue:stock_common.common_fx_daily",
+   "relation": "awsdatacatalog.stock_common.common_fx_daily",
+   "built": true,
+   "columns": {
+    "trade_date": "PUBLIC",
+    "currency_code": "PUBLIC",
+    "units_per_usd": "PUBLIC"
+   }
+  },
+  "common_exchange": {
+   "engine": "athena",
+   "project": null,
+   "role": "producer",
+   "identity": "glue:stock_common.common_exchange",
+   "relation": "awsdatacatalog.stock_common.common_exchange",
+   "built": true,
+   "columns": {
+    "exchange": "PUBLIC",
+    "currency_code": "PUBLIC",
+    "country": "PUBLIC"
+   }
+  },
+  "common_price_daily": {
+   "engine": "athena",
+   "project": null,
+   "role": "producer",
+   "identity": "glue:stock_common.common_price_daily",
+   "relation": "awsdatacatalog.stock_common.common_price_daily",
+   "built": true,
+   "columns": {
+    "ticker": "PUBLIC",
+    "exchange": "PUBLIC",
+    "trade_date": "PUBLIC",
+    "currency_code": "PUBLIC",
+    "close": "PUBLIC",
+    "units_per_usd": "PUBLIC",
+    "close_usd": "PUBLIC",
+    "volume": "PUBLIC"
+   }
+  },
+  "common_ticker": {
+   "engine": "athena",
+   "project": null,
+   "role": "producer",
+   "identity": "glue:stock_common.common_ticker",
+   "relation": "awsdatacatalog.stock_common.common_ticker",
+   "built": true,
+   "columns": {
+    "ticker": "PUBLIC",
+    "ticker_raw": "PUBLIC",
+    "exchange": "PUBLIC",
+    "company_name": "PUBLIC",
+    "sector": "PUBLIC",
+    "asset_type": "PUBLIC",
+    "region": "PUBLIC",
+    "is_active": "PUBLIC"
+   }
+  },
+  "mart_exchange_daily_turnover": {
+   "engine": "snowflake",
+   "project": null,
+   "role": "consumer",
+   "identity": "snowflake:datapai.stock_consumer.mart_exchange_daily_turnover",
+   "relation": "DATAPAI.STOCK_CONSUMER.mart_exchange_daily_turnover",
+   "built": true,
+   "columns": {
+    "exchange": "PUBLIC",
+    "country": "PUBLIC",
+    "currency_code": "PUBLIC",
+    "trade_date": "PUBLIC",
+    "tickers_traded": "PUBLIC",
+    "turnover_usd": "PUBLIC",
+    "total_volume": "PUBLIC"
+   }
+  },
+  "mart_price_monthly_usd": {
+   "engine": "snowflake",
+   "project": null,
+   "role": "consumer",
+   "identity": "snowflake:datapai.stock_consumer.mart_price_monthly_usd",
+   "relation": "DATAPAI.STOCK_CONSUMER.mart_price_monthly_usd",
+   "built": true,
+   "columns": {
+    "ticker": "PUBLIC",
+    "exchange": "PUBLIC",
+    "company_name": "PUBLIC",
+    "sector": "PUBLIC",
+    "currency_code": "PUBLIC",
+    "month_start": "PUBLIC",
+    "trading_days": "PUBLIC",
+    "avg_close_usd": "PUBLIC",
+    "month_end_close_usd": "PUBLIC",
+    "month_end_close_native": "PUBLIC",
+    "total_volume": "PUBLIC"
+   }
+  },
+  "feat_price_momentum": {
+   "engine": "databricks",
+   "project": null,
+   "role": "consumer",
+   "identity": null,
+   "relation": "azure_datapai_databricks_dev.stock_consumer_dbx.feat_price_momentum",
+   "built": true,
+   "columns": {
+    "ticker": "PUBLIC",
+    "exchange": "PUBLIC",
+    "sector": "PUBLIC",
+    "trade_date": "PUBLIC",
+    "currency_code": "PUBLIC",
+    "close_usd": "PUBLIC",
+    "return_20d": "PUBLIC",
+    "volume_vs_20d_avg": "PUBLIC"
+   }
+  },
+  "feat_exchange_monthly": {
+   "engine": "databricks",
+   "project": null,
+   "role": "consumer",
+   "identity": null,
+   "relation": "azure_datapai_databricks_dev.stock_consumer_dbx.feat_exchange_monthly",
+   "built": true,
+   "columns": {
+    "exchange": "PUBLIC",
+    "currency_code": "PUBLIC",
+    "month_start": "PUBLIC",
+    "tickers": "PUBLIC",
+    "avg_close_usd": "PUBLIC",
+    "total_volume": "PUBLIC"
+   }
+  }
+ },
+ "edges": [
+  {
+   "from_node": "source:fx_rates_daily",
+   "from_column": "trade_date",
+   "to_node": "common_fx_daily",
+   "to_column": "trade_date",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:fx_rates_daily",
+   "from_column": "quote_currency",
+   "to_node": "common_fx_daily",
+   "to_column": "currency_code",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:fx_rates_daily",
+   "from_column": "rate",
+   "to_node": "common_fx_daily",
+   "to_column": "units_per_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:exchange_ref",
+   "from_column": "exchange",
+   "to_node": "common_exchange",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:exchange_ref",
+   "from_column": "currency_code",
+   "to_node": "common_exchange",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:exchange_ref",
+   "from_column": "country",
+   "to_node": "common_exchange",
+   "to_column": "country",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:prices",
+   "from_column": "ticker",
+   "to_node": "common_price_daily",
+   "to_column": "ticker",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:prices",
+   "from_column": "exchange",
+   "to_node": "common_price_daily",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:prices",
+   "from_column": "trade_date",
+   "to_node": "common_price_daily",
+   "to_column": "trade_date",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_exchange",
+   "from_column": "currency_code",
+   "to_node": "common_price_daily",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:prices",
+   "from_column": "close",
+   "to_node": "common_price_daily",
+   "to_column": "close",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_exchange",
+   "from_column": "currency_code",
+   "to_node": "common_price_daily",
+   "to_column": "units_per_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:prices",
+   "from_column": "trade_date",
+   "to_node": "common_price_daily",
+   "to_column": "units_per_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_fx_daily",
+   "from_column": "units_per_usd",
+   "to_node": "common_price_daily",
+   "to_column": "units_per_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_exchange",
+   "from_column": "currency_code",
+   "to_node": "common_price_daily",
+   "to_column": "units_per_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:prices",
+   "from_column": "close",
+   "to_node": "common_price_daily",
+   "to_column": "close_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_exchange",
+   "from_column": "currency_code",
+   "to_node": "common_price_daily",
+   "to_column": "close_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:prices",
+   "from_column": "trade_date",
+   "to_node": "common_price_daily",
+   "to_column": "close_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_fx_daily",
+   "from_column": "units_per_usd",
+   "to_node": "common_price_daily",
+   "to_column": "close_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_exchange",
+   "from_column": "currency_code",
+   "to_node": "common_price_daily",
+   "to_column": "close_usd",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:prices",
+   "from_column": "volume",
+   "to_node": "common_price_daily",
+   "to_column": "volume",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:ticker_universe",
+   "from_column": "ticker",
+   "to_node": "common_ticker",
+   "to_column": "ticker",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:ticker_universe",
+   "from_column": "ticker",
+   "to_node": "common_ticker",
+   "to_column": "ticker_raw",
+   "kind": "derived",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:ticker_universe",
+   "from_column": "exchange",
+   "to_node": "common_ticker",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:ticker_universe",
+   "from_column": "company_name",
+   "to_node": "common_ticker",
+   "to_column": "company_name",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:ticker_universe",
+   "from_column": "sector",
+   "to_node": "common_ticker",
+   "to_column": "sector",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:ticker_universe",
+   "from_column": "asset_type",
+   "to_node": "common_ticker",
+   "to_column": "asset_type",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:ticker_universe",
+   "from_column": "region",
+   "to_node": "common_ticker",
+   "to_column": "region",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "source:ticker_universe",
+   "from_column": "is_active",
+   "to_node": "common_ticker",
+   "to_column": "is_active",
+   "kind": "passthrough",
+   "to_engine": "athena",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_exchange",
+   "from_column": "country",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "country",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "currency_code",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "trade_date",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "tickers_traded",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "turnover_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "turnover_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "total_volume",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "ticker",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_ticker",
+   "from_column": "company_name",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "company_name",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_ticker",
+   "from_column": "sector",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "sector",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "currency_code",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_start",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "avg_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "total_volume",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "feat_price_momentum",
+   "to_column": "ticker",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_ticker",
+   "from_column": "sector",
+   "to_node": "feat_price_momentum",
+   "to_column": "sector",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "feat_price_momentum",
+   "to_column": "trade_date",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "currency_code",
+   "to_node": "feat_price_momentum",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "feat_price_momentum",
+   "to_column": "close_usd",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "exchange",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "currency_code",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "month_start",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "month_start",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "ticker",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "tickers",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "avg_close_usd",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "avg_close_usd",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "total_volume",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "total_volume",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  }
+ ],
+ "crossings": [
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_exchange",
+   "from_column": "country",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "country",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "currency_code",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "trade_date",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "tickers_traded",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "turnover_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "turnover_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "mart_exchange_daily_turnover",
+   "to_column": "total_volume",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "ticker",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_ticker",
+   "from_column": "company_name",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "company_name",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_ticker",
+   "from_column": "sector",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "sector",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "currency_code",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_start",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "avg_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "total_volume",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "feat_price_momentum",
+   "to_column": "ticker",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_ticker",
+   "from_column": "sector",
+   "to_node": "feat_price_momentum",
+   "to_column": "sector",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "feat_price_momentum",
+   "to_column": "trade_date",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "currency_code",
+   "to_node": "feat_price_momentum",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "feat_price_momentum",
+   "to_column": "close_usd",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "close_usd",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "ticker",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "volume",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "exchange",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "exchange",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "currency_code",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "currency_code",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "month_start",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "month_start",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "ticker",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "tickers",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "avg_close_usd",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "avg_close_usd",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  },
+  {
+   "from_node": "mart_price_monthly_usd",
+   "from_column": "total_volume",
+   "to_node": "feat_exchange_monthly",
+   "to_column": "total_volume",
+   "kind": "passthrough",
+   "to_engine": "databricks",
+   "from_engine": "snowflake"
+  }
+ ],
+ "unresolved": [],
+ "summary": {
+  "nodes": 12,
+  "edges": 75,
+  "cross_engine_edges": 46,
+  "not_built": [],
+  "stitched_tables": [
+   "common_exchange",
+   "common_price_daily",
+   "common_ticker",
+   "mart_price_monthly_usd"
+  ]
+ }
+}
