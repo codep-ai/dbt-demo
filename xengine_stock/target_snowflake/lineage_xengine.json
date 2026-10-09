@@ -63,6 +63,7 @@
    "engine": "athena",
    "project": null,
    "role": "producer",
+   "name": "common_fx_daily",
    "identity": "glue:stock_common.common_fx_daily",
    "relation": "awsdatacatalog.stock_common.common_fx_daily",
    "built": true,
@@ -76,6 +77,7 @@
    "engine": "athena",
    "project": null,
    "role": "producer",
+   "name": "common_exchange",
    "identity": "glue:stock_common.common_exchange",
    "relation": "awsdatacatalog.stock_common.common_exchange",
    "built": true,
@@ -89,6 +91,7 @@
    "engine": "athena",
    "project": null,
    "role": "producer",
+   "name": "common_price_daily",
    "identity": "glue:stock_common.common_price_daily",
    "relation": "awsdatacatalog.stock_common.common_price_daily",
    "built": true,
@@ -107,6 +110,7 @@
    "engine": "athena",
    "project": null,
    "role": "producer",
+   "name": "common_ticker",
    "identity": "glue:stock_common.common_ticker",
    "relation": "awsdatacatalog.stock_common.common_ticker",
    "built": true,
@@ -125,6 +129,7 @@
    "engine": "snowflake",
    "project": null,
    "role": "consumer",
+   "name": "mart_exchange_daily_turnover",
    "identity": "snowflake:datapai.stock_consumer.mart_exchange_daily_turnover",
    "relation": "DATAPAI.STOCK_CONSUMER.mart_exchange_daily_turnover",
    "built": true,
@@ -142,6 +147,7 @@
    "engine": "snowflake",
    "project": null,
    "role": "consumer",
+   "name": "mart_price_monthly_usd",
    "identity": "snowflake:datapai.stock_consumer.mart_price_monthly_usd",
    "relation": "DATAPAI.STOCK_CONSUMER.mart_price_monthly_usd",
    "built": true,
@@ -163,6 +169,7 @@
    "engine": "databricks",
    "project": null,
    "role": "consumer",
+   "name": "feat_price_momentum",
    "identity": null,
    "relation": "azure_datapai_databricks_dev.stock_consumer_dbx.feat_price_momentum",
    "built": true,
@@ -181,6 +188,7 @@
    "engine": "databricks",
    "project": null,
    "role": "consumer",
+   "name": "feat_exchange_monthly",
    "identity": null,
    "relation": "azure_datapai_databricks_dev.stock_consumer_dbx.feat_exchange_monthly",
    "built": true,
@@ -304,8 +312,8 @@
    "from_engine": "athena"
   },
   {
-   "from_node": "source:prices",
-   "from_column": "trade_date",
+   "from_node": "common_fx_daily",
+   "from_column": "units_per_usd",
    "to_node": "common_price_daily",
    "to_column": "units_per_usd",
    "kind": "derived",
@@ -313,8 +321,8 @@
    "from_engine": "athena"
   },
   {
-   "from_node": "common_fx_daily",
-   "from_column": "units_per_usd",
+   "from_node": "source:prices",
+   "from_column": "trade_date",
    "to_node": "common_price_daily",
    "to_column": "units_per_usd",
    "kind": "derived",
@@ -349,8 +357,8 @@
    "from_engine": "athena"
   },
   {
-   "from_node": "source:prices",
-   "from_column": "trade_date",
+   "from_node": "common_fx_daily",
+   "from_column": "units_per_usd",
    "to_node": "common_price_daily",
    "to_column": "close_usd",
    "kind": "derived",
@@ -358,8 +366,8 @@
    "from_engine": "athena"
   },
   {
-   "from_node": "common_fx_daily",
-   "from_column": "units_per_usd",
+   "from_node": "source:prices",
+   "from_column": "trade_date",
    "to_node": "common_price_daily",
    "to_column": "close_usd",
    "kind": "derived",
@@ -593,15 +601,6 @@
   },
   {
    "from_node": "common_price_daily",
-   "from_column": "trade_date",
-   "to_node": "mart_price_monthly_usd",
-   "to_column": "month_end_close_usd",
-   "kind": "derived",
-   "to_engine": "snowflake",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
    "from_column": "ticker",
    "to_node": "mart_price_monthly_usd",
    "to_column": "month_end_close_usd",
@@ -612,6 +611,15 @@
   {
    "from_node": "common_price_daily",
    "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
    "to_node": "mart_price_monthly_usd",
    "to_column": "month_end_close_usd",
    "kind": "derived",
@@ -629,15 +637,6 @@
   },
   {
    "from_node": "common_price_daily",
-   "from_column": "trade_date",
-   "to_node": "mart_price_monthly_usd",
-   "to_column": "month_end_close_native",
-   "kind": "derived",
-   "to_engine": "snowflake",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
    "from_column": "ticker",
    "to_node": "mart_price_monthly_usd",
    "to_column": "month_end_close_native",
@@ -648,6 +647,15 @@
   {
    "from_node": "common_price_daily",
    "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
    "to_node": "mart_price_monthly_usd",
    "to_column": "month_end_close_native",
    "kind": "derived",
@@ -737,7 +745,25 @@
   },
   {
    "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
    "from_column": "ticker",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
    "to_node": "feat_price_momentum",
    "to_column": "return_20d",
    "kind": "derived",
@@ -755,9 +781,9 @@
   },
   {
    "from_node": "common_price_daily",
-   "from_column": "exchange",
+   "from_column": "volume",
    "to_node": "feat_price_momentum",
-   "to_column": "return_20d",
+   "to_column": "volume_vs_20d_avg",
    "kind": "derived",
    "to_engine": "databricks",
    "from_engine": "athena"
@@ -766,7 +792,16 @@
    "from_node": "common_price_daily",
    "from_column": "trade_date",
    "to_node": "feat_price_momentum",
-   "to_column": "return_20d",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
    "kind": "derived",
    "to_engine": "databricks",
    "from_engine": "athena"
@@ -783,33 +818,6 @@
   {
    "from_node": "common_price_daily",
    "from_column": "ticker",
-   "to_node": "feat_price_momentum",
-   "to_column": "volume_vs_20d_avg",
-   "kind": "derived",
-   "to_engine": "databricks",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
-   "from_column": "volume",
-   "to_node": "feat_price_momentum",
-   "to_column": "volume_vs_20d_avg",
-   "kind": "derived",
-   "to_engine": "databricks",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
-   "from_column": "exchange",
-   "to_node": "feat_price_momentum",
-   "to_column": "volume_vs_20d_avg",
-   "kind": "derived",
-   "to_engine": "databricks",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
-   "from_column": "trade_date",
    "to_node": "feat_price_momentum",
    "to_column": "volume_vs_20d_avg",
    "kind": "derived",
@@ -1009,15 +1017,6 @@
   },
   {
    "from_node": "common_price_daily",
-   "from_column": "trade_date",
-   "to_node": "mart_price_monthly_usd",
-   "to_column": "month_end_close_usd",
-   "kind": "derived",
-   "to_engine": "snowflake",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
    "from_column": "ticker",
    "to_node": "mart_price_monthly_usd",
    "to_column": "month_end_close_usd",
@@ -1028,6 +1027,15 @@
   {
    "from_node": "common_price_daily",
    "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_usd",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
    "to_node": "mart_price_monthly_usd",
    "to_column": "month_end_close_usd",
    "kind": "derived",
@@ -1045,15 +1053,6 @@
   },
   {
    "from_node": "common_price_daily",
-   "from_column": "trade_date",
-   "to_node": "mart_price_monthly_usd",
-   "to_column": "month_end_close_native",
-   "kind": "derived",
-   "to_engine": "snowflake",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
    "from_column": "ticker",
    "to_node": "mart_price_monthly_usd",
    "to_column": "month_end_close_native",
@@ -1064,6 +1063,15 @@
   {
    "from_node": "common_price_daily",
    "from_column": "exchange",
+   "to_node": "mart_price_monthly_usd",
+   "to_column": "month_end_close_native",
+   "kind": "derived",
+   "to_engine": "snowflake",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
    "to_node": "mart_price_monthly_usd",
    "to_column": "month_end_close_native",
    "kind": "derived",
@@ -1153,7 +1161,25 @@
   },
   {
    "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
    "from_column": "ticker",
+   "to_node": "feat_price_momentum",
+   "to_column": "return_20d",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "trade_date",
    "to_node": "feat_price_momentum",
    "to_column": "return_20d",
    "kind": "derived",
@@ -1171,9 +1197,9 @@
   },
   {
    "from_node": "common_price_daily",
-   "from_column": "exchange",
+   "from_column": "volume",
    "to_node": "feat_price_momentum",
-   "to_column": "return_20d",
+   "to_column": "volume_vs_20d_avg",
    "kind": "derived",
    "to_engine": "databricks",
    "from_engine": "athena"
@@ -1182,7 +1208,16 @@
    "from_node": "common_price_daily",
    "from_column": "trade_date",
    "to_node": "feat_price_momentum",
-   "to_column": "return_20d",
+   "to_column": "volume_vs_20d_avg",
+   "kind": "derived",
+   "to_engine": "databricks",
+   "from_engine": "athena"
+  },
+  {
+   "from_node": "common_price_daily",
+   "from_column": "exchange",
+   "to_node": "feat_price_momentum",
+   "to_column": "volume_vs_20d_avg",
    "kind": "derived",
    "to_engine": "databricks",
    "from_engine": "athena"
@@ -1199,33 +1234,6 @@
   {
    "from_node": "common_price_daily",
    "from_column": "ticker",
-   "to_node": "feat_price_momentum",
-   "to_column": "volume_vs_20d_avg",
-   "kind": "derived",
-   "to_engine": "databricks",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
-   "from_column": "volume",
-   "to_node": "feat_price_momentum",
-   "to_column": "volume_vs_20d_avg",
-   "kind": "derived",
-   "to_engine": "databricks",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
-   "from_column": "exchange",
-   "to_node": "feat_price_momentum",
-   "to_column": "volume_vs_20d_avg",
-   "kind": "derived",
-   "to_engine": "databricks",
-   "from_engine": "athena"
-  },
-  {
-   "from_node": "common_price_daily",
-   "from_column": "trade_date",
    "to_node": "feat_price_momentum",
    "to_column": "volume_vs_20d_avg",
    "kind": "derived",
