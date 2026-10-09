@@ -36,7 +36,7 @@ with stg as (
     select * from {{ ref('stg_ai_chat_messages') }}
 )
 select
-    {{ dbt_utils.surrogate_key(['session_id', 'message_id']) }} as message_sk,
+    {{ dbt_utils.generate_surrogate_key(['session_id', 'message_id']) }} as message_sk,
 
     -- business keys
     message_id,

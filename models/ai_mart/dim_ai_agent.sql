@@ -31,7 +31,7 @@
   primary_control_framework + primary_control_id resolve to dim_ai_control
   via control_sk = md5(framework_code || '.' || control_id). For queries
   needing the full control attributes, join:
-    JOIN dim_ai_control c ON c.control_sk = {{ dbt_utils.surrogate_key(
+    JOIN dim_ai_control c ON c.control_sk = {{ dbt_utils.generate_surrogate_key(
       ['a.primary_control_framework', 'a.primary_control_id']
     ) }}
 #}
@@ -40,7 +40,7 @@ with seed as (
     select * from {{ ref('ai_agents_seed') }}
 )
 select
-    {{ dbt_utils.surrogate_key(['agent_key']) }}                               as agent_sk,
+    {{ dbt_utils.generate_surrogate_key(['agent_key']) }}                               as agent_sk,
     agent_key,
     agent_name,
     agent_role,
@@ -60,7 +60,7 @@ select
     approval_status,
     primary_control_framework,
     primary_control_id,
-    {{ dbt_utils.surrogate_key(['primary_control_framework', 'primary_control_id']) }} as primary_control_sk,
+    {{ dbt_utils.generate_surrogate_key(['primary_control_framework', 'primary_control_id']) }} as primary_control_sk,
     deployed_at,
     decommissioned_at,
     case when decommissioned_at is null then true else false end as is_active,

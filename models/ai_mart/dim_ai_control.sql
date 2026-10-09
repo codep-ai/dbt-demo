@@ -68,7 +68,7 @@ parent_refs as (
 
 select
     -- SCD2 surrogate key includes dbt_valid_from so each version is uniquely keyed
-    {{ dbt_utils.surrogate_key(['h.framework_code', 'h.control_id', 'h.dbt_valid_from']) }}             as control_sk,
+    {{ dbt_utils.generate_surrogate_key(['h.framework_code', 'h.control_id', 'h.dbt_valid_from']) }}             as control_sk,
     -- Natural key (version-agnostic) for current-version joins
     h.framework_code || '.' || h.control_id                                                             as control_nk,
 
@@ -99,7 +99,7 @@ select
     -- Hierarchy (self-referencing)
     h.parent_control_id_computed                                                                        as parent_control_id,
     case when h.parent_control_id_computed is not null
-         then {{ dbt_utils.surrogate_key(['h.framework_code', 'h.parent_control_id_computed']) }}
+         then {{ dbt_utils.generate_surrogate_key(['h.framework_code', 'h.parent_control_id_computed']) }}
          else null
     end                                                                                                 as parent_control_sk,
     h.root_control_id_computed                                                                          as root_control_id,
