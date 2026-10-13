@@ -1,31 +1,34 @@
 version: 2
 models:
-- name: stg_exchange_ref
-  description: 'Exchange metadata, grain: exchange.'
-  config:
-    tags:
-    - staging
-    - stock_ai
-  columns:
-  - name: exchange
-    description: The unique identifier for the exchange.
-    tests:
-    - unique
-    meta:
-      lineage:
-      - source:exchange_ref.exchange
-      sensitivity: PUBLIC
-  - name: currency_code
-    description: The ISO currency code used by the exchange.
-    meta:
-      lineage:
-      - source:exchange_ref.currency_code
-      sensitivity: PUBLIC
-  - name: country
-    description: The country where the exchange is located.
-    meta:
-      lineage:
-      - source:exchange_ref.country
-      sensitivity: PUBLIC
-  meta:
-    column_lineage_dialect: snowflake
+  - name: stg_exchange_ref
+    description: 'Exchange metadata, grain: exchange.'
+    config:
+      tags:
+        - staging
+        - stock_ai
+      meta:
+        column_lineage_dialect: snowflake
+    columns:
+      - name: exchange
+        description: The unique identifier for the exchange.
+        tests:
+          - unique
+        config:
+          meta:
+            lineage:
+              - source:exchange_ref.exchange
+            sensitivity: PUBLIC
+      - name: currency_code
+        description: The ISO currency code used by the exchange.
+        config:
+          meta:
+            lineage:
+              - source:exchange_ref.currency_code
+            sensitivity: PUBLIC
+      - name: country
+        description: The country where the exchange is located.
+        config:
+          meta:
+            lineage:
+              - source:exchange_ref.country
+            sensitivity: PUBLIC

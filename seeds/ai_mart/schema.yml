@@ -39,7 +39,8 @@ seeds:
         tests:
           - not_null
           - accepted_values:
-              values: [stock, health, trade, platform]
+              arguments:
+                values: [stock, health, trade, platform]
       - name: vendor_name
         tests: [not_null]
       - name: llm_name
@@ -48,12 +49,14 @@ seeds:
         tests:
           - not_null
           - accepted_values:
-              values: [low, medium, high]
+              arguments:
+                values: [low, medium, high]
       - name: approval_status
         tests:
           - not_null
           - accepted_values:
-              values: [approved, pending, deprecated]
+              arguments:
+                values: [approved, pending, deprecated]
       - name: primary_control_framework
         description: FK to dim_ai_control.framework_code
       - name: primary_control_id

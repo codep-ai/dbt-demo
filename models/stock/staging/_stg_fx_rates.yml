@@ -1,47 +1,53 @@
 version: 2
 models:
-- name: stg_fx_rates
-  description: 'Daily USD FX rates, grain: quote_currency, trade_date.'
-  config:
-    tags:
-    - staging
-    - stock_ai
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      combination_of_columns:
-      - quote_currency
-      - trade_date
-  columns:
-  - name: fx_rate_id
-    description: Surrogate key for the FX rate record.
-    meta:
-      lineage:
-      - source:fx_rates_daily.trade_date
-      - source:fx_rates_daily.quote_currency
-      sensitivity: PUBLIC
-  - name: base_currency
-    description: The base currency, filtered to USD per spec.
-    meta:
-      lineage:
-      - source:fx_rates_daily.base_currency
-      sensitivity: PUBLIC
-  - name: quote_currency
-    description: The currency being quoted against the base currency.
-    meta:
-      lineage:
-      - source:fx_rates_daily.quote_currency
-      sensitivity: PUBLIC
-  - name: trade_date
-    description: The date of the exchange rate, cast to Iceberg-compatible timestamp.
-    meta:
-      lineage:
-      - source:fx_rates_daily.trade_date
-      sensitivity: PUBLIC
-  - name: rate
-    description: The exchange rate value.
-    meta:
-      lineage:
-      - source:fx_rates_daily.rate
-      sensitivity: PUBLIC
-  meta:
-    column_lineage_dialect: snowflake
+  - name: stg_fx_rates
+    description: 'Daily USD FX rates, grain: quote_currency, trade_date.'
+    config:
+      tags:
+        - staging
+        - stock_ai
+      meta:
+        column_lineage_dialect: snowflake
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - quote_currency
+              - trade_date
+    columns:
+      - name: fx_rate_id
+        description: Surrogate key for the FX rate record.
+        config:
+          meta:
+            lineage:
+              - source:fx_rates_daily.trade_date
+              - source:fx_rates_daily.quote_currency
+            sensitivity: PUBLIC
+      - name: base_currency
+        description: The base currency, filtered to USD per spec.
+        config:
+          meta:
+            lineage:
+              - source:fx_rates_daily.base_currency
+            sensitivity: PUBLIC
+      - name: quote_currency
+        description: The currency being quoted against the base currency.
+        config:
+          meta:
+            lineage:
+              - source:fx_rates_daily.quote_currency
+            sensitivity: PUBLIC
+      - name: trade_date
+        description: The date of the exchange rate, cast to Iceberg-compatible timestamp.
+        config:
+          meta:
+            lineage:
+              - source:fx_rates_daily.trade_date
+            sensitivity: PUBLIC
+      - name: rate
+        description: The exchange rate value.
+        config:
+          meta:
+            lineage:
+              - source:fx_rates_daily.rate
+            sensitivity: PUBLIC

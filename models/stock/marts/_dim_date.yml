@@ -1,35 +1,39 @@
 version: 2
 models:
-- name: dim_date
-  description: 'Trading calendar, grain: date_day, exchange.'
-  config:
-    tags:
-    - dimension
-    - stock_ai
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      combination_of_columns:
-      - date_day
-      - exchange
-  columns:
-  - name: date_day
-    description: The specific calendar date.
-    meta:
-      lineage:
-      - stg_prices.trade_date
-      sensitivity: PUBLIC
-  - name: exchange
-    description: The stock exchange identifier.
-    meta:
-      lineage:
-      - stg_prices.exchange
-      sensitivity: PUBLIC
-  - name: is_trading_day
-    description: True if the date is a weekday and not present in the closed dates table for that exchange.
-    meta:
-      lineage:
-      - stg_prices.trade_date
-      - stg_closed_dates.closed_date
-      sensitivity: PUBLIC
-  meta:
-    column_lineage_dialect: snowflake
+  - name: dim_date
+    description: 'Trading calendar, grain: date_day, exchange.'
+    config:
+      tags:
+        - dimension
+        - stock_ai
+      meta:
+        column_lineage_dialect: snowflake
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - date_day
+              - exchange
+    columns:
+      - name: date_day
+        description: The specific calendar date.
+        config:
+          meta:
+            lineage:
+              - stg_prices.trade_date
+            sensitivity: PUBLIC
+      - name: exchange
+        description: The stock exchange identifier.
+        config:
+          meta:
+            lineage:
+              - stg_prices.exchange
+            sensitivity: PUBLIC
+      - name: is_trading_day
+        description: True if the date is a weekday and not present in the closed dates table for that exchange.
+        config:
+          meta:
+            lineage:
+              - stg_prices.trade_date
+              - stg_closed_dates.closed_date
+            sensitivity: PUBLIC

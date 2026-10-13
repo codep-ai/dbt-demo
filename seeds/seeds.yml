@@ -1,4 +1,4 @@
-version: 2to_date(date, 'MON DD, YYYY')
+version: 2
 
 seeds:
   - name: raw_events

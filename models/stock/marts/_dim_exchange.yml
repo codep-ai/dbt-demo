@@ -1,37 +1,41 @@
 version: 2
 models:
-- name: dim_exchange
-  description: 'Exchange dimension, grain: exchange_key.'
-  config:
-    tags:
-    - dimension
-    - stock_ai
-  columns:
-  - name: exchange_key
-    description: Surrogate key for the exchange, generated from the exchange name.
-    tests:
-    - unique
-    meta:
-      lineage:
-      - stg_exchange_ref.exchange
-      sensitivity: PUBLIC
-  - name: exchange
-    description: The name of the exchange.
-    meta:
-      lineage:
-      - stg_exchange_ref.exchange
-      sensitivity: PUBLIC
-  - name: currency_code
-    description: The currency code used by the exchange.
-    meta:
-      lineage:
-      - stg_exchange_ref.currency_code
-      sensitivity: PUBLIC
-  - name: country
-    description: The country where the exchange is located.
-    meta:
-      lineage:
-      - stg_exchange_ref.country
-      sensitivity: PUBLIC
-  meta:
-    column_lineage_dialect: snowflake
+  - name: dim_exchange
+    description: 'Exchange dimension, grain: exchange_key.'
+    config:
+      tags:
+        - dimension
+        - stock_ai
+      meta:
+        column_lineage_dialect: snowflake
+    columns:
+      - name: exchange_key
+        description: Surrogate key for the exchange, generated from the exchange name.
+        tests:
+          - unique
+        config:
+          meta:
+            lineage:
+              - stg_exchange_ref.exchange
+            sensitivity: PUBLIC
+      - name: exchange
+        description: The name of the exchange.
+        config:
+          meta:
+            lineage:
+              - stg_exchange_ref.exchange
+            sensitivity: PUBLIC
+      - name: currency_code
+        description: The currency code used by the exchange.
+        config:
+          meta:
+            lineage:
+              - stg_exchange_ref.currency_code
+            sensitivity: PUBLIC
+      - name: country
+        description: The country where the exchange is located.
+        config:
+          meta:
+            lineage:
+              - stg_exchange_ref.country
+            sensitivity: PUBLIC

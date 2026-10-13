@@ -3,16 +3,16 @@ packages:
     version: [">=1.0.0", "<2.0.0"]
     # https://hub.getdbt.com/fishtown-analytics/redshift/latest/
   - package: elementary-data/elementary
-    version: 0.7.5
+    version: [">=0.26.1", "<0.27.0"]   # was 0.7.5 (2026-10-13)
   - package: omnata-labs/dbt_ml_preprocessing
     version: [">=1.0.2"]
-  - package: calogica/dbt_expectations
-    version: 0.8.5
+  - package: metaplane/dbt_expectations
+    version: [">=0.10.10", "<0.11.0"]   # maintained fork; calogica stops at dbt <2.0 (2026-10-13)
     #version: 0.6.1
   - package: dbt-labs/dbt_external_tables
-    version: 0.8.2
+    version: [">=0.12.4", "<0.13.0"]   # was 0.8.2 (2026-10-13)
   - package: dbt-labs/audit_helper
-    version: 0.7.0
+    version: [">=0.14.0", "<0.15.0"]   # was 0.7.0 (2026-10-13)
   - package: dbt-labs/dbt_project_evaluator
     version: [">=1.0.0", "<2.0.0"]
   - package: Datavault-UK/automate_dv   # Data Vault 2.0 accelerator (hubs/links/satellites macros); v1 >=1.0 and v2-verified

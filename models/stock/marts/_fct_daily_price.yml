@@ -1,80 +1,92 @@
 version: 2
 models:
-- name: fct_daily_price
-  description: 'Daily price fact, grain: ticker, exchange, trade_date.'
-  config:
-    tags:
-    - fact
-    - stock_ai
-  tests:
-  - dbt_utils.equal_rowcount:
-      compare_model: ref('int_price_with_indicators')
-  - dbt_utils.unique_combination_of_columns:
-      combination_of_columns:
-      - ticker
-      - exchange
-      - trade_date
-  columns:
-  - name: daily_price_key
-    description: Primary key for the daily price fact table.
-    meta:
-      lineage:
-      - int_price_with_indicators.exchange
-      - int_price_with_indicators.ticker
-      - int_price_with_indicators.trade_date
-      sensitivity: PUBLIC
-  - name: ticker_key
-    description: Foreign key to dim_ticker.
+  - name: fct_daily_price
+    description: 'Daily price fact, grain: ticker, exchange, trade_date.'
+    config:
+      tags:
+        - fact
+        - stock_ai
+      meta:
+        column_lineage_dialect: snowflake
     tests:
-    - relationships:
-        to: ref('dim_ticker')
-        field: ticker_key
-    meta:
-      lineage:
-      - dim_ticker.ticker_key
-      sensitivity: PUBLIC
-  - name: exchange_key
-    description: Foreign key to dim_exchange.
-    meta:
-      lineage:
-      - dim_exchange.exchange_key
-      sensitivity: PUBLIC
-  - name: ticker
-    description: The ticker symbol.
-    meta:
-      lineage:
-      - int_price_with_indicators.ticker
-      sensitivity: PUBLIC
-  - name: exchange
-    description: The exchange code.
-    meta:
-      lineage:
-      - int_price_with_indicators.exchange
-      sensitivity: PUBLIC
-  - name: trade_date
-    description: The date of the trade.
-    meta:
-      lineage:
-      - int_price_with_indicators.trade_date
-      sensitivity: PUBLIC
-  - name: currency_code
-    description: Currency the exchange quotes in. `close` is in this currency; `close_usd` is always USD.
-  - name: close
-    description: The closing price (mapped from close_usd).
-    meta:
-      lineage:
-      - int_price_with_indicators.close_usd
-      sensitivity: PUBLIC
-  - name: close_usd
-    description: The closing price in USD.
-    meta:
-      lineage:
-      - int_price_with_indicators.close_usd
-      sensitivity: PUBLIC
-  - name: volume
-    description: Trading volume. Defaulted to 0 as it is missing from upstream indicators.
-    meta:
-      lineage: []
-      sensitivity: PUBLIC
-  meta:
-    column_lineage_dialect: snowflake
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('int_price_with_indicators')
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - ticker
+              - exchange
+              - trade_date
+    columns:
+      - name: daily_price_key
+        description: Primary key for the daily price fact table.
+        config:
+          meta:
+            lineage:
+              - int_price_with_indicators.exchange
+              - int_price_with_indicators.ticker
+              - int_price_with_indicators.trade_date
+            sensitivity: PUBLIC
+      - name: ticker_key
+        description: Foreign key to dim_ticker.
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_ticker')
+                field: ticker_key
+        config:
+          meta:
+            lineage:
+              - dim_ticker.ticker_key
+            sensitivity: PUBLIC
+      - name: exchange_key
+        description: Foreign key to dim_exchange.
+        config:
+          meta:
+            lineage:
+              - dim_exchange.exchange_key
+            sensitivity: PUBLIC
+      - name: ticker
+        description: The ticker symbol.
+        config:
+          meta:
+            lineage:
+              - int_price_with_indicators.ticker
+            sensitivity: PUBLIC
+      - name: exchange
+        description: The exchange code.
+        config:
+          meta:
+            lineage:
+              - int_price_with_indicators.exchange
+            sensitivity: PUBLIC
+      - name: trade_date
+        description: The date of the trade.
+        config:
+          meta:
+            lineage:
+              - int_price_with_indicators.trade_date
+            sensitivity: PUBLIC
+      - name: currency_code
+        description: Currency the exchange quotes in. `close` is in this currency; `close_usd` is always USD.
+      - name: close
+        description: The closing price (mapped from close_usd).
+        config:
+          meta:
+            lineage:
+              - int_price_with_indicators.close_usd
+            sensitivity: PUBLIC
+      - name: close_usd
+        description: The closing price in USD.
+        config:
+          meta:
+            lineage:
+              - int_price_with_indicators.close_usd
+            sensitivity: PUBLIC
+      - name: volume
+        description: Trading volume. Defaulted to 0 as it is missing from upstream indicators.
+        config:
+          meta:
+            lineage: []
+            sensitivity: PUBLIC

@@ -1,58 +1,66 @@
 version: 2
 models:
-- name: stg_ticker_universe
-  description: 'Ticker master, grain: yf_symbol, exchange.'
-  config:
-    tags:
-    - staging
-    - stock_ai
-  tests:
-  - dbt_utils.unique_combination_of_columns:
-      combination_of_columns:
-      - yf_symbol
-      - exchange
-  columns:
-  - name: yf_symbol
-    description: The Yahoo Finance symbol used as the primary identifier for joins.
-    meta:
-      lineage:
-      - source:ticker_universe.yf_symbol
-      sensitivity: PUBLIC
-  - name: ticker_local
-    description: The local ticker symbol as provided in the source.
-    meta:
-      lineage:
-      - source:ticker_universe.ticker
-      sensitivity: PUBLIC
-  - name: exchange
-    description: The exchange where the ticker is listed.
-    meta:
-      lineage:
-      - source:ticker_universe.exchange
-      sensitivity: PUBLIC
-  - name: company_name
-    description: The name of the company.
-    meta:
-      lineage:
-      - source:ticker_universe.company_name
-      sensitivity: PUBLIC
-  - name: sector
-    description: The industry sector of the company.
-    meta:
-      lineage:
-      - source:ticker_universe.sector
-      sensitivity: PUBLIC
-  - name: is_active
-    description: Flag indicating if the ticker is currently active.
-    meta:
-      lineage:
-      - source:ticker_universe.is_active
-      sensitivity: PUBLIC
-  - name: asset_type
-    description: The type of asset (e.g., equity, etf).
-    meta:
-      lineage:
-      - source:ticker_universe.asset_type
-      sensitivity: PUBLIC
-  meta:
-    column_lineage_dialect: snowflake
+  - name: stg_ticker_universe
+    description: 'Ticker master, grain: yf_symbol, exchange.'
+    config:
+      tags:
+        - staging
+        - stock_ai
+      meta:
+        column_lineage_dialect: snowflake
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - yf_symbol
+              - exchange
+    columns:
+      - name: yf_symbol
+        description: The Yahoo Finance symbol used as the primary identifier for joins.
+        config:
+          meta:
+            lineage:
+              - source:ticker_universe.yf_symbol
+            sensitivity: PUBLIC
+      - name: ticker_local
+        description: The local ticker symbol as provided in the source.
+        config:
+          meta:
+            lineage:
+              - source:ticker_universe.ticker
+            sensitivity: PUBLIC
+      - name: exchange
+        description: The exchange where the ticker is listed.
+        config:
+          meta:
+            lineage:
+              - source:ticker_universe.exchange
+            sensitivity: PUBLIC
+      - name: company_name
+        description: The name of the company.
+        config:
+          meta:
+            lineage:
+              - source:ticker_universe.company_name
+            sensitivity: PUBLIC
+      - name: sector
+        description: The industry sector of the company.
+        config:
+          meta:
+            lineage:
+              - source:ticker_universe.sector
+            sensitivity: PUBLIC
+      - name: is_active
+        description: Flag indicating if the ticker is currently active.
+        config:
+          meta:
+            lineage:
+              - source:ticker_universe.is_active
+            sensitivity: PUBLIC
+      - name: asset_type
+        description: The type of asset (e.g., equity, etf).
+        config:
+          meta:
+            lineage:
+              - source:ticker_universe.asset_type
+            sensitivity: PUBLIC

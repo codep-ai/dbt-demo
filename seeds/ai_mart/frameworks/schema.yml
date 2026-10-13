@@ -119,4 +119,5 @@ seeds:
         tests:
           - not_null
           - accepted_values:
-              values: ['shared', 'finance', 'healthcare', 'gov']
+              arguments:
+                values: ['shared', 'finance', 'healthcare', 'gov']

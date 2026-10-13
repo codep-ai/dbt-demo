@@ -1,4 +1,4 @@
-{% {% macro print_multi_tables() %}
+{% macro print_multi_tables() %}
 
     {% set tables = ['table_1', 'table_2', 'table_3', 'table_4', 'table_5'] %}
     {% set ns = namespace(query_results = [], final_result = '[') %}
