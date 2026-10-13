@@ -4,5 +4,6 @@
 # own `profile:`. Clear them for this process only; never edit .env.dev.
 set -a; source /home/ec2-user/.env.dev; set +a
 unset DBT_PROFILE DBT_TARGET DBT_PROJECT_PATH DBT_PROJECT_DIR
-export DBT_PROFILES_DIR=/home/ec2-user/.dbt AWS_DEFAULT_REGION=ap-southeast-2
+# Athena = dbt v1 only; the Athena profiles live in the v1-only dir (split 2026-10-13)
+export DBT_PROFILES_DIR=/home/ec2-user/.dbt/athena AWS_DEFAULT_REGION=ap-southeast-2
 cd /home/ec2-user/git/dbt-demo/xengine_stock && exec /home/ec2-user/venv_ai_etl/bin/dbt "$@"
